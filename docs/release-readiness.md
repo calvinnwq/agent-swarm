@@ -1,7 +1,7 @@
 # Swarm CLI — Release Readiness Report
 
-**Version:** 0.2.0 (released as `swarm-v0.2.0`)  
-**Date:** 2026-06-16  
+**Version:** 0.2.0 (released as `swarm-v0.2.0`)
+**Date:** 2026-06-16
 **Decision:** ✅ ALPHA BASELINE SHIPPED — every M9 (Release Readiness Gauntlet) and M10 (Orchestrator Resolution Runtime) gate is complete. The alpha is ready for dogfood; remaining work is productionization, tracked under M11–M15 (see [Productionization path](#productionization-path-m11m15)).
 
 > **History note:** An earlier revision of this report (v0.1.0, 2026-04-28) marked the real-harness gates (NGX-144–NGX-147, NGX-151) as ❌ BLOCKED because the autonomous environment had no harness credentials or installs. Those gates were subsequently completed once credentials/installs were available, and all M9/M10 Linear issues are now Done. That earlier "blocked" status is recorded here only as history — it is **not** current truth.

@@ -5,7 +5,7 @@ docs-only change — no runtime behavior was modified. It exists so the project'
 completed-alpha state and productionization intent are visible without reading
 chat history.
 
-**Baseline:** `swarm-v0.2.0` on `main` (package version `0.2.0`).  
+**Baseline:** `swarm-v0.2.0` on `main` (package version `0.2.0`).
 **Date:** 2026-06-16.
 
 ## What changed
