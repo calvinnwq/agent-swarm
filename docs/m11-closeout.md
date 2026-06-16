@@ -69,4 +69,3 @@ bump should ride real M12–M15 productionization work.
 > remain non-contract until that work lands.
 >
 > No release is needed for the M11 closeout itself — it's docs-only.
-</content>

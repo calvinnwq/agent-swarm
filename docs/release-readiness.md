@@ -207,5 +207,3 @@ The alpha runtime is feature-complete for dogfood. The next phase is productioni
 3. Land the corresponding M12–M15 work for the release scope.
 4. Let Release Please open/update the release PR from Conventional Commits on `main`, then merge it to tag and publish the GitHub Release.
 5. Update this report with the new version and re-verified gate evidence.
-</content>
-</invoke>
