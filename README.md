@@ -4,7 +4,7 @@ Run a panel of AI agents in parallel rounds, then synthesize their answers into 
 
 `swarm` is a TypeScript CLI that fans out 2–5 agents over 1–3 rounds, validates their structured JSON output, and produces a single synthesis you can review or check in.
 
-> **Alpha.** This README is the authoritative user-facing spec. Anything not documented here — and anything flagged _reserved_ — isn't part of the alpha contract.
+> **Alpha — v0.2 baseline.** The alpha runtime is feature-complete and ready for dogfooding. This README is the authoritative user-facing contract: anything not documented here — and anything flagged _reserved_ — isn't part of it. A dedicated spec/docs site is part of the productionization roadmap; until then, see [Status & roadmap](#status--roadmap).
 
 ## Install
 
@@ -391,6 +391,17 @@ Two rendering modes:
 
 - **Live** (default, TTY) — phase banner, per-agent status rows with elapsed timers, flicker-free cell-based diff rendering.
 - **Quiet** (`--quiet` or non-TTY) — structured one-line-per-event log output for CI.
+
+## Status & roadmap
+
+**Supported (the v0.2 alpha contract).** Everything documented above is shipped and verified: `swarm run` and `swarm doctor`, the bundled presets and agents, project config, carry-forward docs, per-agent harness/model pinning (Claude, Codex, OpenCode, Rovo) and mixed-harness swarms, `--resolve off` and `--resolve orchestrator`, durable run artifacts, and deterministic synthesis. This is feature-complete enough to dogfood on real decisions.
+
+**Reserved (accepted, but not part of the contract yet).** These are exposed so a future flag/rename isn't needed, but they don't add behavior today:
+
+- `--resolve agents` — accepted and persisted, but currently behaves like `off`.
+- The `rounds` key in `.swarm/config.yml` — reserved but not applied; pass `<rounds>` on the CLI.
+
+**Future (v0.3+ productionization candidates).** Not promised, not part of the alpha contract — tracked in the project roadmap (M11–M15): a user-facing `swarm resume` command (resume is implemented and tested internally but not yet a subcommand), agent-driven `--resolve agents`, a public docs/spec site so this README can stay concise, CI/release-operations hardening, and richer agent DX. Release-readiness status and the full milestone breakdown live in [docs/release-readiness.md](docs/release-readiness.md).
 
 ## Migration note
 
