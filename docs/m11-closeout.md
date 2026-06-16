@@ -27,16 +27,19 @@ chat history.
 
 ## What was verified
 
-Docs-only change; the smallest meaningful gates were run:
+Docs-only change. Because the README now makes explicit alpha status and
+contract-boundary claims, the full local verification set was run:
 
 - `pnpm format:check` — pass
 - `pnpm lint` — pass
 - `pnpm typecheck` — pass
+- `pnpm test` — pass (51 files / 1040 tests)
+- `pnpm smoke` — pass (1 e2e smoke file / 97 tests)
+- `git diff --check origin/main...HEAD` — pass
 
-`pnpm test` and `pnpm smoke` were not required: no `src/`/`test/` code changed and
-no README command examples or behavior claims were altered. (`prettier --check`
-targets `src test` only, so the Markdown edits are outside its scope; they were
-kept clean by hand.)
+`pnpm smoke:real` was not run: this branch does not change runtime dispatch,
+harness configuration, or packaged CLI behavior, and real-harness checks remain a
+manual release gate.
 
 ## Release decision
 
