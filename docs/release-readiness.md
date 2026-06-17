@@ -1,6 +1,6 @@
 # Agent Swarm CLI — Release Readiness Report
 
-**Version:** 0.2.0 (released before npm publication and retagged as `agent-swarm-v0.2.0` during the `agent-swarm` rename)
+**Version:** 0.2.0 (released before npm publication and retagged as `v0.2.0` during the `agent-swarm` rename)
 **Date:** 2026-06-16
 **Decision:** ✅ ALPHA BASELINE SHIPPED — every M9 (Release Readiness Gauntlet) and M10 (Orchestrator Resolution Runtime) gate is complete. The alpha is ready for dogfood; remaining work is productionization, tracked under M11–M15 (see [Productionization path](#productionization-path-m11m15)).
 
@@ -191,19 +191,17 @@ The following are accepted by the CLI but are **not** part of the v0.2 alpha con
 ## External checklist: `swarm` → `agent-swarm` rename (NGX-478)
 
 The NGX-478 branch renames the package, CLI, and storage paths in code and docs
-only. The following are **manual, out-of-band steps** that must happen after the
-PR merges — they are intentionally **not** automated by the branch (the GitHub
-repo is not renamed, nothing is published):
+only. The following were **manual, out-of-band steps** around the PR because
+they mutate GitHub repository/release state and npm publication state:
 
-- [x] **Retag the pre-npm GitHub releases to the renamed component before the
-      next Release Please run.** Completed 2026-06-17: the 0.1.0 and 0.2.0
-      GitHub releases now use `agent-swarm-v0.1.0` and `agent-swarm-v0.2.0`,
-      their release titles are `agent-swarm: v0.1.0` and
-      `agent-swarm: v0.2.0`, and the legacy pre-rename release tags were deleted
-      from origin.
-- [ ] **Verify the next Release Please PR** uses an `agent-swarm-vX.Y.Z` tag and
-      `agent-swarm: vX.Y.Z` release title.
-- [ ] **Rename the GitHub repo** `calvinnwq/swarm` → `calvinnwq/agent-swarm`.
+- [x] **Retag the pre-npm GitHub releases to the plain version format before the
+      next Release Please run.** Completed 2026-06-17: the 0.1.0, 0.2.0, and
+      0.3.0 GitHub releases now use `v0.1.0`, `v0.2.0`, and `v0.3.0`, their
+      release titles match those tags, and the legacy component-prefixed release
+      tags were deleted from origin.
+- [ ] **Verify the next Release Please PR** uses a `vX.Y.Z` tag and a `vX.Y.Z`
+      release title.
+- [x] **Rename the GitHub repo** `calvinnwq/swarm` → `calvinnwq/agent-swarm`.
       GitHub auto-redirects the old URL, but update the local remote and any
       external links/badges:
       ```bash
