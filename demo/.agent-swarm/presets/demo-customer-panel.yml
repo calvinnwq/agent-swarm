@@ -1,0 +1,10 @@
+name: demo-customer-panel
+description: Fast one-round role-playing customer panel for first-10-minute value.
+agents:
+  - new-user-codex
+  - busy-operator-codex
+  - skeptical-buyer-codex
+resolve: off
+goal: Find what would make Agent Swarm worth trying in the first 10 minutes.
+decision: Fix now / Defer
+

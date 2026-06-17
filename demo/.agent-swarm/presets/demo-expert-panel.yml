@@ -1,0 +1,10 @@
+name: demo-expert-panel
+description: Fast one-round expert panel for Agent Swarm next-improvement decisions.
+agents:
+  - pm-codex
+  - engineer-codex
+  - designer-claude
+resolve: off
+goal: Pick the next one-day improvement for Agent Swarm.
+decision: Build now / Defer / Reject
+
