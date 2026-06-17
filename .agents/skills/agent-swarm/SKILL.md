@@ -5,17 +5,17 @@ description: Run and inspect Agent Swarm CLI panels from the correct project dir
 
 # Agent Swarm
 
-Use this skill when the user asks to run, configure, smoke-test, or summarize an Agent Swarm run.
+Use this skill when the user asks to run, configure, smoke-test, or summarize an Agent Swarm run. Natural prompts are expected; translate the user's intent into the right CLI invocation instead of asking them for flags.
 
 ## Operating Rules
 
 - Run `agent-swarm` from the directory that owns the intended `.agent-swarm/` config.
 - Use `.agent-swarm/` for current config, agents, presets, and run artifacts. Treat `.swarm/` as legacy fallback only.
-- Prefer focused one-round runs for live demos, smoke tests, and quick decisions.
-- Use `--resolve off` when speed matters or when mixed harnesses/models are the thing being demonstrated.
-- Use `--quiet` for demo/CI readability.
-- Use a generous `--timeout-ms` for live demos. A longer timeout prevents failure; it does not slow the happy path.
-- Keep carry-forward docs minimal and explicit. Two docs is usually enough for a live run.
+- Prefer focused one-round runs for smoke tests, live runs, and quick decisions.
+- Use `--resolve off` when speed matters or when the preset already has the right panel shape.
+- Use `--quiet` for readable output.
+- Use a generous `--timeout-ms` for human-facing runs. A longer timeout prevents failure; it does not slow the happy path.
+- Keep carry-forward docs minimal and explicit. Two docs is usually enough when the prompt mentions source material.
 - After a run, inspect the newest `.agent-swarm/runs/*/synthesis.md` and summarize the recommendation, tradeoff, risks, and run path.
 
 ## Preflight
@@ -34,91 +34,57 @@ node ../dist/cli.mjs doctor
 
 Stop and report exact harness/model failures. Do not rewrite agent files unless the user asks.
 
-## Run Shape
+## Natural Prompt Workflow
 
-Use this baseline for fast, live-safe panel runs:
+When the user triggers this skill with a human prompt:
+
+1. Identify the intended project directory. Prefer the current directory if it owns `.agent-swarm/`; otherwise use the nearest repo/project named in the prompt.
+2. Identify the requested panel or preset. Map common wording to a local preset by name, description, and agents:
+   - expert panel -> product, engineering, and design review presets.
+   - adversarial review -> advocate/skeptic/implementer or stress-test presets.
+   - customer panel -> customer-role, first-run friction, or trial-blocker presets.
+3. Extract the quoted question as the CLI topic. If no quoted question exists, use the clearest question sentence from the prompt.
+4. Pass a concise `--goal` derived from the question, for example `Help answer: <question>`.
+5. Do not pass `--decision` unless the user explicitly asks to override the preset decision. If the prompt includes a decision matrix, treat it as context for summarizing and explaining, while letting the preset decision fallback remain in effect.
+6. Add `--doc` only for files explicitly named by the user or obviously required by the preset/task.
+7. Run one round by default unless the user asks for more.
+
+Baseline command shape:
 
 ```bash
-agent-swarm run 1 "<decision question>" \
+agent-swarm run 1 "<question>" \
   --preset <preset-name> \
+  --goal "Help answer: <question>" \
   --resolve off \
-  --doc <path> \
-  --doc <path> \
   --timeout-ms 600000 \
   --quiet
 ```
 
-For built CLI runs from `demo/`:
+Add `--doc <path>` for each prompt-named document.
+
+For this repo before installation/linking, use the built CLI from the appropriate project directory:
 
 ```bash
-node ../dist/cli.mjs run 1 "<decision question>" \
+node ../dist/cli.mjs run 1 "<question>" \
   --preset <preset-name> \
+  --goal "Help answer: <question>" \
   --resolve off \
-  --timeout-ms 600000 \
-  --quiet
-```
-
-## Demo Presets
-
-When running the checked-in meetup demo from `demo/`, use these presets:
-
-Expert Panel:
-
-```bash
-agent-swarm run 1 "What should be the next 1-day improvement in this repo?" \
-  --preset demo-expert-panel \
-  --resolve off \
-  --doc ../README.md \
-  --doc ../SPEC.md \
-  --timeout-ms 600000 \
-  --quiet
-```
-
-Adversarial Review:
-
-```bash
-agent-swarm run 1 "Should we implement this feature now, defer it, or reduce scope?" \
-  --preset demo-adversarial-review \
-  --resolve off \
-  --doc ../README.md \
-  --doc docs/feature-spec.md \
-  --timeout-ms 600000 \
-  --quiet
-```
-
-Customer Panel:
-
-```bash
-agent-swarm run 1 "What would make Agent Swarm worth trying for a technical user in the first 10 minutes?" \
-  --preset demo-customer-panel \
-  --resolve off \
-  --doc ../README.md \
-  --doc ../INSTALL.md \
   --timeout-ms 600000 \
   --quiet
 ```
 
 ## Harness/Model Smoke
 
-From `demo/`, two runs cover the checked-in mixed harness/model setup:
+For harness/model smoke, use the fastest local presets that cover the runtimes you need. Keep the prompt tiny and inspect `manifest.json` afterward.
 
 ```bash
-node ../dist/cli.mjs run 1 "Smoke test harness/model routing only. Return minimal valid JSON saying smoke-ok." \
-  --preset demo-expert-panel \
+agent-swarm run 1 "Smoke test harness/model routing only. Return minimal valid JSON saying smoke-ok." \
+  --preset <preset-name> \
+  --goal "Confirm harness/model routing works." \
   --resolve off \
   --timeout-ms 600000 \
   --quiet
 ```
-
-```bash
-node ../dist/cli.mjs run 1 "Smoke test harness/model routing only. Return minimal valid JSON saying smoke-ok." \
-  --preset demo-adversarial-review \
-  --resolve off \
-  --timeout-ms 600000 \
-  --quiet
-```
-
-Inspect resolved runtimes:
 
 ```bash
 latest=$(ls -td .agent-swarm/runs/* | head -1)
@@ -142,7 +108,7 @@ cat "$latest/synthesis.md"
 Report:
 
 - recommendation
-- main agreement or disagreement
-- practical next step
-- risks or caveats
+- tradeoff or disagreement
+- requested explanation format
+- risks or caveats when relevant
 - run directory path

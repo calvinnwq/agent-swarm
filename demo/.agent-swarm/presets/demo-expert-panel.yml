@@ -1,9 +1,8 @@
 name: demo-expert-panel
-description: Fast one-round expert panel for Agent Swarm next-improvement decisions.
+description: One-round product, engineering, and design panel for choosing the next highest-leverage improvement.
 agents:
   - product-manager
   - principal-engineer
   - product-designer
 resolve: off
-goal: Pick the next one-day improvement for Agent Swarm.
 decision: Build now / Defer / Reject
