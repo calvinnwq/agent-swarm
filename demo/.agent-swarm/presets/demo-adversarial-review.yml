@@ -1,10 +1,9 @@
 name: demo-adversarial-review
 description: Fast one-round adversarial review for a proposed Agent Swarm feature.
 agents:
-  - advocate-codex
-  - skeptic-codex
-  - implementer-opencode
+  - advocate
+  - skeptic
+  - implementer
 resolve: off
 goal: Decide whether to implement the proposed feature now, defer it, or reduce scope.
 decision: Build now / Reduce scope / Defer / Reject
-

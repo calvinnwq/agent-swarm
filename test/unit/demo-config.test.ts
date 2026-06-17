@@ -47,37 +47,33 @@ describe("demo config", () => {
       bundledDir: path.join(repoRoot, "src", "presets", "bundled"),
     });
 
-    expect(agents.getAgent("pm-codex")).toMatchObject({
+    expect(agents.getAgent("product-manager")).toMatchObject({
       harness: "codex",
       model: "gpt-5.5",
     });
-    expect(agents.getAgent("engineer-codex")).toMatchObject({
+    expect(agents.getAgent("principal-engineer")).toMatchObject({
       harness: "codex",
       model: "gpt-5.3-codex-spark",
     });
-    expect(agents.getAgent("designer-claude")).toMatchObject({
+    expect(agents.getAgent("product-designer")).toMatchObject({
       harness: "claude",
       model: "claude-opus-4-8",
     });
-    expect(agents.getAgent("implementer-opencode")).toMatchObject({
+    expect(agents.getAgent("implementer")).toMatchObject({
       harness: "opencode",
       model: "openai/gpt-5.5",
     });
 
     expect(presets.getPreset("demo-expert-panel")).toMatchObject({
-      agents: ["pm-codex", "engineer-codex", "designer-claude"],
+      agents: ["product-manager", "principal-engineer", "product-designer"],
       resolve: "off",
     });
     expect(presets.getPreset("demo-adversarial-review")).toMatchObject({
-      agents: ["advocate-codex", "skeptic-codex", "implementer-opencode"],
+      agents: ["advocate", "skeptic", "implementer"],
       resolve: "off",
     });
     expect(presets.getPreset("demo-customer-panel")).toMatchObject({
-      agents: [
-        "new-user-codex",
-        "busy-operator-codex",
-        "skeptical-buyer-codex",
-      ],
+      agents: ["new-user", "busy-operator", "skeptical-buyer"],
       resolve: "off",
     });
 
