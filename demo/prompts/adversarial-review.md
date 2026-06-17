@@ -1,4 +1,4 @@
-$agent-swarm-demo Run the Adversarial Review demo from this repo using `demo/docs/feature-spec.md`.
+$agent-swarm Run the Adversarial Review demo from this repo using `demo/docs/feature-spec.md`.
 
 Use the fastest live-safe path: one round, `resolve off`, quiet output, no orchestrator pass, minimal docs, and a 10 minute timeout.
 
@@ -8,4 +8,3 @@ After the run, open the newest `demo/.agent-swarm/runs/*/synthesis.md` and give 
 - the strongest skeptic point
 - the smallest safe implementation slice
 - the run directory path
-
