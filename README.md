@@ -425,4 +425,4 @@ It also remains contract-compatible with the Python swarm prototype: agent defin
 
 ## Contributing & development
 
-Working on `agent-swarm` itself? See [CONTRIBUTING.md](CONTRIBUTING.md) for the dev loop, the real-harness smoke gate, the release process, and an architecture map. Release history lives in [CHANGELOG.md](CHANGELOG.md).
+Working on `agent-swarm` itself? See [CONTRIBUTING.md](CONTRIBUTING.md) for the dev loop, the real-harness smoke gate, the release process, and an architecture map. Release/publish operations live in [docs/release-operations.md](docs/release-operations.md), and release history lives in [CHANGELOG.md](CHANGELOG.md).

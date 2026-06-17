@@ -50,6 +50,12 @@ Release Please is configured with `package-name: @calvinnwq/agent-swarm`,
 format (`vX.Y.Z`). The pre-npm GitHub releases were retagged to this format as
 part of NGX-478; do not recreate legacy component-prefixed release tags.
 
+The npm package is scoped as `@calvinnwq/agent-swarm`, but the executable bin is
+still `agent-swarm`. Do not publish npm packages, change package access, create
+or delete tags, edit GitHub releases, or configure trusted publishing without
+explicit approval. The operator runbook is
+`docs/release-operations.md`; follow it before any release/publish action.
+
 ## Architecture
 
 ### Pipeline (src/lib/run-swarm.ts)
