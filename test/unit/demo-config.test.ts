@@ -23,6 +23,17 @@ async function tempHomeDir(): Promise<string> {
 }
 
 describe("demo config", () => {
+  it("ships a repo-discoverable generic Agent Swarm skill", async () => {
+    const skill = await readFile(
+      path.join(repoRoot, ".agents", "skills", "agent-swarm", "SKILL.md"),
+      "utf-8",
+    );
+
+    expect(skill).toContain("name: agent-swarm");
+    expect(skill).toContain("Run and inspect Agent Swarm CLI panels");
+    expect(skill).toContain("demo-expert-panel");
+  });
+
   it("loads the contained demo agents and presets from demo/.agent-swarm", async () => {
     const homeDir = await tempHomeDir();
     const agents = await loadAgentRegistry({
@@ -81,7 +92,7 @@ describe("demo config", () => {
     }
   });
 
-  it("keeps the copy-paste prompts wired to the demo skill", async () => {
+  it("keeps the copy-paste prompts wired to the repo Agent Swarm skill", async () => {
     for (const promptName of [
       "expert-panel.md",
       "adversarial-review.md",
@@ -91,7 +102,7 @@ describe("demo config", () => {
         path.join(demoDir, "prompts", promptName),
         "utf-8",
       );
-      expect(prompt).toContain("$agent-swarm-demo");
+      expect(prompt).toContain("$agent-swarm");
       expect(prompt).toContain("one round");
       expect(prompt).toContain("10 minute timeout");
     }
