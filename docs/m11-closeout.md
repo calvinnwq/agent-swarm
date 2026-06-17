@@ -5,8 +5,8 @@ docs-only change — no runtime behavior was modified. It exists so the project'
 completed-alpha state and productionization intent are visible without reading
 chat history.
 
-**Baseline:** `agent-swarm-v0.2.0` on `main` (package version `0.2.0`; retagged
-from the pre-npm `swarm` release name during NGX-478).
+**Baseline:** `v0.2.0` on `main` (package version `0.2.0`; retagged from the
+pre-npm component-prefixed release name during NGX-478).
 **Date:** 2026-06-16.
 
 ## What changed
@@ -53,7 +53,7 @@ bump should ride real M12–M15 productionization work.
 
 > **Alpha closed out; productionization roadmap is live.**
 >
-> The Swarm alpha is feature-complete and shipped as `agent-swarm-v0.2.0`. Every gate
+> The Swarm alpha is feature-complete and shipped as `v0.2.0`. Every gate
 > in the Release Readiness Gauntlet (M9) and Orchestrator Resolution Runtime
 > (M10) is Done — including the real Codex/Claude/OpenCode/mixed-harness runs and
 > the clean-clone quickstart that were previously blocked on credentials. The CLI

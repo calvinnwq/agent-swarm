@@ -53,7 +53,7 @@ The `.no-mistakes.yaml` workflow runs `pnpm test` for tests and `pnpm lint && pn
 
 GitHub releases are managed by Release Please. After release-driving Conventional Commits land on `main`, the `release-please` workflow opens or updates a Release Please PR with the next version and a `CHANGELOG.md` entry. Merging that PR updates `package.json`, writes the changelog, creates the git tag, and creates the GitHub Release.
 
-Tags use the package component (`agent-swarm-vX.Y.Z`) — the package is configured with `include-component-in-tag: true`, `include-v-in-tag: true`, and `include-v-in-release-name: true`. The pre-npm GitHub releases were retagged from the old component name to `agent-swarm`; do not recreate legacy pre-rename release tags.
+Tags and release titles use plain version format (`vX.Y.Z`) — the package is configured with `include-component-in-tag: false`, `include-v-in-tag: true`, and `include-v-in-release-name: true`. The pre-npm GitHub releases were retagged to this format; do not recreate legacy component-prefixed release tags.
 
 Use:
 
