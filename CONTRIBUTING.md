@@ -37,7 +37,7 @@ pnpm format:check    # prettier --check src test
 
 Run a single test file: `vitest run test/unit/path/to/file.test.ts` (add `--config vitest.e2e.config.ts` for e2e). Filter by name: `vitest run -t "pattern"`.
 
-The `.no-mistakes.yaml` workflow runs `pnpm test` for tests and `pnpm lint && pnpm typecheck && pnpm format:check` for lint — keep all three green together when changing `src/`.
+The `.no-mistakes.yaml` workflow runs `pnpm install --frozen-lockfile && pnpm test` for tests and `pnpm install --frozen-lockfile && pnpm lint && pnpm typecheck && pnpm format:check` for lint — keep all three green together when changing `src/`.
 
 GitHub CI (`.github/workflows/ci.yml`) gates pull requests, pushes to `main`, and manual dispatches with deterministic checks only: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, `pnpm smoke`, and a packaged install smoke that runs the installed `agent-swarm --version` and `agent-swarm --help` from a packed tarball. CI does not require live harness credentials.
 

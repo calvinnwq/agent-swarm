@@ -27,7 +27,7 @@ pnpm format:check    # prettier --check src test
 
 Run a single test file: `vitest run test/unit/path/to/file.test.ts` (or `--config vitest.e2e.config.ts` for e2e). Filter by name: `vitest run -t "pattern"`.
 
-The `.no-mistakes.yaml` workflow runs `pnpm test` for tests and `pnpm lint && pnpm typecheck && pnpm format:check` for lint — keep all three green together when changing src.
+The `.no-mistakes.yaml` workflow runs `pnpm install --frozen-lockfile && pnpm test` for tests and `pnpm install --frozen-lockfile && pnpm lint && pnpm typecheck && pnpm format:check` for lint — keep all three green together when changing src.
 
 After build, `pnpm link --global` exposes the `agent-swarm` bin. The bin is `dist/cli.mjs`; bundled agent/preset YAML files must be copied into `dist/agents/bundled/` and `dist/presets/bundled/` (the `build` script does this — don't edit `dist/` by hand).
 
