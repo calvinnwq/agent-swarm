@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Usage docs
+    url: https://github.com/calvinnwq/agent-swarm#readme
+    about: Read install, quickstart, presets, artifacts, and alpha contract docs.
+  - name: npm package
+    url: https://www.npmjs.com/package/@calvinnwq/agent-swarm
+    about: Check the published package and current version.

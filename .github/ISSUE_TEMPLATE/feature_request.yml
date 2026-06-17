@@ -1,0 +1,60 @@
+name: Feature request
+description: Suggest an Agent Swarm improvement
+title: "feat: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Keep feature requests scoped. Agent Swarm's README is the current alpha contract; reserved behavior is intentionally deferred until it is specified.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What concrete run, decision, or agent workflow is painful today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Describe the smallest useful change.
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Primary surface
+      options:
+        - CLI flags or command shape
+        - agents or presets
+        - harness dispatch
+        - between-round resolution
+        - artifacts, resume, or storage
+        - docs or examples
+        - release or package operations
+        - not sure
+    validations:
+      required: true
+  - type: textarea
+    id: alpha_contract
+    attributes:
+      label: Alpha contract impact
+      description: What README/SPEC behavior changes, and what should stay reserved or deferred?
+    validations:
+      required: true
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: Boundary check
+      options:
+        - label: This preserves `.agent-swarm/` as the write path and legacy `.swarm/` fallback unless explicitly scoped.
+        - label: This preserves durable run artifacts and resume semantics unless explicitly scoped.
+        - label: This keeps harness-specific behavior inside harness adapters unless explicitly scoped.
+        - label: This identifies docs, tests, and verification needed for the change.
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives or non-goals
+      description: What should Agent Swarm not do yet?
