@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Deterministic verification gates
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check formatting
+        run: pnpm format:check
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Unit tests
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      - name: Smoke test
+        run: pnpm smoke
+
+      - name: Pack npm tarball
+        run: |
+          pack_dir="$RUNNER_TEMP/agent-swarm-pack"
+          mkdir -p "$pack_dir"
+          pnpm pack --pack-destination "$pack_dir"
+          tarball="$(find "$pack_dir" -maxdepth 1 -name '*.tgz' -print -quit)"
+          if [ -z "$tarball" ]; then
+            echo "pnpm pack did not produce a tarball" >&2
+            exit 1
+          fi
+          echo "PACKED_TARBALL=$tarball" >> "$GITHUB_ENV"
+
+      - name: Packaged install smoke
+        run: |
+          install_dir="$RUNNER_TEMP/agent-swarm-install"
+          mkdir -p "$install_dir"
+          npm install --prefix "$install_dir" --cache "$install_dir/.npm-cache" "$PACKED_TARBALL"
+          "$install_dir/node_modules/.bin/agent-swarm" --version
+          "$install_dir/node_modules/.bin/agent-swarm" --help

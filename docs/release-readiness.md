@@ -48,7 +48,7 @@ The repeatable gates that gate every change on `main`. Local runs at the 0.2.0 a
 | Lint                | `pnpm lint`        | `eslint src`                                                           |
 | Smoke (golden path) | `pnpm smoke`       | builds, then `test/e2e/smoke.test.ts` — `agent-swarm doctor` + `product-decision` end to end with a stubbed backend |
 
-The `.no-mistakes.yaml` workflow runs `pnpm test` (tests) and `pnpm lint && pnpm typecheck && pnpm format:check` (lint) — keep all three green together when changing `src/`. CI and the e2e suite use **stubbed** harnesses for speed and determinism.
+The `.no-mistakes.yaml` workflow runs `pnpm test` (tests) and `pnpm lint && pnpm typecheck && pnpm format:check` (lint) — keep all three green together when changing `src/`. GitHub CI (`.github/workflows/ci.yml`) now runs the deterministic gate set on pull requests, pushes to `main`, and manual dispatches, including a packaged install smoke from a `pnpm pack` tarball. CI and the e2e suite use **stubbed** harnesses for speed and determinism and do not require live harness credentials.
 
 Real harness binaries are exercised by the **manual** `pnpm smoke:real` gate (not part of CI). It runs the built CLI against live `claude`/`codex`/`opencode` CLIs and emits a normalized JSON summary with offline artifact validation. See [CONTRIBUTING.md](../CONTRIBUTING.md#real-harness-smoke-gate-pnpm-smokereal) for usage and output shape.
 
