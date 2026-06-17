@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2](https://github.com/calvinnwq/agent-swarm/compare/v0.3.1...v0.3.2) (2026-06-17)
+
+
+### Bug Fixes
+
+* **package:** publish under scoped npm package ([#33](https://github.com/calvinnwq/agent-swarm/issues/33)) ([21f5382](https://github.com/calvinnwq/agent-swarm/commit/21f53826a04f8054cb4cd9b29792d33a152190f1))
+
 ## [0.3.1](https://github.com/calvinnwq/agent-swarm/compare/v0.3.0...v0.3.1) (2026-06-17)
 
 
