@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.0](https://github.com/calvinnwq/swarm/compare/agent-swarm-v0.2.0...agent-swarm-v0.3.0) (2026-06-17)
+
+
+### Features
+
+* rename identity to agent-swarm with legacy .swarm fallback ([b3990b5](https://github.com/calvinnwq/swarm/commit/b3990b5e4a61cc7020bd982e6eaca288730266fb))
+
+
+### Bug Fixes
+
+* **package:** add npm metadata for agent-swarm ([64764c6](https://github.com/calvinnwq/swarm/commit/64764c63fc464f6cb9057f8a316f452242798dac))
+
 ## [0.2.0](https://github.com/calvinnwq/swarm/compare/agent-swarm-v0.1.0...agent-swarm-v0.2.0) (2026-04-28)
 
 
