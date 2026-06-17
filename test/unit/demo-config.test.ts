@@ -61,7 +61,7 @@ describe("demo config", () => {
     });
     expect(agents.getAgent("implementer-opencode")).toMatchObject({
       harness: "opencode",
-      model: "gpt-5.5",
+      model: "openai/gpt-5.5",
     });
 
     expect(presets.getPreset("demo-expert-panel")).toMatchObject({

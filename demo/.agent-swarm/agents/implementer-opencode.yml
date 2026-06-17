@@ -10,5 +10,4 @@ prompt: |
   Return only valid JSON with these fields:
   agent, round, stance, recommendation, reasoning, objections, risks, changesFromPriorRound, confidence, openQuestions
 harness: opencode
-model: gpt-5.5
-
+model: openai/gpt-5.5
