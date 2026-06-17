@@ -1,0 +1,89 @@
+name: Bug report
+description: Report Agent Swarm behavior that looks wrong
+title: "bug: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Include enough detail to reproduce the run without exposing private prompts, secrets, or local-only files.
+  - type: input
+    id: version
+    attributes:
+      label: Agent Swarm version
+      description: Run `agent-swarm --version` or include the commit SHA.
+      placeholder: "0.3.2"
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: Install method
+      options:
+        - npm global package
+        - local source install
+        - pnpm link
+        - other
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command
+      description: Paste the command, redacting private paths or prompts if needed.
+      render: bash
+    validations:
+      required: true
+  - type: dropdown
+    id: harness
+    attributes:
+      label: Harness or preset
+      description: Pick the closest match.
+      options:
+        - product-decision / Claude
+        - product-decision-codex / Codex
+        - product-decision-opencode / OpenCode
+        - mixed harness
+        - custom agents or presets
+        - doctor only
+        - not sure
+    validations:
+      required: true
+  - type: input
+    id: config_path
+    attributes:
+      label: Config/storage path involved
+      description: Use `.agent-swarm/...` or legacy `.swarm/...` if relevant.
+      placeholder: ".agent-swarm/config.yml"
+  - type: input
+    id: artifacts
+    attributes:
+      label: Run artifact path
+      description: Include the run directory if one was created.
+      placeholder: ".agent-swarm/runs/..."
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include stderr, doctor output, or relevant artifact snippets.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction notes
+      description: Mention whether it reproduces with bundled presets, stubbed tests, or a clean config.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Quick checks
+      options:
+        - label: I ran `agent-swarm doctor` or explained why I could not.
+        - label: I redacted secrets, API keys, private prompts, and private local paths.
