@@ -140,7 +140,7 @@ Result:  5 new tests passed:
 
 **Issue:** [NGX-152](https://linear.app/ngxcalvin/issue/NGX-152)
 
-`pnpm pack` produces a tarball containing `dist/cli.mjs`, the bundled agents, and the bundled presets. Installed outside the repo (via `npm install <tarball>`), `agent-swarm --version` returns the package version and `agent-swarm doctor` exits 0 discovering bundled assets from the installed path. (This gate was first verified at v0.2.0 when the package was named `swarm`; the package is now `agent-swarm`, so the tarball and bin names changed accordingly.)
+`pnpm pack` produces a tarball containing `dist/cli.mjs`, the bundled agents, and the bundled presets. Installed outside the repo (via `npm install <tarball>`), `agent-swarm --version` returns the package version and `agent-swarm doctor` exits 0 discovering bundled assets from the installed path. (This gate was first verified at v0.2.0 when the package was named `swarm`; the npm package is now `@calvinnwq/agent-swarm`, while the bin remains `agent-swarm`.)
 
 ```
 Command: pnpm build && pnpm pack
@@ -208,9 +208,10 @@ they mutate GitHub repository/release state and npm publication state:
       git remote set-url origin git@github.com:calvinnwq/agent-swarm.git
       ```
 - [ ] **npm publish is gated and requires explicit approval.** Publishing is not
-      part of the release workflow. Before any first publish under the new name,
-      confirm the `agent-swarm` name is available (or owned) on npm and that a
-      release owner has signed off. Do not publish as part of this change.
+      part of the release workflow. The unscoped `agent-swarm` package is blocked
+      by npm's package-name similarity guard against the existing `agentswarm`
+      package, so first publication should use `@calvinnwq/agent-swarm`. Keep
+      the executable bin as `agent-swarm`.
 - [ ] **Announce the rename + legacy fallback window** to any dogfood users: the
       command is now `agent-swarm`, data lives under `.agent-swarm/`, and legacy
       `.swarm/` paths are read as a fallback for one release.

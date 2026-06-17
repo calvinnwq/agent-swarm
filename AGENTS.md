@@ -44,7 +44,7 @@ Please PR. Merging that PR updates `package.json`, writes `CHANGELOG.md`,
 creates a git tag, and creates the GitHub Release. npm publishing is not part of
 the current release workflow.
 
-Release Please is configured with `package-name: agent-swarm`,
+Release Please is configured with `package-name: @calvinnwq/agent-swarm`,
 `include-component-in-tag: false`, `include-v-in-tag: true`, and
 `include-v-in-release-name: true`, so tags and release titles use plain version
 format (`vX.Y.Z`). The pre-npm GitHub releases were retagged to this format as
