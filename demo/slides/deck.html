@@ -1,0 +1,954 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Agent Swarm — Decision Panels on the CLI</title>
+    <style>
+      :root {
+        --bg: #0b1117;
+        --bg-soft: #11181f;
+        --panel: #161e27;
+        --line: #243140;
+        --ink: #e8eef4;
+        --dim: #8a99a8;
+        --faint: #5d6b78;
+        --accent: #5ad6a0;
+        --accent-2: #6ab8ff;
+        --warn: #f0b860;
+        --danger: #f08a7a;
+        --mono:
+          "SFMono-Regular", ui-monospace, "JetBrains Mono", Menlo, Consolas,
+          monospace;
+        --sans:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--ink);
+        font-family: var(--sans);
+        overflow: hidden;
+      }
+
+      .deck {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+      }
+
+      /* ---- top status bar ---- */
+      .bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 52px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 0 clamp(28px, 4vw, 64px);
+        border-bottom: 1px solid var(--line);
+        background: rgb(11 17 23 / 0.92);
+        z-index: 30;
+        font-family: var(--mono);
+        font-size: 13px;
+        color: var(--dim);
+      }
+
+      .bar .dot {
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        background: var(--line);
+      }
+
+      .bar .dot.r {
+        background: var(--danger);
+      }
+      .bar .dot.y {
+        background: var(--warn);
+      }
+      .bar .dot.g {
+        background: var(--accent);
+      }
+
+      .bar .prompt {
+        color: var(--ink);
+      }
+      .bar .prompt b {
+        color: var(--accent);
+        font-weight: 600;
+      }
+
+      .bar .spacer {
+        flex: 1;
+      }
+
+      .progress {
+        display: flex;
+        gap: 7px;
+        align-items: center;
+      }
+
+      .progress i {
+        width: 26px;
+        height: 4px;
+        border-radius: 2px;
+        background: var(--line);
+        transition: background 0.18s ease;
+      }
+
+      .progress i.done {
+        background: var(--faint);
+      }
+      .progress i.now {
+        background: var(--accent);
+      }
+
+      /* ---- slides ---- */
+      .slide {
+        position: absolute;
+        inset: 52px 0 0 0;
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        padding: clamp(28px, 4.4vw, 72px) clamp(36px, 6vw, 104px)
+          clamp(60px, 7vh, 92px);
+      }
+
+      .slide.active {
+        display: flex;
+      }
+
+      .kick {
+        font-family: var(--mono);
+        font-size: 24px;
+        letter-spacing: 0.04em;
+        color: var(--accent);
+        margin-bottom: 18px;
+      }
+
+      .kick .num {
+        color: var(--faint);
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: clamp(56px, 8.5vw, 132px);
+        line-height: 0.92;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+      }
+
+      h1 .swarm {
+        color: var(--accent);
+      }
+
+      h2 {
+        font-size: clamp(34px, 4.6vw, 72px);
+        line-height: 1;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        max-width: 22ch;
+      }
+
+      .lede {
+        margin-top: 24px;
+        max-width: 56ch;
+        font-size: clamp(19px, 2vw, 28px);
+        line-height: 1.35;
+        color: var(--dim);
+        font-weight: 400;
+      }
+
+      .lede b {
+        color: var(--ink);
+        font-weight: 600;
+      }
+
+      .meta-row {
+        margin-top: 36px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .pill {
+        font-family: var(--mono);
+        font-size: 14px;
+        color: var(--dim);
+        border: 1px solid var(--line);
+        background: var(--bg-soft);
+        padding: 8px 14px;
+        border-radius: 6px;
+      }
+
+      .pill b {
+        color: var(--accent);
+        font-weight: 600;
+      }
+
+      /* command line */
+      .cmd {
+        margin-top: 32px;
+        font-family: var(--mono);
+        font-size: clamp(14px, 1.45vw, 20px);
+        line-height: 1.6;
+        color: var(--ink);
+        background: var(--bg-soft);
+        border: 1px solid var(--line);
+        border-left: 3px solid var(--accent);
+        border-radius: 8px;
+        padding: 20px 24px;
+        max-width: max-content;
+      }
+
+      .cmd .sigil {
+        color: var(--accent);
+        user-select: none;
+      }
+      .cmd .flag {
+        color: var(--accent-2);
+      }
+      .cmd .arg {
+        color: var(--warn);
+      }
+
+      /* three-step flow */
+      .steps {
+        margin-top: 40px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+        max-width: 1100px;
+      }
+
+      .step {
+        border: 1px solid var(--line);
+        background: var(--panel);
+        border-radius: 10px;
+        padding: 24px;
+      }
+
+      .step .n {
+        font-family: var(--mono);
+        font-size: 14px;
+        color: var(--accent);
+      }
+
+      .step h3 {
+        margin-top: 10px;
+        font-size: clamp(20px, 2vw, 28px);
+        font-weight: 700;
+      }
+
+      .step p {
+        margin-top: 10px;
+        color: var(--dim);
+        font-size: clamp(15px, 1.4vw, 18px);
+        line-height: 1.4;
+      }
+
+      /* pattern list */
+      .patterns {
+        margin-top: 38px;
+        display: grid;
+        gap: 12px;
+        max-width: 1180px;
+      }
+
+      .pat {
+        display: grid;
+        grid-template-columns: 150px 1fr auto;
+        align-items: center;
+        gap: 24px;
+        border: 1px solid var(--line);
+        background: var(--panel);
+        border-radius: 10px;
+        padding: 18px 24px;
+      }
+
+      .pat .name {
+        font-size: clamp(20px, 1.9vw, 27px);
+        font-weight: 700;
+      }
+
+      .pat .desc {
+        color: var(--dim);
+        font-size: clamp(15px, 1.45vw, 19px);
+        line-height: 1.35;
+      }
+
+      .pat.demo {
+        border-color: rgb(90 214 160 / 0.45);
+        background: linear-gradient(
+          90deg,
+          rgb(90 214 160 / 0.07),
+          var(--panel) 60%
+        );
+      }
+
+      .badge {
+        font-family: var(--mono);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        padding: 6px 12px;
+        border-radius: 999px;
+        white-space: nowrap;
+      }
+
+      .badge.live {
+        color: var(--bg);
+        background: var(--accent);
+      }
+
+      .badge.lib {
+        color: var(--dim);
+        border: 1px solid var(--line);
+      }
+
+      /* demo slide: roles + brief */
+      .demo {
+        margin-top: 34px;
+        display: grid;
+        grid-template-columns: 1.45fr 1fr;
+        gap: 28px;
+        align-items: stretch;
+      }
+
+      .roles {
+        display: grid;
+        gap: 14px;
+        align-content: start;
+      }
+
+      .role {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 16px;
+        align-items: baseline;
+        border: 1px solid var(--line);
+        background: var(--panel);
+        border-radius: 10px;
+        padding: 18px 20px;
+        border-left: 4px solid var(--rolecolor, var(--accent));
+      }
+
+      .role .rn {
+        font-family: var(--mono);
+        font-size: clamp(17px, 1.6vw, 22px);
+        font-weight: 600;
+        color: var(--ink);
+      }
+
+      .role .rd {
+        color: var(--dim);
+        font-size: clamp(14px, 1.35vw, 18px);
+        line-height: 1.35;
+      }
+
+      .brief {
+        border: 1px solid var(--line);
+        background: var(--bg-soft);
+        border-radius: 10px;
+        padding: 26px;
+        display: grid;
+        align-content: start;
+        gap: 22px;
+      }
+
+      .brief .lbl {
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 10px;
+      }
+
+      .brief .goal {
+        font-size: clamp(19px, 1.9vw, 26px);
+        line-height: 1.2;
+        font-weight: 600;
+      }
+
+      .choices {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .choices span {
+        font-family: var(--mono);
+        font-size: 14px;
+        color: var(--ink);
+        border: 1px solid var(--line);
+        background: var(--panel);
+        border-radius: 6px;
+        padding: 8px 12px;
+      }
+
+      /* closeout */
+      .values {
+        margin-top: 36px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+        max-width: 1140px;
+      }
+
+      .value {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 18px;
+        align-items: start;
+        border: 1px solid var(--line);
+        background: var(--panel);
+        border-radius: 10px;
+        padding: 20px 22px;
+      }
+
+      .value .vn {
+        font-family: var(--mono);
+        font-size: clamp(22px, 2.2vw, 32px);
+        font-weight: 700;
+        color: var(--accent);
+        line-height: 1;
+      }
+
+      .value h3 {
+        font-size: clamp(18px, 1.7vw, 24px);
+        font-weight: 700;
+      }
+
+      .value p {
+        margin-top: 8px;
+        color: var(--dim);
+        font-size: clamp(14px, 1.35vw, 18px);
+        line-height: 1.38;
+      }
+
+      .takeaway {
+        margin-top: 30px;
+        font-size: clamp(18px, 1.8vw, 25px);
+        line-height: 1.4;
+        max-width: 70ch;
+        color: var(--ink);
+        font-weight: 500;
+        border-left: 3px solid var(--accent);
+        padding-left: 22px;
+      }
+
+      .takeaway b {
+        color: var(--accent);
+      }
+
+      /* footer */
+      .foot {
+        position: absolute;
+        left: clamp(36px, 6vw, 104px);
+        right: clamp(36px, 6vw, 104px);
+        bottom: clamp(22px, 3vh, 34px);
+        display: flex;
+        justify-content: space-between;
+        font-family: var(--mono);
+        font-size: 13px;
+        color: var(--faint);
+      }
+
+      /* controls */
+      .nav {
+        position: fixed;
+        right: clamp(20px, 3vw, 36px);
+        bottom: clamp(18px, 3vh, 30px);
+        display: flex;
+        gap: 10px;
+        z-index: 40;
+      }
+
+      .nav button {
+        width: 46px;
+        height: 46px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: var(--panel);
+        color: var(--ink);
+        font-size: 20px;
+        cursor: pointer;
+        font-family: var(--mono);
+        transition:
+          border-color 0.15s ease,
+          color 0.15s ease;
+      }
+
+      .nav button:hover,
+      .nav button:focus-visible {
+        border-color: var(--accent);
+        color: var(--accent);
+        outline: none;
+      }
+
+      .counter {
+        position: fixed;
+        left: clamp(20px, 3vw, 36px);
+        bottom: clamp(22px, 3vh, 34px);
+        z-index: 40;
+        font-family: var(--mono);
+        font-size: 13px;
+        color: var(--faint);
+      }
+
+      .counter b {
+        color: var(--accent);
+      }
+
+      /* responsive */
+      @media (max-width: 940px) {
+        body {
+          overflow: auto;
+        }
+        .deck {
+          height: auto;
+        }
+        .slide {
+          position: relative;
+          inset: auto;
+          min-height: calc(100vh - 52px);
+        }
+        .slide:not(.active) {
+          display: none;
+        }
+        .steps,
+        .demo,
+        .values,
+        .pat {
+          grid-template-columns: 1fr;
+        }
+        .pat {
+          gap: 12px;
+        }
+        .foot {
+          position: static;
+          margin-top: 28px;
+        }
+      }
+
+      /* print: one slide per page, light background */
+      @media print {
+        body {
+          overflow: visible;
+          background: #fff;
+          color: #10171d;
+        }
+        .bar,
+        .nav,
+        .counter {
+          display: none;
+        }
+        .deck {
+          height: auto;
+        }
+        .slide {
+          position: relative;
+          inset: auto;
+          display: flex !important;
+          min-height: 100vh;
+          page-break-after: always;
+          border-bottom: 1px solid #ccc;
+        }
+        .step,
+        .pat,
+        .role,
+        .brief,
+        .value,
+        .cmd,
+        .pill {
+          background: #f5f7f8;
+          border-color: #d4dade;
+        }
+        h1 .swarm,
+        .kick,
+        .value .vn,
+        .takeaway b,
+        .counter b {
+          color: #15875c;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bar" role="banner">
+      <span class="dot r"></span>
+      <span class="dot y"></span>
+      <span class="dot g"></span>
+      <span class="prompt"><b>~/agent-swarm</b> $ agent-swarm run 1 …</span>
+      <span class="spacer"></span>
+      <span class="progress" id="progress" aria-hidden="true"></span>
+    </div>
+
+    <main class="deck" aria-live="polite">
+      <!-- 1. Intro -->
+      <section class="slide active">
+        <div class="kick"><span class="num">01</span> · whoami</div>
+        <h1>I build tools for my <span class="swarm">agents</span>.</h1>
+        <p class="lede">
+          I'm <b>Calvin</b>. I build tools that make my agents better at
+          building the things I actually want. Agent Swarm came out of a simple
+          frustration: I kept asking one model a fuzzy question when what I
+          really wanted was <b>a few useful opinions and a decision.</b>
+        </p>
+        <div class="foot">
+          <span>agent-swarm · meetup demo</span>
+          <span>github.com/calvinnwq/agent-swarm</span>
+        </div>
+      </section>
+
+      <!-- 2. Origin / spiel -->
+      <section class="slide">
+        <div class="kick"><span class="num">02</span> · why it exists</div>
+        <h2>Subagents made the pattern click.</h2>
+        <p class="lede">
+          Watching Claude plan work, hand pieces to focused subagents, and pull
+          the answers back together made something obvious: a lot of the magic
+          is in <b>who you put in the room.</b> Agent Swarm turns that into a
+          small CLI workflow I can inspect, rerun, and tweak.
+        </p>
+        <div class="cmd">
+          <span class="sigil">$</span> agent-swarm run
+          <span class="arg">1</span>
+          <span class="arg">"&lt;decision&gt;"</span>
+          <span class="flag">--preset</span> &lt;panel&gt;
+          <span class="flag">--doc</span> &lt;context&gt;
+          <span class="flag">--resolve</span> off
+          <span class="flag">--quiet</span>
+        </div>
+        <div class="foot">
+          <span>less prompt whispering</span>
+          <span>more explicit workflow</span>
+        </div>
+      </section>
+
+      <!-- 3. Patterns -->
+      <section class="slide">
+        <div class="kick"><span class="num">03</span> · the shapes</div>
+        <h2>Five panels I keep reaching for.</h2>
+        <div class="patterns">
+          <div class="pat demo">
+            <span class="name">Expert Panel</span>
+            <span class="desc"
+              >Product, engineering, and design sanity-check the next
+              move.</span
+            >
+            <span class="badge live">Live today</span>
+          </div>
+          <div class="pat demo">
+            <span class="name">Adversarial Review</span>
+            <span class="desc"
+              >One agent sells the idea, one pokes holes, one finds the safe
+              slice.</span
+            >
+            <span class="badge live">Live today</span>
+          </div>
+          <div class="pat demo">
+            <span class="name">Customer Panel</span>
+            <span class="desc"
+              >Fake users, real friction. Useful for first-run clarity.</span
+            >
+            <span class="badge live">Live today</span>
+          </div>
+          <div class="pat">
+            <span class="name">Audit Lanes</span>
+            <span class="desc"
+              >Docs, DX, release, and safety checks without one giant
+              reviewer.</span
+            >
+            <span class="badge lib">In the kit</span>
+          </div>
+          <div class="pat">
+            <span class="name">Build Triage</span>
+            <span class="desc"
+              >Turns scope, risk, and tests into a brief someone can actually
+              build.</span
+            >
+            <span class="badge lib">In the kit</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. Expert Panel -->
+      <section class="slide">
+        <div class="kick">
+          <span class="num">04</span> · demo one — expert panel
+        </div>
+        <h2>What should we build next?</h2>
+        <div class="demo">
+          <div class="roles">
+            <div class="role" style="--rolecolor: #5ad6a0">
+              <span class="rn">product&#8209;manager</span>
+              <span class="rd"
+                >Keeps asking whether the work will matter to a user.</span
+              >
+            </div>
+            <div class="role" style="--rolecolor: #6ab8ff">
+              <span class="rn">principal&#8209;engineer</span>
+              <span class="rd"
+                >Keeps the idea inside the repo's actual constraints.</span
+              >
+            </div>
+            <div class="role" style="--rolecolor: #f0b860">
+              <span class="rn">product&#8209;designer</span>
+              <span class="rd"
+                >Notices where people get confused before they get value.</span
+              >
+            </div>
+          </div>
+          <div class="brief">
+            <div>
+              <div class="lbl">Goal</div>
+              <div class="goal">
+                Pick the next one-day improvement for Agent Swarm.
+              </div>
+            </div>
+            <div>
+              <div class="lbl">Each agent must choose</div>
+              <div class="choices">
+                <span>Build now</span>
+                <span>Defer</span>
+                <span>Reject</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. Adversarial Review -->
+      <section class="slide">
+        <div class="kick">
+          <span class="num">05</span> · demo two — adversarial review
+        </div>
+        <h2>Should this feature survive contact with reality?</h2>
+        <div class="demo">
+          <div class="roles">
+            <div class="role" style="--rolecolor: #5ad6a0">
+              <span class="rn">advocate</span>
+              <span class="rd"
+                >Makes the strongest honest case for building it now.</span
+              >
+            </div>
+            <div class="role" style="--rolecolor: #f08a7a">
+              <span class="rn">skeptic</span>
+              <span class="rd"
+                >Calls out the bit that sounds neat but smells expensive.</span
+              >
+            </div>
+            <div class="role" style="--rolecolor: #6ab8ff">
+              <span class="rn">implementer</span>
+              <span class="rd"
+                >Cuts it down to the smallest thing worth shipping.</span
+              >
+            </div>
+          </div>
+          <div class="brief">
+            <div>
+              <div class="lbl">Goal</div>
+              <div class="goal">
+                Decide whether to implement the proposed feature now, defer it,
+                or reduce scope.
+              </div>
+            </div>
+            <div>
+              <div class="lbl">Each agent must choose</div>
+              <div class="choices">
+                <span>Build now</span>
+                <span>Reduce scope</span>
+                <span>Defer</span>
+                <span>Reject</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. Customer Panel -->
+      <section class="slide">
+        <div class="kick">
+          <span class="num">06</span> · demo three — customer panel
+        </div>
+        <h2>Would a real user keep going?</h2>
+        <div class="demo">
+          <div class="roles">
+            <div class="role" style="--rolecolor: #5ad6a0">
+              <span class="rn">new&#8209;user</span>
+              <span class="rd"
+                >Tries to understand the repo without already knowing the
+                story.</span
+              >
+            </div>
+            <div class="role" style="--rolecolor: #6ab8ff">
+              <span class="rn">busy&#8209;operator</span>
+              <span class="rd"
+                >Wants the payoff quickly, because they have other things to
+                do.</span
+              >
+            </div>
+            <div class="role" style="--rolecolor: #f0b860">
+              <span class="rn">skeptical&#8209;buyer</span>
+              <span class="rd">Asks why this deserves attention now.</span>
+            </div>
+          </div>
+          <div class="brief">
+            <div>
+              <div class="lbl">Goal</div>
+              <div class="goal">
+                Find what would make Agent Swarm worth trying in the first 10
+                minutes.
+              </div>
+            </div>
+            <div>
+              <div class="lbl">Each agent must choose</div>
+              <div class="choices">
+                <span>Fix now</span>
+                <span>Defer</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. Closeout -->
+      <section class="slide">
+        <div class="kick"><span class="num">07</span> · the takeaway</div>
+        <h2>The win is a decision I can reuse.</h2>
+        <div class="values">
+          <div class="value">
+            <span class="vn">01</span>
+            <div>
+              <h3>A repeatable room</h3>
+              <p>The same panel can look at the next question tomorrow.</p>
+            </div>
+          </div>
+          <div class="value">
+            <span class="vn">02</span>
+            <div>
+              <h3>Named opinions</h3>
+              <p>Each voice has a job, a file, and a point of view.</p>
+            </div>
+          </div>
+          <div class="value">
+            <span class="vn">03</span>
+            <div>
+              <h3>Evidence on disk</h3>
+              <p>
+                I can read the agent outputs, manifest, events, and synthesis.
+              </p>
+            </div>
+          </div>
+          <div class="value">
+            <span class="vn">04</span>
+            <div>
+              <h3>Swap the engine</h3>
+              <p>Codex, Claude, OpenCode, whatever. The role stays the role.</p>
+            </div>
+          </div>
+        </div>
+        <p class="takeaway">
+          The useful bit is the shape: a real question, a few opinionated roles,
+          and a synthesis that can become a next step, a brief, or a PR.
+        </p>
+        <div class="foot">
+          <span>github.com/calvinnwq/agent-swarm</span>
+          <span>leave with: which panel would you reuse?</span>
+        </div>
+      </section>
+    </main>
+
+    <div class="counter" aria-live="polite">
+      <b id="cur">01</b> / <span id="total">07</span>
+    </div>
+    <nav class="nav" aria-label="Slide navigation">
+      <button type="button" id="prev" aria-label="Previous slide">‹</button>
+      <button type="button" id="next" aria-label="Next slide">›</button>
+    </nav>
+
+    <script>
+      const slides = Array.from(document.querySelectorAll(".slide"));
+      const progress = document.getElementById("progress");
+      const cur = document.getElementById("cur");
+      const total = document.getElementById("total");
+      let index = 0;
+
+      // build progress ticks
+      slides.forEach(() => {
+        const tick = document.createElement("i");
+        progress.appendChild(tick);
+      });
+      const ticks = Array.from(progress.children);
+      total.textContent = String(slides.length).padStart(2, "0");
+
+      function render() {
+        slides.forEach((s, i) => s.classList.toggle("active", i === index));
+        ticks.forEach((t, i) => {
+          t.className = i === index ? "now" : i < index ? "done" : "";
+        });
+        cur.textContent = String(index + 1).padStart(2, "0");
+        history.replaceState(null, "", "#" + (index + 1));
+      }
+
+      function go(to) {
+        index = (to + slides.length) % slides.length;
+        render();
+      }
+
+      document
+        .getElementById("prev")
+        .addEventListener("click", () => go(index - 1));
+      document
+        .getElementById("next")
+        .addEventListener("click", () => go(index + 1));
+
+      document.addEventListener("keydown", (e) => {
+        if (["ArrowRight", "PageDown", " ", "Enter"].includes(e.key)) {
+          e.preventDefault();
+          go(index + 1);
+        } else if (["ArrowLeft", "PageUp", "Backspace"].includes(e.key)) {
+          e.preventDefault();
+          go(index - 1);
+        } else if (e.key === "Home") {
+          go(0);
+        } else if (e.key === "End") {
+          go(slides.length - 1);
+        }
+      });
+
+      const fromHash = Number.parseInt(location.hash.replace("#", ""), 10);
+      if (
+        Number.isFinite(fromHash) &&
+        fromHash >= 1 &&
+        fromHash <= slides.length
+      ) {
+        index = fromHash - 1;
+      }
+      render();
+    </script>
+  </body>
+</html>
