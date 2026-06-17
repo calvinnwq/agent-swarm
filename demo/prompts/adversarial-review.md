@@ -1,10 +1,13 @@
-$agent-swarm Run the Adversarial Review demo from this repo using `demo/docs/feature-spec.md`.
+$agent-swarm Run the adversarial review against `demo/docs/feature-spec.md` to help answer the question "Should we implement this feature now, defer it, or reduce scope?"
 
-Use the fastest live-safe path: one round, `resolve off`, quiet output, no orchestrator pass, minimal docs, and a 10 minute timeout.
+Use this decision matrix:
+- Build now: clear demo value, bounded implementation, acceptable failure risk.
+- Reduce scope: strong idea, but the safe path is a smaller slice.
+- Defer: useful, but not needed for this demo or not ready to implement.
+- Reject: weak value, wrong timing, or too much complexity.
 
-After the run, open the newest `demo/.agent-swarm/runs/*/synthesis.md` and give me:
+After the run, review the synthesis and give me:
 - whether the swarm says build now, reduce scope, defer, or reject
 - the strongest advocate point
 - the strongest skeptic point
 - the smallest safe implementation slice
-- the run directory path

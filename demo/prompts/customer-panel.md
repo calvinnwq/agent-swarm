@@ -1,9 +1,10 @@
-$agent-swarm Run the Role-Playing Customer Panel demo from this repo.
+$agent-swarm Run the customer panel to help answer the question "What would make Agent Swarm worth trying for a technical user in the first 10 minutes?"
 
-Use the fastest live-safe path: one round, `resolve off`, quiet output, no orchestrator pass, minimal docs, and a 10 minute timeout.
+Use this decision matrix:
+- Fix now: a first-run blocker or clarity gap that directly affects trial success.
+- Defer: useful polish, but not critical to a user's first 10 minutes.
 
-After the run, open the newest `demo/.agent-swarm/runs/*/synthesis.md` and give me:
+After the run, review the synthesis and give me:
 - the clearest first-10-minute blocker
 - what would make Agent Swarm worth trying faster
 - the best 60-second product explanation angle
-- the run directory path

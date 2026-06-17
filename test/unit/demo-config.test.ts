@@ -31,7 +31,17 @@ describe("demo config", () => {
 
     expect(skill).toContain("name: agent-swarm");
     expect(skill).toContain("Run and inspect Agent Swarm CLI panels");
-    expect(skill).toContain("demo-expert-panel");
+    expect(skill).toContain("Natural prompts are expected");
+    expect(skill).toContain("Natural Prompt Workflow");
+    expect(skill).toContain(
+      "expert panel -> product, engineering, and design review presets",
+    );
+    expect(skill).toContain("Do not pass `--decision`");
+    expect(skill).not.toContain("Demo Presets");
+    expect(skill).not.toContain("demo-expert-panel");
+    expect(skill).not.toContain("demo-adversarial-review");
+    expect(skill).not.toContain("demo-customer-panel");
+    expect(skill).not.toContain("meetup demo");
   });
 
   it("loads the contained demo agents and presets from demo/.agent-swarm", async () => {
@@ -65,17 +75,29 @@ describe("demo config", () => {
     });
 
     expect(presets.getPreset("demo-expert-panel")).toMatchObject({
+      description:
+        "One-round product, engineering, and design panel for choosing the next highest-leverage improvement.",
       agents: ["product-manager", "principal-engineer", "product-designer"],
       resolve: "off",
+      decision: "Build now / Defer / Reject",
     });
+    expect(presets.getPreset("demo-expert-panel").goal).toBeUndefined();
     expect(presets.getPreset("demo-adversarial-review")).toMatchObject({
+      description:
+        "One-round advocate, skeptic, and implementer review for stress-testing a proposed feature.",
       agents: ["advocate", "skeptic", "implementer"],
       resolve: "off",
+      decision: "Build now / Reduce scope / Defer / Reject",
     });
+    expect(presets.getPreset("demo-adversarial-review").goal).toBeUndefined();
     expect(presets.getPreset("demo-customer-panel")).toMatchObject({
+      description:
+        "One-round customer-role panel for finding first-run friction and trial-conversion blockers.",
       agents: ["new-user", "busy-operator", "skeptical-buyer"],
       resolve: "off",
+      decision: "Fix now / Defer",
     });
+    expect(presets.getPreset("demo-customer-panel").goal).toBeUndefined();
 
     for (const preset of [
       "demo-expert-panel",
@@ -99,8 +121,16 @@ describe("demo config", () => {
         "utf-8",
       );
       expect(prompt).toContain("$agent-swarm");
-      expect(prompt).toContain("one round");
-      expect(prompt).toContain("10 minute timeout");
+      expect(prompt).toContain("Use this decision matrix:");
+      expect(prompt).toContain("After the run, review the synthesis");
+      expect(prompt).not.toContain("node ../dist/cli.mjs");
+      expect(prompt).not.toContain("```bash");
+      expect(prompt).not.toContain("--goal");
+      expect(prompt).not.toContain("--decision");
+      expect(prompt).not.toContain("--resolve");
+      expect(prompt).not.toContain("--timeout-ms");
+      expect(prompt).not.toContain("synthesis.md");
+      expect(prompt).not.toContain("run directory path");
     }
   });
 });
