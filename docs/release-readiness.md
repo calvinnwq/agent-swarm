@@ -226,7 +226,7 @@ The alpha runtime is feature-complete for dogfood. The next phase is productioni
 | --------- | ------------------------------------------- | -------------------------------------------------------------------------------------------- |
 | **M11**   | Alpha Closeout and Status Reconciliation    | Refresh stale readiness/status docs and establish the productionization baseline (this work). |
 | **M12**   | Public Repo Shell and Release Operations    | CI, issue/PR templates, community files, and release-operation docs to a public-repo standard. |
-| **M13**   | Docs Site, Spec, and Install Guide          | A public docs/spec/install layer so the README can stay concise and authoritative.            |
+| **M13**   | Docs Site, Spec, and Install Guide          | A public docs/spec/install layer so the README can stay concise and authoritative. In progress: [SPEC.md](../SPEC.md), [ARCHITECTURE.md](../ARCHITECTURE.md), and [INSTALL.md](../INSTALL.md). |
 | **M14**   | Agent DX and Dogfood Recipes                | Make Agent Swarm reliable for agents to operate and dogfood on real decisions.                  |
 | **M15**   | Runtime Boundary Refactor                   | After contracts are documented, split the runtime into clearer, behavior-preserving boundaries. |
 

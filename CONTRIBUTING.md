@@ -2,7 +2,7 @@
 
 Thanks for hacking on Agent Swarm! This guide covers the dev loop, the release flow, the manual real-harness smoke gate, and a map of the source tree.
 
-For end-user docs (install, presets, agents, artifacts), see [README.md](README.md). The README is the authoritative user-facing spec — when alpha behavior is ambiguous, README contracts win.
+For end-user docs (install, presets, agents, artifacts), see [README.md](README.md). The README is the authoritative user-facing spec — when alpha behavior is ambiguous, README contracts win. The durable contract is captured in [SPEC.md](SPEC.md), step-by-step setup in [INSTALL.md](INSTALL.md), and the full runtime map in [ARCHITECTURE.md](ARCHITECTURE.md) (the architecture section below is the condensed version).
 
 ## Prerequisites
 
