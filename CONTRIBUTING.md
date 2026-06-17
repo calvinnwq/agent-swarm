@@ -219,4 +219,4 @@ All cross-boundary contracts are Zod schemas (no hand-rolled types). Important o
 
 ### Validation constraints
 
-`parse-command.ts` enforces: rounds 1–3, agents 2–5, lowercase agent name with `-`/`_` only, resolve mode `off | orchestrator | agents` (with synonyms). Errors throw `SwarmCommandError` and surface to the user with exit code `2`.
+`parse-command.ts` enforces: rounds 1–3, agents 2–5, resolve mode `off | orchestrator | agents` (with synonyms). Agent and preset schemas require names to start with lowercase letters/numbers and then use lowercase letters/numbers/`-`/`_`. Errors throw `SwarmCommandError` and surface to the user with exit code `2`.

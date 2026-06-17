@@ -68,16 +68,18 @@ two operational commands — `run` and `doctor` — plus Commander's built-in
 | `--timeout-ms`   | integer ms (default `120000`)        | Per-agent and orchestrator dispatch timeout.                      |
 | `--quiet`        | flag                                 | Force quiet output; default auto-selects by TTY.                  |
 
-Constraints (enforced in `parse-command.ts`, errors thrown as
+CLI constraints (enforced in `parse-command.ts`, errors thrown as
 `SwarmCommandError`, exit code `2`):
 
 - `rounds` must be 1–3.
 - The resolved agent set must be 2–5 entries.
-- Agent names are lowercase with `-`/`_` only.
 - `--resolve` accepts the canonical modes plus synonyms:
   - `off` ← `off`, `none`, `no`, `false`, `0`
   - `orchestrator` ← `on`, `yes`, `true`, `1`, `orchestrator`
   - `agents` ← `agent`, `agents`
+
+Agent and preset definition schemas require names to start with a lowercase
+letter or number and then use lowercase letters, numbers, `-`, or `_`.
 
 Carry-forward docs (`--doc`, repeatable) are deduplicated by normalized path and
 must be readable files. The first **4,000 characters** of each doc are packed

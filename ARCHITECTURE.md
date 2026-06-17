@@ -44,9 +44,9 @@ ui/ (live-renderer | quiet-logger)    terminal rendering
 `cli.ts` is the Commander entry point and is intentionally **thin**: its job is
 to parse arguments, layer configuration, build a `SwarmRunConfig`, and hand off
 to `runSwarm`. `parse-command.ts` owns argument validation (rounds 1–3, agents
-2–5, agent name shape, resolve-mode synonyms) and throws `SwarmCommandError`,
-which surfaces with exit code `2`. Run dispatch returns an exit code; `doctor`
-exits `0`/`1`/`2`.
+2–5, resolve-mode synonyms) and throws `SwarmCommandError`, which surfaces with
+exit code `2`. Agent and preset schemas own definition-name validation. Run
+dispatch returns an exit code; `doctor` exits `0`/`1`/`2`.
 
 ### Config loading (`src/lib/load-project-config.ts`, `src/lib/config.ts`, `src/schemas/swarm-config.ts`)
 
