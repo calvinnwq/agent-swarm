@@ -2,7 +2,24 @@
   "name": "agent-swarm",
   "version": "0.2.0",
   "description": "Standalone TypeScript agent-swarm CLI — fan out agents, collect structured output, synthesize",
+  "license": "MIT",
   "type": "module",
+  "homepage": "https://github.com/calvinnwq/agent-swarm#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/calvinnwq/agent-swarm.git"
+  },
+  "bugs": {
+    "url": "https://github.com/calvinnwq/agent-swarm/issues"
+  },
+  "keywords": [
+    "agents",
+    "agent-swarm",
+    "ai",
+    "cli",
+    "llm",
+    "multi-agent"
+  ],
   "bin": {
     "agent-swarm": "dist/cli.mjs"
   },
