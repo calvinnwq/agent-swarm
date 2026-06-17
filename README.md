@@ -1,8 +1,8 @@
-# swarm
+# Agent Swarm
 
 Run a panel of AI agents in parallel rounds, then synthesize their answers into a deterministic report.
 
-`swarm` is a TypeScript CLI that fans out 2–5 agents over 1–3 rounds, validates their structured JSON output, and produces a single synthesis you can review or check in.
+`agent-swarm` is a TypeScript CLI that fans out 2–5 agents over 1–3 rounds, validates their structured JSON output, and produces a single synthesis you can review or check in.
 
 > **Alpha — v0.2 baseline.** The alpha runtime is feature-complete and ready for dogfooding. This README is the authoritative user-facing contract: anything not documented here — and anything flagged _reserved_ — isn't part of it. A dedicated spec/docs site is part of the productionization roadmap; until then, see [Status & roadmap](#status--roadmap).
 
@@ -20,10 +20,12 @@ pnpm build
 pnpm link --global
 ```
 
+This exposes the `agent-swarm` command on your `PATH`.
+
 <details>
 <summary>First-time <code>pnpm link --global</code> setup</summary>
 
-You'll need pnpm's global bin directory configured once. Run `pnpm setup`, then open a new shell (or `source ~/.zshrc` / `source ~/.bashrc`) before re-running `pnpm link --global`. This is a one-time pnpm setup, not a swarm-specific step — see the [pnpm docs](https://pnpm.io/cli/setup).
+You'll need pnpm's global bin directory configured once. Run `pnpm setup`, then open a new shell (or `source ~/.zshrc` / `source ~/.bashrc`) before re-running `pnpm link --global`. This is a one-time pnpm setup, not an `agent-swarm`-specific step — see the [pnpm docs](https://pnpm.io/cli/setup).
 
 If you'd rather skip global pnpm config, `npm link` works fine — it uses npm's prefix (typically already on PATH via nvm/Homebrew) against the pnpm-installed dep tree.
 
@@ -35,33 +37,33 @@ The supported alpha flow uses the bundled `product-decision` preset, which pairs
 
 ```bash
 # 1. Verify your setup
-swarm doctor
+agent-swarm doctor
 
 # 2. Run a one-round swarm
-swarm run 1 "Should we adopt server components?" \
+agent-swarm run 1 "Should we adopt server components?" \
   --preset product-decision \
   --goal "Decide on migration strategy" \
   --decision "Adopt / Defer / Reject" \
   --timeout-ms 300000
 ```
 
-When it finishes, you'll find a self-contained run directory under `.swarm/runs/<timestamp>-<slug>/` with a deterministic `synthesis.md`. Real harnesses can take longer than the default 120s timeout — bump `--timeout-ms` for deeper runs. Use `--quiet` for one-line-per-event output (useful in CI).
+When it finishes, you'll find a self-contained run directory under `.agent-swarm/runs/<timestamp>-<slug>/` with a deterministic `synthesis.md`. Real harnesses can take longer than the default 120s timeout — bump `--timeout-ms` for deeper runs. Use `--quiet` for one-line-per-event output (useful in CI).
 
 ## How it works
 
-Each `swarm run` follows the same lifecycle:
+Each `agent-swarm run` follows the same lifecycle:
 
 1. **Plan** — flags, project config, and preset are merged. Each selected agent picks a runtime harness.
 2. **Round** — agents run in parallel (concurrency 3 by default) and return JSON validated against the agent output schema.
-3. **Between rounds** — depending on `--resolve`, swarm builds the next directive deterministically or runs an LLM orchestrator pass.
-4. **Synthesize** — once the last round finishes, swarm produces a deterministic synthesis (no LLM call): consensus, top recommendation, shared risks, deferred questions, average confidence.
+3. **Between rounds** — depending on `--resolve`, the swarm builds the next directive deterministically or runs an LLM orchestrator pass.
+4. **Synthesize** — once the last round finishes, the swarm produces a deterministic synthesis (no LLM call): consensus, top recommendation, shared risks, deferred questions, average confidence.
 
 Everything is durable: events, messages, and a checkpoint are written incrementally so a failed run can be inspected (and, with future tooling, resumed).
 
 ## Commands
 
 ```
-Usage: swarm [options] [command]
+Usage: agent-swarm [options] [command]
 
 Commands:
   run [options] <rounds> <topic...>  Run a swarm
@@ -69,10 +71,10 @@ Commands:
   help [command]                     Display help for a command
 ```
 
-### `swarm run`
+### `agent-swarm run`
 
 ```
-Usage: swarm run [options] <rounds> <topic...>
+Usage: agent-swarm run [options] <rounds> <topic...>
 
 Arguments:
   rounds             number of rounds (1–3)
@@ -112,36 +114,36 @@ If an orchestrator dispatch fails (timeout, malformed JSON after the single repa
 
 ```bash
 # Two-round run with orchestrator-driven resolution
-swarm run 2 "Should we adopt server components?" \
+agent-swarm run 2 "Should we adopt server components?" \
   --preset product-decision \
   --resolve orchestrator \
   --timeout-ms 300000
 ```
 
-### `swarm doctor`
+### `agent-swarm doctor`
 
-`swarm doctor` validates your setup before a run. It checks:
+`agent-swarm doctor` validates your setup before a run. It checks:
 
-- `.swarm/config.yml` parses cleanly.
+- `.agent-swarm/config.yml` parses cleanly.
 - Configured carry-forward docs exist and are readable. Truncated docs are flagged.
 - The agent and preset registries load.
 - Any agents or preset referenced in the project config actually resolve.
 - The configured backend is supported and matches config agents that don't pin `harness`.
 - When a project config is loaded, configured agents' resolved harness CLIs are runnable. Claude, Codex, and OpenCode probes verify auth; Codex also verifies `codex exec` support; Rovo verifies `acli rovodev`.
 
-Without `.swarm/config.yml`, doctor skips harness capability checks. Exit codes:
+Without a project config, doctor skips harness capability checks. When config is read from the legacy `.swarm/config.yml` path, doctor reports it explicitly and points you to `.agent-swarm/config.yml`. Exit codes:
 
 - `0` — everything is ready.
 - `1` — at least one check failed (with actionable per-check messages).
 - `2` — internal command error.
 
 ```bash
-swarm doctor
+agent-swarm doctor
 ```
 
 ## Presets
 
-Swarm ships with four bundled presets:
+Agent Swarm ships with four bundled presets:
 
 | Preset                      | Agents                                                      | Resolve        | Best for                                                                         |
 | --------------------------- | ----------------------------------------------------------- | -------------- | -------------------------------------------------------------------------------- |
@@ -153,7 +155,7 @@ Swarm ships with four bundled presets:
 Invoke by name — no `--agents` required:
 
 ```bash
-swarm run 1 "Should we adopt server components?" \
+agent-swarm run 1 "Should we adopt server components?" \
   --preset product-decision \
   --timeout-ms 300000
 ```
@@ -170,12 +172,12 @@ The Codex and OpenCode presets pin agents to their respective harnesses. When `-
 
 ```bash
 # Codex
-swarm run 1 "Should we adopt server components?" \
+agent-swarm run 1 "Should we adopt server components?" \
   --preset product-decision-codex \
   --timeout-ms 300000
 
 # OpenCode
-swarm run 1 "Should we adopt server components?" \
+agent-swarm run 1 "Should we adopt server components?" \
   --preset product-decision-opencode \
   --timeout-ms 300000
 ```
@@ -184,13 +186,15 @@ swarm run 1 "Should we adopt server components?" \
 
 Presets resolve from three roots, first match wins:
 
-| Source        | Path                     | Scope          |
-| ------------- | ------------------------ | -------------- |
-| Project-local | `.swarm/presets/*.yml`   | This repo      |
-| User-global   | `~/.swarm/presets/*.yml` | Your machine   |
-| Bundled       | _(ships with swarm)_     | Always present |
+| Source        | Path                           | Scope          |
+| ------------- | ------------------------------ | -------------- |
+| Project-local | `.agent-swarm/presets/*.yml`   | This repo      |
+| User-global   | `~/.agent-swarm/presets/*.yml` | Your machine   |
+| Bundled       | _(ships with agent-swarm)_     | Always present |
 
 A project-local preset with the same `name` as a bundled preset fully replaces it for that project. A user-global preset overrides bundled machine-wide but yields to project-local. Duplicate `name` values within a single root are an error.
+
+> **Legacy paths.** The previous `.swarm/presets/` (and `~/.swarm/presets/`) locations are still read as a fallback for one release. When both exist, the `.agent-swarm/` path wins. Move your presets to `.agent-swarm/presets/` when convenient.
 
 A preset is a YAML object with required `name` and `agents`, plus optional `description`, `resolve`, `goal`, and `decision`:
 
@@ -207,7 +211,7 @@ decision: Adopt / Defer / Reject
 
 Preset names use lowercase letters, numbers, `-`, or `_`; `agents` lists 2–5 agent names.
 
-## Project config (`.swarm/config.yml`)
+## Project config (`.agent-swarm/config.yml`)
 
 Optional. Set defaults so teammates don't have to remember the flags.
 
@@ -224,7 +228,9 @@ docs:
   - docs/architecture.md
 ```
 
-**Precedence: CLI flags > config values > preset defaults.** Everything is optional — when there's no config file, CLI flags fully describe the run. Validation errors (unknown keys, wrong types) are reported by `swarm doctor` and at run start.
+**Precedence: CLI flags > config values > preset defaults.** Everything is optional — when there's no config file, CLI flags fully describe the run. Validation errors (unknown keys, wrong types) are reported by `agent-swarm doctor` and at run start.
+
+A legacy `.swarm/config.yml` is still read when `.agent-swarm/config.yml` is absent (the `.agent-swarm/` path wins if both exist); `agent-swarm doctor` flags the legacy path so you can migrate.
 
 Configured `docs` use the same carry-forward behavior as repeated `--doc` flags: paths are normalized, readable files are required, and each doc contributes at most 4,000 characters. `timeoutMs` accepts a positive integer and matches `--timeout-ms`.
 
@@ -234,13 +240,15 @@ Supported keys: `preset`, `agents` (2–5 names), `backend`, `resolve`, `timeout
 
 Agent definitions are YAML or Markdown files resolved from three roots (first wins):
 
-| Path                                             | Scope                             |
-| ------------------------------------------------ | --------------------------------- |
-| `.swarm/agents/*.yml` / `.swarm/agents/*.md`     | Project-local                     |
-| `~/.swarm/agents/*.yml` / `~/.swarm/agents/*.md` | User-global                       |
-| _(bundled)_                                      | Ships with swarm; see table below |
+| Path                                                         | Scope                                   |
+| ------------------------------------------------------------ | --------------------------------------- |
+| `.agent-swarm/agents/*.yml` / `.agent-swarm/agents/*.md`     | Project-local                           |
+| `~/.agent-swarm/agents/*.yml` / `~/.agent-swarm/agents/*.md` | User-global                             |
+| _(bundled)_                                                  | Ships with agent-swarm; see table below |
 
 A project-local agent with the same `name` as a bundled agent fully replaces it. A user-global agent overrides bundled machine-wide but yields to project-local. Duplicate `name` values within the same root are an error.
+
+> **Legacy paths.** The previous `.swarm/agents/` (and `~/.swarm/agents/`) locations are still read as a fallback for one release, after their `.agent-swarm/` equivalents. When the same agent name exists in both, the `.agent-swarm/` definition wins.
 
 ### Bundled agents
 
@@ -301,7 +309,7 @@ Each agent can pin its runtime harness and model independent of the run-level `-
 This unlocks **mixed-harness swarms**: route one agent through Claude and another through Codex, OpenCode, or Rovo Dev in the same run, as long as each harness's CLI is installed and probes successfully. Claude, Codex, and OpenCode must be authenticated; Rovo requires `acli` with the `rovodev` plugin to be runnable.
 
 ```yaml
-# .swarm/agents/pm-mixed.yml — Claude with a pinned model
+# .agent-swarm/agents/pm-mixed.yml — Claude with a pinned model
 name: pm-mixed
 description: Product manager dispatched via Claude
 persona: You are a rigorous product manager.
@@ -311,7 +319,7 @@ model: claude-sonnet-4-5
 ```
 
 ```yaml
-# .swarm/agents/pe-mixed.yml — Codex, harness-default model
+# .agent-swarm/agents/pe-mixed.yml — Codex, harness-default model
 name: pe-mixed
 description: Principal engineer dispatched via Codex
 persona: You are a principal engineer.
@@ -320,7 +328,7 @@ harness: codex
 ```
 
 ```bash
-swarm run 1 "Should we adopt mixed-harness swarms" \
+agent-swarm run 1 "Should we adopt mixed-harness swarms" \
   --agents pm-mixed,pe-mixed \
   --resolve off
 ```
@@ -348,10 +356,10 @@ Each agent must return JSON of the following shape:
 
 ## Run artifacts
 
-Every run produces a self-contained directory under `.swarm/runs/`:
+Every run produces a self-contained directory under `.agent-swarm/runs/`:
 
 ```
-.swarm/runs/20260419-121439-should-we-adopt-server-components/
+.agent-swarm/runs/20260419-121439-should-we-adopt-server-components/
 ├── manifest.json          # Run metadata (id, status, topic, goal, decision, rounds, backend, agents, agentRuntimes, timestamps)
 ├── checkpoint.json        # Durable recovery checkpoint after completed rounds
 ├── events.jsonl           # Append-only orchestration event ledger
@@ -394,19 +402,21 @@ Two rendering modes:
 
 ## Status & roadmap
 
-**Supported (the v0.2 alpha contract).** Everything documented above is shipped and verified: `swarm run` and `swarm doctor`, the bundled presets and agents, project config, carry-forward docs, per-agent harness/model pinning (Claude, Codex, OpenCode, Rovo) and mixed-harness swarms, `--resolve off` and `--resolve orchestrator`, durable run artifacts, and deterministic synthesis. This is feature-complete enough to dogfood on real decisions.
+**Supported (the v0.2 alpha contract).** Everything documented above is shipped and verified: `agent-swarm run` and `agent-swarm doctor`, the bundled presets and agents, project config, carry-forward docs, per-agent harness/model pinning (Claude, Codex, OpenCode, Rovo) and mixed-harness swarms, `--resolve off` and `--resolve orchestrator`, durable run artifacts, and deterministic synthesis. This is feature-complete enough to dogfood on real decisions.
 
 **Reserved (accepted, but not part of the contract yet).** These are exposed so a future flag/rename isn't needed, but they don't add behavior today:
 
 - `--resolve agents` — accepted and persisted, but currently behaves like `off`.
-- The `rounds` key in `.swarm/config.yml` — reserved but not applied; pass `<rounds>` on the CLI.
+- The `rounds` key in `.agent-swarm/config.yml` — reserved but not applied; pass `<rounds>` on the CLI.
 
-**Future (v0.3+ productionization candidates).** Not promised, not part of the alpha contract — tracked in the project roadmap (M11–M15): a user-facing `swarm resume` command (resume is implemented and tested internally but not yet a subcommand), agent-driven `--resolve agents`, a public docs/spec site so this README can stay concise, CI/release-operations hardening, and richer agent DX. Release-readiness status and the full milestone breakdown live in [docs/release-readiness.md](docs/release-readiness.md).
+**Future (v0.3+ productionization candidates).** Not promised, not part of the alpha contract — tracked in the project roadmap (M11–M15): a user-facing `agent-swarm resume` command (resume is implemented and tested internally but not yet a subcommand), agent-driven `--resolve agents`, a public docs/spec site so this README can stay concise, CI/release-operations hardening, and richer agent DX. Release-readiness status and the full milestone breakdown live in [docs/release-readiness.md](docs/release-readiness.md).
 
 ## Migration note
 
-This TypeScript CLI is contract-compatible with the Python swarm prototype. Agent definitions, output schemas, and artifact layout follow the same contracts — existing `.swarm/agents/` directories and automation that consumes `.swarm/runs/` artifacts will work without changes.
+This CLI was previously published as `swarm` and stored data under `.swarm/`. It is now `agent-swarm`, storing project/user data under `.agent-swarm/`. For at least one release, the legacy `.swarm/` locations — project config, agents, presets — are still read as a fallback, with the new `.agent-swarm/` path winning when both exist; new run artifacts are written under `.agent-swarm/runs/`. Migrate by moving `.swarm/` to `.agent-swarm/` when convenient.
+
+It also remains contract-compatible with the Python swarm prototype: agent definitions, output schemas, and artifact layout follow the same contracts, so automation that consumes run artifacts keeps working.
 
 ## Contributing & development
 
-Working on swarm itself? See [CONTRIBUTING.md](CONTRIBUTING.md) for the dev loop, the real-harness smoke gate, the release process, and an architecture map. Release history lives in [CHANGELOG.md](CHANGELOG.md).
+Working on `agent-swarm` itself? See [CONTRIBUTING.md](CONTRIBUTING.md) for the dev loop, the real-harness smoke gate, the release process, and an architecture map. Release history lives in [CHANGELOG.md](CHANGELOG.md).

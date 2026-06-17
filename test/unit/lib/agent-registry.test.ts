@@ -3140,3 +3140,138 @@ describe("loadAgentRegistry", () => {
     });
   });
 });
+
+describe("loadAgentRegistry — agent-swarm identity and legacy fallback", () => {
+  function currentProjectAgentsDir(roots: TempRegistryRoots): string {
+    return path.join(roots.cwd, ".agent-swarm", "agents");
+  }
+  function legacyProjectAgentsDir(roots: TempRegistryRoots): string {
+    return path.join(roots.cwd, ".swarm", "agents");
+  }
+  function currentGlobalAgentsDir(roots: TempRegistryRoots): string {
+    return path.join(roots.homeDir, ".agent-swarm", "agents");
+  }
+
+  const analyst = (variant: string): string =>
+    [
+      "name: analyst",
+      `description: ${variant} analyst`,
+      `persona: ${variant} persona`,
+      `prompt: ${variant} prompt`,
+      "",
+    ].join("\n");
+
+  it("loads project agents from the current .agent-swarm/agents root", async () => {
+    const roots = await makeTempRoots();
+    cleanupDirs.push(roots.rootDir);
+    await writeDefinition(
+      currentProjectAgentsDir(roots),
+      "analyst.yml",
+      analyst("current"),
+    );
+
+    const registry = await loadAgentRegistry({
+      cwd: roots.cwd,
+      homeDir: roots.homeDir,
+      bundledDir: roots.bundledDir,
+    });
+
+    expect(registry.getAgent("analyst")).toMatchObject({
+      name: "analyst",
+      description: "current analyst",
+      prompt: "current prompt",
+    });
+  });
+
+  it("prefers a current .agent-swarm/agents definition over a same-name legacy .swarm/agents definition", async () => {
+    const roots = await makeTempRoots();
+    cleanupDirs.push(roots.rootDir);
+    await writeDefinition(
+      legacyProjectAgentsDir(roots),
+      "analyst.yml",
+      analyst("legacy"),
+    );
+    await writeDefinition(
+      currentProjectAgentsDir(roots),
+      "analyst.yml",
+      analyst("current"),
+    );
+
+    const registry = await loadAgentRegistry({
+      cwd: roots.cwd,
+      homeDir: roots.homeDir,
+      bundledDir: roots.bundledDir,
+    });
+
+    expect(registry.getAgent("analyst")).toMatchObject({
+      description: "current analyst",
+      prompt: "current prompt",
+    });
+  });
+
+  it("still loads legacy .swarm/agents definitions when no current root exists", async () => {
+    const roots = await makeTempRoots();
+    cleanupDirs.push(roots.rootDir);
+    await writeDefinition(
+      legacyProjectAgentsDir(roots),
+      "analyst.yml",
+      analyst("legacy"),
+    );
+
+    const registry = await loadAgentRegistry({
+      cwd: roots.cwd,
+      homeDir: roots.homeDir,
+      bundledDir: roots.bundledDir,
+    });
+
+    expect(registry.getAgent("analyst")).toMatchObject({
+      description: "legacy analyst",
+      prompt: "legacy prompt",
+    });
+  });
+
+  it("searches the current .agent-swarm/agents user root", async () => {
+    const roots = await makeTempRoots();
+    cleanupDirs.push(roots.rootDir);
+    await writeDefinition(
+      currentGlobalAgentsDir(roots),
+      "researcher.yml",
+      [
+        "name: researcher",
+        "description: current global researcher",
+        "persona: current persona",
+        "prompt: current prompt",
+        "",
+      ].join("\n"),
+    );
+
+    const registry = await loadAgentRegistry({
+      cwd: roots.cwd,
+      homeDir: roots.homeDir,
+      bundledDir: roots.bundledDir,
+    });
+
+    expect(registry.getAgent("researcher")).toMatchObject({
+      description: "current global researcher",
+    });
+  });
+
+  it("exposes both current and legacy project roots in searchedRoots, current first", async () => {
+    const roots = await makeTempRoots();
+    cleanupDirs.push(roots.rootDir);
+
+    const registry = await loadAgentRegistry({
+      cwd: roots.cwd,
+      homeDir: roots.homeDir,
+      bundledDir: roots.bundledDir,
+    });
+
+    const projectCurrent = currentProjectAgentsDir(roots);
+    const projectLegacy = legacyProjectAgentsDir(roots);
+    expect(registry.searchedRoots).toContain(projectCurrent);
+    expect(registry.searchedRoots).toContain(projectLegacy);
+    expect(registry.searchedRoots.indexOf(projectCurrent)).toBeLessThan(
+      registry.searchedRoots.indexOf(projectLegacy),
+    );
+  });
+});

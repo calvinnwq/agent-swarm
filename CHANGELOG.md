@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.2.0](https://github.com/calvinnwq/swarm/compare/swarm-v0.1.0...swarm-v0.2.0) (2026-04-28)
+## [0.2.0](https://github.com/calvinnwq/swarm/compare/agent-swarm-v0.1.0...agent-swarm-v0.2.0) (2026-04-28)
 
 
 ### Features
@@ -23,7 +23,7 @@
 
 * **codex:** set additionalProperties: false on output schema (NGX-142) ([80272d9](https://github.com/calvinnwq/swarm/commit/80272d953022a8bb436db431202b8886d1e718e1))
 
-## [0.1.0](https://github.com/calvinnwq/swarm/compare/swarm-v0.0.1...swarm-v0.1.0) (2026-04-27)
+## [0.1.0](https://github.com/calvinnwq/swarm/compare/agent-swarm-v0.0.1...agent-swarm-v0.1.0) (2026-04-27)
 
 
 ### Features

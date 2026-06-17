@@ -5,6 +5,7 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { load as loadYaml } from "js-yaml";
 import { SwarmPresetSchema, type SwarmPreset } from "../schemas/index.js";
+import { projectStorageRoots, userStorageRoots } from "./identity.js";
 import { SwarmCommandError } from "./parse-command.js";
 
 const DEFINITION_EXTENSIONS = new Set([".yml", ".yaml"]);
@@ -85,9 +86,15 @@ async function resolvePresetRoots(
   const bundledDir = options.bundledDir
     ? path.resolve(options.bundledDir)
     : await resolveDefaultBundledDir();
+  // Project roots first, then user roots, then bundled. Within each scope the
+  // current `.agent-swarm/presets` root precedes legacy `.swarm/presets`, so a
+  // current preset wins over a same-name legacy one (first match wins).
   return [
-    path.join(path.resolve(options.cwd ?? process.cwd()), ".swarm", "presets"),
-    path.join(path.resolve(options.homeDir ?? homedir()), ".swarm", "presets"),
+    ...projectStorageRoots(
+      path.resolve(options.cwd ?? process.cwd()),
+      "presets",
+    ),
+    ...userStorageRoots(path.resolve(options.homeDir ?? homedir()), "presets"),
     bundledDir,
   ];
 }

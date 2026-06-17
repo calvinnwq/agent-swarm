@@ -96,7 +96,7 @@ const baseManifest: RunManifest = {
   agents: ["product-manager", "principal-engineer"],
   resolveMode: "orchestrator",
   startedAt: "2026-04-19T10:00:00Z",
-  runDir: ".swarm/runs/20260419-100000-microservices",
+  runDir: ".agent-swarm/runs/20260419-100000-microservices",
 };
 
 const r1pm = makeAgentOutput({

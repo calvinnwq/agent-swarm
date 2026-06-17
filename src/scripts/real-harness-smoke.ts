@@ -163,7 +163,9 @@ function runFromOptions(options: CliOptions): RealHarnessSmokeMatrixSummary {
   const ownedDirs: string[] = [];
 
   const resolveCwd = (harness: SmokeHarness): string => {
-    const dir = mkdtempSync(join(baseDir, `swarm-real-smoke-${harness}-`));
+    const dir = mkdtempSync(
+      join(baseDir, `agent-swarm-real-smoke-${harness}-`),
+    );
     ownedDirs.push(dir);
     return dir;
   };
@@ -198,14 +200,14 @@ const program = new Command();
 program
   .name("real-harness-smoke")
   .description(
-    "Manual release gate: shell out to the built swarm CLI against one or more real harnesses and capture a normalized summary. NOT a CI test — auth/credentials must be configured locally.",
+    "Manual release gate: shell out to the built agent-swarm CLI against one or more real harnesses and capture a normalized summary. NOT a CI test — auth/credentials must be configured locally.",
   )
   .requiredOption(
     "--harness <list>",
     `comma-separated harnesses to drive sequentially (${SUPPORTED_HARNESSES.join(" | ")}); duplicates are deduped`,
     parseHarnessList,
   )
-  .requiredOption("--topic <text>", "topic forwarded to swarm run")
+  .requiredOption("--topic <text>", "topic forwarded to agent-swarm run")
   .option(
     "--preset <name>",
     "preset to use for every pass (default: harness-specific bundled preset)",
@@ -226,7 +228,7 @@ program
   )
   .option(
     "--timeout-ms <n>",
-    "timeout in ms forwarded to swarm run and also used as the hard process cap",
+    "timeout in ms forwarded to agent-swarm run and also used as the hard process cap",
     parseTimeout,
   )
   .action((options: Record<string, unknown>) => {

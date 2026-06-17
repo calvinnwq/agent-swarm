@@ -1,6 +1,6 @@
-# Contributing to swarm
+# Contributing to Agent Swarm
 
-Thanks for hacking on swarm! This guide covers the dev loop, the release flow, the manual real-harness smoke gate, and a map of the source tree.
+Thanks for hacking on Agent Swarm! This guide covers the dev loop, the release flow, the manual real-harness smoke gate, and a map of the source tree.
 
 For end-user docs (install, presets, agents, artifacts), see [README.md](README.md). The README is the authoritative user-facing spec — when alpha behavior is ambiguous, README contracts win.
 
@@ -15,7 +15,7 @@ For end-user docs (install, presets, agents, artifacts), see [README.md](README.
 ```bash
 pnpm install
 pnpm build
-pnpm link --global   # exposes the `swarm` bin from dist/cli.mjs
+pnpm link --global   # exposes the `agent-swarm` bin from dist/cli.mjs
 ```
 
 Don't edit anything under `dist/` by hand. The `build` script bundles `src/` and copies bundled agents/presets into `dist/agents/bundled/` and `dist/presets/bundled/`. Adding a new bundled agent or preset means dropping a YAML file into `src/agents/bundled/` or `src/presets/bundled/` — no extra wiring needed.
@@ -39,7 +39,7 @@ Run a single test file: `vitest run test/unit/path/to/file.test.ts` (add `--conf
 
 The `.no-mistakes.yaml` workflow runs `pnpm test` for tests and `pnpm lint && pnpm typecheck && pnpm format:check` for lint — keep all three green together when changing `src/`.
 
-`pnpm smoke` is the repeatable alpha verification: it builds, runs `swarm doctor` against the built CLI, and exercises the `--preset product-decision` flow end to end with a stubbed backend. Use it before cutting a release or after touching bundled agents, presets, or CLI wiring. For Codex-specific coverage, run `pnpm build && vitest run --config vitest.e2e.config.ts test/e2e/codex-backend.test.ts` or the full `pnpm test:e2e`.
+`pnpm smoke` is the repeatable alpha verification: it builds, runs `agent-swarm doctor` against the built CLI, and exercises the `--preset product-decision` flow end to end with a stubbed backend. Use it before cutting a release or after touching bundled agents, presets, or CLI wiring. For Codex-specific coverage, run `pnpm build && vitest run --config vitest.e2e.config.ts test/e2e/codex-backend.test.ts` or the full `pnpm test:e2e`.
 
 ## Conventions
 
@@ -47,11 +47,13 @@ The `.no-mistakes.yaml` workflow runs `pnpm test` for tests and `pnpm lint && pn
 - **Strict TS.** `tsconfig.json` is strict. Prefer Zod-inferred types (`z.infer<typeof Schema>`) over hand-rolled interfaces for any data that crosses the disk/wire boundary.
 - **No defensive code for impossible states.** Validation lives at boundaries (CLI parsing, schema decode, harness probe) — internal callers can trust resolved values.
 - **Tests are split.** Unit tests under `test/unit/` mirror `src/`. End-to-end tests under `test/e2e/` build the CLI and shell out to it.
-- **Diagnostics convention.** `swarm doctor` is the canonical diagnostic surface. New diagnostics should match its exit-code convention: `0` ok, `1` checks failed (with actionable per-check messages), `2` internal command error.
+- **Diagnostics convention.** `agent-swarm doctor` is the canonical diagnostic surface. New diagnostics should match its exit-code convention: `0` ok, `1` checks failed (with actionable per-check messages), `2` internal command error.
 
 ## Releases
 
 GitHub releases are managed by Release Please. After release-driving Conventional Commits land on `main`, the `release-please` workflow opens or updates a Release Please PR with the next version and a `CHANGELOG.md` entry. Merging that PR updates `package.json`, writes the changelog, creates the git tag, and creates the GitHub Release.
+
+Tags use the package component (`agent-swarm-vX.Y.Z`) — the package is configured with `include-component-in-tag: true`, `include-v-in-tag: true`, and `include-v-in-release-name: true`. The pre-npm GitHub releases were retagged from the old component name to `agent-swarm`; do not recreate legacy pre-rename release tags.
 
 Use:
 
@@ -62,7 +64,7 @@ npm publishing is not part of the current release workflow.
 
 ## Real-harness smoke gate (`pnpm smoke:real`)
 
-`pnpm smoke:real` is a **manual release gate**. It runs the built `swarm` CLI against one or more real harness CLIs and prints a normalized JSON summary. It is intentionally **not** part of `pnpm test`, `pnpm test:e2e`, or CI — those use stubbed harnesses for speed and determinism.
+`pnpm smoke:real` is a **manual release gate**. It runs the built `agent-swarm` CLI against one or more real harness CLIs and prints a normalized JSON summary. It is intentionally **not** part of `pnpm test`, `pnpm test:e2e`, or CI — those use stubbed harnesses for speed and determinism.
 
 Reach for it when you want to verify a release candidate end-to-end against actual harness binaries.
 
@@ -90,7 +92,7 @@ By default each harness uses its bundled preset (`product-decision` for claude, 
 
 - `--preset <name>` overrides every pass.
 - `--rounds <1-3>` bumps rounds (default `1`).
-- `--timeout-ms <n>` forwards a per-agent/orchestrator dispatch timeout to `swarm run` and uses the same value as the hard process cap.
+- `--timeout-ms <n>` forwards a per-agent/orchestrator dispatch timeout to `agent-swarm run` and uses the same value as the hard process cap.
 - `--base-dir <path>` chooses where per-harness temp directories are created.
 - `--cli-bin <path>` points at a specific built `dist/cli.mjs`.
 - `--keep-artifacts` retains temp directories for post-mortem inspection.
@@ -111,7 +113,7 @@ A single JSON object on stdout:
       "durationMs": 12345,
       "startedAt": "2026-04-28T00:00:00.000Z",
       "finishedAt": "2026-04-28T00:00:12.345Z",
-      "artifactDir": "/tmp/swarm-real-smoke-claude-XYZ/.swarm/runs/...",
+      "artifactDir": "/tmp/swarm-real-smoke-claude-XYZ/.agent-swarm/runs/...",
       "harnessVersion": "1.2.3 (anthropic-claude)",
       "failureReason": null,
       "stdoutTail": "...",

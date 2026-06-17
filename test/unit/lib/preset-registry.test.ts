@@ -1633,3 +1633,77 @@ describe("resolvePresetByName", () => {
     ).rejects.toThrow(/duplicate preset "dup"/);
   });
 });
+
+describe("loadPresetRegistry — agent-swarm identity and legacy fallback", () => {
+  const triadPreset = (variant: string): string =>
+    [
+      "name: triad",
+      `goal: ${variant} goal`,
+      "agents:",
+      "  - product-manager",
+      "  - principal-engineer",
+    ].join("\n");
+
+  it("loads a preset from the current .agent-swarm/presets directory", async () => {
+    const { cwd, homeDir, bundledDir } = await makeIsolatedRoots();
+    await writePresetFile(
+      path.join(cwd, ".agent-swarm", "presets"),
+      "triad.yml",
+      triadPreset("current"),
+    );
+
+    const registry = await loadPresetRegistry({ cwd, homeDir, bundledDir });
+    expect(registry.getPreset("triad")).toMatchObject({
+      name: "triad",
+      goal: "current goal",
+    });
+  });
+
+  it("prefers a current .agent-swarm/presets preset over a same-name legacy .swarm/presets preset", async () => {
+    const { cwd, homeDir, bundledDir } = await makeIsolatedRoots();
+    await writePresetFile(
+      path.join(cwd, ".swarm", "presets"),
+      "triad.yml",
+      triadPreset("legacy"),
+    );
+    await writePresetFile(
+      path.join(cwd, ".agent-swarm", "presets"),
+      "triad.yml",
+      triadPreset("current"),
+    );
+
+    const registry = await loadPresetRegistry({ cwd, homeDir, bundledDir });
+    expect(registry.getPreset("triad")).toMatchObject({ goal: "current goal" });
+    // resolvePresetByName uses the same current-first root ordering.
+    const resolved = await resolvePresetByName("triad", {
+      cwd,
+      homeDir,
+      bundledDir,
+    });
+    expect(resolved.goal).toBe("current goal");
+  });
+
+  it("still loads legacy .swarm/presets presets when no current root exists", async () => {
+    const { cwd, homeDir, bundledDir } = await makeIsolatedRoots();
+    await writePresetFile(
+      path.join(cwd, ".swarm", "presets"),
+      "triad.yml",
+      triadPreset("legacy"),
+    );
+
+    const registry = await loadPresetRegistry({ cwd, homeDir, bundledDir });
+    expect(registry.getPreset("triad")).toMatchObject({ goal: "legacy goal" });
+  });
+
+  it("searches both current and legacy project roots, current first", async () => {
+    const { cwd, homeDir, bundledDir } = await makeIsolatedRoots();
+    const registry = await loadPresetRegistry({ cwd, homeDir, bundledDir });
+    const current = path.join(cwd, ".agent-swarm", "presets");
+    const legacy = path.join(cwd, ".swarm", "presets");
+    expect(registry.searchedRoots).toContain(current);
+    expect(registry.searchedRoots).toContain(legacy);
+    expect(registry.searchedRoots.indexOf(current)).toBeLessThan(
+      registry.searchedRoots.indexOf(legacy),
+    );
+  });
+});

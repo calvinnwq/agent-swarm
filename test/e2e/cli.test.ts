@@ -21,7 +21,7 @@ describe("swarm cli", () => {
   it("prints help and exits 0", () => {
     const { status, stdout } = runCli(["--help"]);
     expect(status).toBe(0);
-    expect(stdout).toContain("swarm");
+    expect(stdout).toContain("agent-swarm");
   });
 
   it("prints version", () => {

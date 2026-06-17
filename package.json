@@ -1,10 +1,10 @@
 {
-  "name": "swarm",
+  "name": "agent-swarm",
   "version": "0.2.0",
-  "description": "Standalone TypeScript swarm CLI — fan out agents, collect structured output, synthesize",
+  "description": "Standalone TypeScript agent-swarm CLI — fan out agents, collect structured output, synthesize",
   "type": "module",
   "bin": {
-    "swarm": "dist/cli.mjs"
+    "agent-swarm": "dist/cli.mjs"
   },
   "scripts": {
     "build": "tsdown && mkdir -p dist/agents/bundled dist/presets/bundled && cp src/agents/bundled/* dist/agents/bundled/ && cp src/presets/bundled/* dist/presets/bundled/",

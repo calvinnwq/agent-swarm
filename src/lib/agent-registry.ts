@@ -7,6 +7,7 @@ import {
   AgentDefinitionSchema,
   type AgentDefinition,
 } from "../schemas/index.js";
+import { projectStorageRoots, userStorageRoots } from "./identity.js";
 import { SwarmCommandError } from "./parse-command.js";
 
 const DEFINITION_EXTENSIONS = new Set([".yml", ".yaml", ".md"]);
@@ -39,9 +40,15 @@ export async function loadAgentRegistry(
   const bundledDir = options.bundledDir
     ? path.resolve(options.bundledDir)
     : await resolveDefaultBundledDir();
+  // Project roots first, then user roots, then bundled. Within each scope the
+  // current `.agent-swarm/agents` root precedes legacy `.swarm/agents`, so a
+  // current definition wins over a same-name legacy one (first match wins).
   const searchedRoots = [
-    path.join(path.resolve(options.cwd ?? process.cwd()), ".swarm", "agents"),
-    path.join(path.resolve(options.homeDir ?? homedir()), ".swarm", "agents"),
+    ...projectStorageRoots(
+      path.resolve(options.cwd ?? process.cwd()),
+      "agents",
+    ),
+    ...userStorageRoots(path.resolve(options.homeDir ?? homedir()), "agents"),
     bundledDir,
   ];
 

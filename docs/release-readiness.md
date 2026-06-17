@@ -1,6 +1,6 @@
-# Swarm CLI — Release Readiness Report
+# Agent Swarm CLI — Release Readiness Report
 
-**Version:** 0.2.0 (released as `swarm-v0.2.0`)
+**Version:** 0.2.0 (released before npm publication and retagged as `agent-swarm-v0.2.0` during the `agent-swarm` rename)
 **Date:** 2026-06-16
 **Decision:** ✅ ALPHA BASELINE SHIPPED — every M9 (Release Readiness Gauntlet) and M10 (Orchestrator Resolution Runtime) gate is complete. The alpha is ready for dogfood; remaining work is productionization, tracked under M11–M15 (see [Productionization path](#productionization-path-m11m15)).
 
@@ -37,7 +37,7 @@ All M9 issues (Release Readiness Gauntlet) and all M10 issues (Orchestrator Reso
 
 ## Current Verification Gates
 
-The repeatable gates that gate every change on `main`. Local runs at the `swarm-v0.2.0` baseline pass all of these:
+The repeatable gates that gate every change on `main`. Local runs at the 0.2.0 alpha baseline pass all of these:
 
 | Gate                | Command            | Scope                                                                  |
 | ------------------- | ------------------ | ---------------------------------------------------------------------- |
@@ -46,7 +46,7 @@ The repeatable gates that gate every change on `main`. Local runs at the `swarm-
 | Build               | `pnpm build`       | `tsdown` bundle + bundled-agent/preset copy into `dist/`               |
 | Format              | `pnpm format:check`| `prettier --check src test`                                            |
 | Lint                | `pnpm lint`        | `eslint src`                                                           |
-| Smoke (golden path) | `pnpm smoke`       | builds, then `test/e2e/smoke.test.ts` — `swarm doctor` + `product-decision` end to end with a stubbed backend |
+| Smoke (golden path) | `pnpm smoke`       | builds, then `test/e2e/smoke.test.ts` — `agent-swarm doctor` + `product-decision` end to end with a stubbed backend |
 
 The `.no-mistakes.yaml` workflow runs `pnpm test` (tests) and `pnpm lint && pnpm typecheck && pnpm format:check` (lint) — keep all three green together when changing `src/`. CI and the e2e suite use **stubbed** harnesses for speed and determinism.
 
@@ -118,13 +118,13 @@ Tests:
   - 3-round run interrupted after round 2 resumes with only round 3 dispatches
 ```
 
-> Resume is implemented and covered by e2e durability tests via `resumeSwarm`, but it is **not yet surfaced as a user-facing `swarm` subcommand** — it remains internal/tooling-only at v0.2. A user-facing resume command is a v0.3 candidate.
+> Resume is implemented and covered by e2e durability tests via `resumeSwarm`, but it is **not yet surfaced as a user-facing `agent-swarm` subcommand** — it remains internal/tooling-only at v0.2. A user-facing resume command is a v0.3 candidate.
 
 ### M9-09 Doctor hardening
 
 **Issue:** [NGX-150](https://linear.app/ngxcalvin/issue/NGX-150)
 
-`swarm doctor` failing harness checks now append `required by: <agentName>, ...` to the failure detail, naming the exact agent(s) that require the harness. Missing-binary checks surface actionable install messages.
+`agent-swarm doctor` failing harness checks now append `required by: <agentName>, ...` to the failure detail, naming the exact agent(s) that require the harness. Missing-binary checks surface actionable install messages.
 
 ```
 Command: pnpm test -- test/unit/lib/doctor-backend.test.ts
@@ -140,20 +140,20 @@ Result:  5 new tests passed:
 
 **Issue:** [NGX-152](https://linear.app/ngxcalvin/issue/NGX-152)
 
-`pnpm pack` produces a tarball containing `dist/cli.mjs`, the bundled agents, and the bundled presets. Installed outside the repo (via `npm install <tarball>`), `swarm --version` returns the package version and `swarm doctor` exits 0 discovering bundled assets from the installed path.
+`pnpm pack` produces a tarball containing `dist/cli.mjs`, the bundled agents, and the bundled presets. Installed outside the repo (via `npm install <tarball>`), `agent-swarm --version` returns the package version and `agent-swarm doctor` exits 0 discovering bundled assets from the installed path. (This gate was first verified at v0.2.0 when the package was named `swarm`; the package is now `agent-swarm`, so the tarball and bin names changed accordingly.)
 
 ```
 Command: pnpm build && pnpm pack
-Tarball: swarm-<version>.tgz
+Tarball: agent-swarm-<version>.tgz
 Contents verified:
   dist/cli.mjs
   dist/agents/bundled/
   dist/presets/bundled/
 
 Command (temp dir outside repo):
-  npm install /path/to/swarm-<version>.tgz
-  ./node_modules/.bin/swarm --version   → package version
-  ./node_modules/.bin/swarm doctor       → exit 0
+  npm install /path/to/agent-swarm-<version>.tgz
+  ./node_modules/.bin/agent-swarm --version   → package version
+  ./node_modules/.bin/agent-swarm doctor       → exit 0
 ```
 
 ### M10 Orchestrator Resolution Runtime
@@ -183,10 +183,39 @@ Result:  all clean
 The following are accepted by the CLI but are **not** part of the v0.2 alpha contract (they are documented as reserved in the README and behave conservatively):
 
 - **`--resolve agents`** — accepted and persisted in `manifest.json`/`synthesis.json` but currently behaves like `off`. Kept on the CLI surface so future agent-driven resolution can land without a flag rename.
-- **`rounds` config key** — reserved in `.swarm/config.yml` but not yet applied; pass `<rounds>` on the CLI.
-- **User-facing resume command** — `resumeSwarm` is implemented and tested but not exposed as a `swarm` subcommand yet.
+- **`rounds` config key** — reserved in `.agent-swarm/config.yml` but not yet applied; pass `<rounds>` on the CLI.
+- **User-facing resume command** — `resumeSwarm` is implemented and tested but not exposed as an `agent-swarm` subcommand yet.
 
 ---
+
+## External checklist: `swarm` → `agent-swarm` rename (NGX-478)
+
+The NGX-478 branch renames the package, CLI, and storage paths in code and docs
+only. The following are **manual, out-of-band steps** that must happen after the
+PR merges — they are intentionally **not** automated by the branch (the GitHub
+repo is not renamed, nothing is published):
+
+- [x] **Retag the pre-npm GitHub releases to the renamed component before the
+      next Release Please run.** Completed 2026-06-17: the 0.1.0 and 0.2.0
+      GitHub releases now use `agent-swarm-v0.1.0` and `agent-swarm-v0.2.0`,
+      their release titles are `agent-swarm: v0.1.0` and
+      `agent-swarm: v0.2.0`, and the legacy pre-rename release tags were deleted
+      from origin.
+- [ ] **Verify the next Release Please PR** uses an `agent-swarm-vX.Y.Z` tag and
+      `agent-swarm: vX.Y.Z` release title.
+- [ ] **Rename the GitHub repo** `calvinnwq/swarm` → `calvinnwq/agent-swarm`.
+      GitHub auto-redirects the old URL, but update the local remote and any
+      external links/badges:
+      ```bash
+      git remote set-url origin git@github.com:calvinnwq/agent-swarm.git
+      ```
+- [ ] **npm publish is gated and requires explicit approval.** Publishing is not
+      part of the release workflow. Before any first publish under the new name,
+      confirm the `agent-swarm` name is available (or owned) on npm and that a
+      release owner has signed off. Do not publish as part of this change.
+- [ ] **Announce the rename + legacy fallback window** to any dogfood users: the
+      command is now `agent-swarm`, data lives under `.agent-swarm/`, and legacy
+      `.swarm/` paths are read as a fallback for one release.
 
 ## Productionization path (M11–M15)
 
@@ -197,7 +226,7 @@ The alpha runtime is feature-complete for dogfood. The next phase is productioni
 | **M11**   | Alpha Closeout and Status Reconciliation    | Refresh stale readiness/status docs and establish the productionization baseline (this work). |
 | **M12**   | Public Repo Shell and Release Operations    | CI, issue/PR templates, community files, and release-operation docs to a public-repo standard. |
 | **M13**   | Docs Site, Spec, and Install Guide          | A public docs/spec/install layer so the README can stay concise and authoritative.            |
-| **M14**   | Agent DX and Dogfood Recipes                | Make Swarm reliable for agents to operate and dogfood on real decisions.                       |
+| **M14**   | Agent DX and Dogfood Recipes                | Make Agent Swarm reliable for agents to operate and dogfood on real decisions.                  |
 | **M15**   | Runtime Boundary Refactor                   | After contracts are documented, split the runtime into clearer, behavior-preserving boundaries. |
 
 ### To cut a future (non-alpha) release

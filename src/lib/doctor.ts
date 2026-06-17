@@ -24,6 +24,7 @@ import {
   type LoadedProjectConfig,
   type LoadProjectConfigOptions,
 } from "./load-project-config.js";
+import { CLI_NAME } from "./identity.js";
 import type { AgentDefinition } from "../schemas/index.js";
 import type { BackendId } from "../schemas/backend-id.js";
 import type { HarnessId } from "../schemas/harness-id.js";
@@ -163,7 +164,9 @@ async function checkProjectConfig(options: LoadProjectConfigOptions): Promise<{
       check: {
         name: "project config",
         status: "ok",
-        message: `loaded ${PROJECT_CONFIG_RELATIVE_PATH}`,
+        message: loaded.isLegacy
+          ? `loaded ${loaded.relativePath} (legacy path — migrate to ${PROJECT_CONFIG_RELATIVE_PATH})`
+          : `loaded ${loaded.relativePath}`,
         detail: loaded.filePath,
       },
     };
@@ -519,7 +522,9 @@ export function formatDoctorReport(report: DoctorReport): string {
   }
   lines.push("");
   lines.push(
-    report.ok ? "swarm doctor: ready" : "swarm doctor: problems found",
+    report.ok
+      ? `${CLI_NAME} doctor: ready`
+      : `${CLI_NAME} doctor: problems found`,
   );
   return lines.join("\n");
 }

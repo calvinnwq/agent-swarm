@@ -6,9 +6,22 @@ import {
   SwarmProjectConfigSchema,
   type SwarmProjectConfig,
 } from "../schemas/index.js";
+import {
+  LEGACY_STORAGE_DIR,
+  PROJECT_CONFIG_FILENAME,
+  STORAGE_DIR,
+  STORAGE_DIRS,
+} from "./identity.js";
 import { SwarmCommandError } from "./parse-command.js";
 
-export const PROJECT_CONFIG_RELATIVE_PATH = ".swarm/config.yml";
+/** Current project config path, relative to the project root. */
+export const PROJECT_CONFIG_RELATIVE_PATH = `${STORAGE_DIR}/${PROJECT_CONFIG_FILENAME}`;
+
+/**
+ * Legacy project config path. Read as a fallback when the current
+ * `.agent-swarm/config.yml` is absent, so existing projects keep working.
+ */
+export const LEGACY_PROJECT_CONFIG_RELATIVE_PATH = `${LEGACY_STORAGE_DIR}/${PROJECT_CONFIG_FILENAME}`;
 
 export interface LoadProjectConfigOptions {
   cwd?: string;
@@ -17,49 +30,72 @@ export interface LoadProjectConfigOptions {
 export interface LoadedProjectConfig {
   config: SwarmProjectConfig;
   filePath: string;
+  /** Project-relative path that was loaded (current or legacy). */
+  relativePath: string;
+  /** True when the config was loaded from the legacy `.swarm/` path. */
+  isLegacy: boolean;
 }
 
 export async function loadProjectConfig(
   options: LoadProjectConfigOptions = {},
 ): Promise<LoadedProjectConfig | null> {
   const cwd = path.resolve(options.cwd ?? process.cwd());
-  const filePath = path.join(cwd, PROJECT_CONFIG_RELATIVE_PATH);
 
-  let raw: string;
-  try {
-    raw = await readFile(filePath, "utf-8");
-  } catch (error) {
-    if (isMissingFile(error)) {
-      return null;
+  // Prefer the current `.agent-swarm/` path; fall back to legacy `.swarm/` only
+  // when the current one is absent. A present-but-broken current config surfaces
+  // its error rather than being masked by a legacy file.
+  for (const dir of STORAGE_DIRS) {
+    const relativePath = `${dir}/${PROJECT_CONFIG_FILENAME}`;
+    const filePath = path.join(cwd, dir, PROJECT_CONFIG_FILENAME);
+
+    let raw: string;
+    try {
+      raw = await readFile(filePath, "utf-8");
+    } catch (error) {
+      if (isMissingFile(error)) {
+        continue;
+      }
+      const message = error instanceof Error ? error.message : String(error);
+      throw new SwarmCommandError(`failed to read ${relativePath}: ${message}`);
     }
-    const message = error instanceof Error ? error.message : String(error);
-    throw new SwarmCommandError(
-      `failed to read ${PROJECT_CONFIG_RELATIVE_PATH}: ${message}`,
+
+    return parseLoadedConfig(
+      raw,
+      filePath,
+      relativePath,
+      dir === LEGACY_STORAGE_DIR,
     );
   }
 
+  return null;
+}
+
+function parseLoadedConfig(
+  raw: string,
+  filePath: string,
+  relativePath: string,
+  isLegacy: boolean,
+): LoadedProjectConfig {
   let loaded: unknown;
   try {
     loaded = loadYaml(raw);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    throw new SwarmCommandError(
-      `invalid YAML in ${PROJECT_CONFIG_RELATIVE_PATH}: ${message}`,
-    );
+    throw new SwarmCommandError(`invalid YAML in ${relativePath}: ${message}`);
   }
 
   if (loaded === null || loaded === undefined) {
-    return { config: {}, filePath };
+    return { config: {}, filePath, relativePath, isLegacy };
   }
 
   const parsed = SwarmProjectConfigSchema.safeParse(loaded);
   if (!parsed.success) {
     throw new SwarmCommandError(
-      `invalid ${PROJECT_CONFIG_RELATIVE_PATH}:\n${formatZodError(parsed.error)}`,
+      `invalid ${relativePath}:\n${formatZodError(parsed.error)}`,
     );
   }
 
-  return { config: parsed.data, filePath };
+  return { config: parsed.data, filePath, relativePath, isLegacy };
 }
 
 function formatZodError(error: import("zod").ZodError): string {

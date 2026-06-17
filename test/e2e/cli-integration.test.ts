@@ -162,9 +162,9 @@ describe("e2e: CLI integration with --agents flag", () => {
 
     expect(result.status).toBe(0);
     expect(result.stderr).toContain("[run] complete rounds=2");
-    expect(result.stderr).not.toContain("swarm:");
+    expect(result.stderr).not.toContain("agent-swarm:");
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const [entry] = readdirSync(runsDir);
     expect(entry).toBeTruthy();
     const runDir = join(runsDir, entry);
@@ -252,7 +252,7 @@ describe("e2e: CLI integration with --agents flag", () => {
     expect(result.status).toBe(0);
     expect(result.stderr).toContain("[run] complete rounds=2");
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const [entry] = readdirSync(runsDir);
     const runDir = join(runsDir, entry);
 
@@ -324,7 +324,7 @@ describe("e2e: CLI integration with --agents flag", () => {
     expect(result.status).toBe(0);
     expect(result.stderr).toContain("[run] complete rounds=1");
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const [entry] = readdirSync(runsDir);
     const runDir = join(runsDir, entry);
 
@@ -374,7 +374,7 @@ describe("e2e: CLI integration with --agents flag", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const [entry] = readdirSync(runsDir);
     const runDir = join(runsDir, entry);
 
@@ -417,7 +417,7 @@ describe("e2e: CLI integration with --agents flag", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const [entry] = readdirSync(runsDir);
     const runDir = join(runsDir, entry);
 
@@ -460,7 +460,7 @@ describe("e2e: CLI integration with --agents flag", () => {
     expect(result.status).toBe(0);
     expect(result.stderr).toContain("[run] complete rounds=1");
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const [entry] = readdirSync(runsDir);
     const runDir = join(runsDir, entry);
 

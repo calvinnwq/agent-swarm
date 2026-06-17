@@ -11,7 +11,7 @@ const valid = {
   agents: ["alpha", "beta"],
   resolveMode: "orchestrator" as const,
   startedAt: "2026-04-15T01:23:45.000Z",
-  runDir: "/tmp/.swarm/runs/20260415-012345-sample-topic",
+  runDir: "/tmp/.agent-swarm/runs/20260415-012345-sample-topic",
 };
 
 describe("RunManifestSchema", () => {

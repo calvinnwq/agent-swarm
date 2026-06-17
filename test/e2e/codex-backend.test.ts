@@ -138,9 +138,9 @@ describe("e2e: codex backend", () => {
 
     expect(result.status).toBe(0);
     expect(result.stderr).toContain("[run] complete rounds=2");
-    expect(result.stderr).not.toContain("swarm:");
+    expect(result.stderr).not.toContain("agent-swarm:");
 
-    const runDir = join(baseDir, ".swarm", "runs");
+    const runDir = join(baseDir, ".agent-swarm", "runs");
     const [entry] = existsSync(runDir) ? readdirSync(runDir) : [];
     expect(entry).toBeTruthy();
 
@@ -194,9 +194,9 @@ describe("e2e: codex backend", () => {
 
     expect(result.status).toBe(0);
     expect(result.stderr).toContain("[run] complete rounds=2");
-    expect(result.stderr).not.toContain("swarm:");
+    expect(result.stderr).not.toContain("agent-swarm:");
 
-    const runDir = join(baseDir, ".swarm", "runs");
+    const runDir = join(baseDir, ".agent-swarm", "runs");
     const [entry] = existsSync(runDir) ? readdirSync(runDir) : [];
     expect(entry).toBeTruthy();
 
@@ -235,7 +235,7 @@ describe("e2e: codex backend", () => {
     });
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain("swarm doctor: ready");
+    expect(result.stdout).toContain("agent-swarm doctor: ready");
     expect(result.stdout).toContain("[OK] config backend");
     expect(result.stdout).toContain(
       'backend "codex" matches preset "product-decision-codex" (2 agent(s))',

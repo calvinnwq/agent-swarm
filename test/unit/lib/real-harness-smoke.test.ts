@@ -140,7 +140,7 @@ describe("runRealHarnessSmoke", () => {
     expect(summary.startedAt).toBe("2026-04-28T00:00:00.000Z");
     expect(summary.finishedAt).toBe("2026-04-28T00:00:03.500Z");
     expect(summary.artifactDir).toBe(
-      "/tmp/swarm-real-smoke-test/.swarm/runs/20260428T000003Z-some-topic",
+      "/tmp/swarm-real-smoke-test/.agent-swarm/runs/20260428T000003Z-some-topic",
     );
     expect(invocations).toHaveLength(2);
   });
@@ -289,7 +289,7 @@ describe("runRealHarnessSmoke", () => {
     expect(summary.stderrTail).toContain("auth");
     // artifact dir may still be discoverable from a partial run
     expect(summary.artifactDir).toBe(
-      "/tmp/swarm-real-smoke-test/.swarm/runs/20260428T000003Z-some-topic",
+      "/tmp/swarm-real-smoke-test/.agent-swarm/runs/20260428T000003Z-some-topic",
     );
   });
 
@@ -391,7 +391,7 @@ describe("runRealHarnessSmoke", () => {
     );
 
     expect(summary.artifactDir).toBe(
-      "/tmp/swarm-real-smoke-test/.swarm/runs/20260428T000003Z-new",
+      "/tmp/swarm-real-smoke-test/.agent-swarm/runs/20260428T000003Z-new",
     );
   });
 
@@ -495,7 +495,7 @@ describe("runRealHarnessSmoke", () => {
     runRealHarnessSmoke({ ...baseOpts, harness: "claude" }, deps);
 
     expect(validateArtifacts).toHaveBeenCalledWith(
-      "/tmp/swarm-real-smoke-test/.swarm/runs/20260428T000003Z-some-topic",
+      "/tmp/swarm-real-smoke-test/.agent-swarm/runs/20260428T000003Z-some-topic",
     );
   });
 

@@ -15,6 +15,7 @@ import {
   runDoctor,
   runSwarm,
   SwarmCommandError,
+  CLI_NAME,
   type AgentSelectionSource,
 } from "./lib/index.js";
 import type { AgentDefinition, HarnessId } from "./schemas/index.js";
@@ -66,7 +67,7 @@ function resolveOrchestratorAgent(
 const program = new Command();
 
 program
-  .name("swarm")
+  .name(CLI_NAME)
   .description(
     "Fan out agents in parallel rounds, collect structured output, synthesize.",
   )
@@ -218,7 +219,7 @@ program
         process.exit(exitCode);
       } catch (err) {
         if (err instanceof SwarmCommandError) {
-          process.stderr.write(`swarm: ${err.message}\n`);
+          process.stderr.write(`${CLI_NAME}: ${err.message}\n`);
           process.exit(2);
         }
         throw err;
@@ -238,7 +239,7 @@ program
       process.exit(report.ok ? 0 : 1);
     } catch (err) {
       if (err instanceof SwarmCommandError) {
-        process.stderr.write(`swarm: ${err.message}\n`);
+        process.stderr.write(`${CLI_NAME}: ${err.message}\n`);
         process.exit(2);
       }
       throw err;
@@ -249,7 +250,7 @@ try {
   await program.parseAsync();
 } catch (err) {
   process.stderr.write(
-    `\n  swarm: ${err instanceof Error ? err.message : String(err)}\n\n`,
+    `\n  ${CLI_NAME}: ${err instanceof Error ? err.message : String(err)}\n\n`,
   );
   process.exit(1);
 }

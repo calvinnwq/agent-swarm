@@ -11,6 +11,7 @@ export * from "./doc-inputs.js";
 export * from "./harness-capability.js";
 export * from "./harness-registry.js";
 export * from "./harness-resolution.js";
+export * from "./identity.js";
 export * from "./inbox-manager.js";
 export * from "./load-project-config.js";
 export * from "./orchestrator-dispatcher.js";
