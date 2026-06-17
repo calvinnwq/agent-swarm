@@ -140,18 +140,18 @@ Result:  5 new tests passed:
 
 **Issue:** [NGX-152](https://linear.app/ngxcalvin/issue/NGX-152)
 
-`pnpm pack` produces a tarball containing `dist/cli.mjs`, the bundled agents, and the bundled presets. Installed outside the repo (via `npm install <tarball>`), `agent-swarm --version` returns the package version and `agent-swarm doctor` exits 0 discovering bundled assets from the installed path. (This gate was first verified at v0.2.0 when the package was named `swarm`; the npm package is now `@calvinnwq/agent-swarm`, while the bin remains `agent-swarm`.)
+`pnpm pack` produces a tarball containing `dist/cli.mjs`, the bundled agents, the bundled presets, and the packaged docs/community files listed in `package.json`. Installed outside the repo (via `npm install <tarball>`), `agent-swarm --version` returns the package version and `agent-swarm doctor` exits 0 discovering bundled assets from the installed path. (This gate was first verified at v0.2.0 when the package was named `swarm`; the npm package is now `@calvinnwq/agent-swarm`, while the bin remains `agent-swarm`.)
 
 ```
 Command: pnpm build && pnpm pack
-Tarball: agent-swarm-<version>.tgz
+Tarball: calvinnwq-agent-swarm-<version>.tgz
 Contents verified:
   dist/cli.mjs
   dist/agents/bundled/
   dist/presets/bundled/
 
 Command (temp dir outside repo):
-  npm install /path/to/agent-swarm-<version>.tgz
+  npm install /path/to/calvinnwq-agent-swarm-<version>.tgz
   ./node_modules/.bin/agent-swarm --version   → package version
   ./node_modules/.bin/agent-swarm doctor       → exit 0
 ```

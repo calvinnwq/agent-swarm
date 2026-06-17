@@ -8,7 +8,7 @@ Guidance for AI coding agents working in this repository.
 
 Product/storage identity is centralized in `src/lib/identity.ts` (`PRODUCT_NAME`, `CLI_NAME = "agent-swarm"`, `STORAGE_DIR = ".agent-swarm"`, legacy `.swarm`). The CLI stores project/user data under `.agent-swarm/`; the legacy `.swarm/` paths are still read as a fallback for at least one release (new path wins when both exist). Don't hardcode either path — use the constants.
 
-The README is the authoritative user-facing spec — when alpha behavior is ambiguous, README contracts win.
+The README is the authoritative user-facing entry point — when alpha behavior is ambiguous, README contracts win. `SPEC.md` is the durable alpha contract, `INSTALL.md` is the step-by-step setup/troubleshooting guide, and `ARCHITECTURE.md` is the contributor runtime map.
 
 ## Commands
 
