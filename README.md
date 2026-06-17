@@ -15,12 +15,18 @@ You'll need:
 - A harness CLI on `PATH`, authenticated. The bundled `product-decision` preset uses Claude (`claude auth login`); other presets use Codex (`codex login`) or OpenCode (`opencode auth login`).
 
 ```bash
+npm install --global @calvinnwq/agent-swarm
+```
+
+This exposes the `agent-swarm` command on your `PATH`.
+
+For source installs:
+
+```bash
 pnpm install
 pnpm build
 pnpm link --global
 ```
-
-This exposes the `agent-swarm` command on your `PATH`.
 
 <details>
 <summary>First-time <code>pnpm link --global</code> setup</summary>

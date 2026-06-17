@@ -62,6 +62,9 @@ Use:
 
 npm publishing is not part of the current release workflow.
 
+The published npm package is scoped as `@calvinnwq/agent-swarm`; the executable
+bin remains `agent-swarm`.
+
 ## Real-harness smoke gate (`pnpm smoke:real`)
 
 `pnpm smoke:real` is a **manual release gate**. It runs the built `agent-swarm` CLI against one or more real harness CLIs and prints a normalized JSON summary. It is intentionally **not** part of `pnpm test`, `pnpm test:e2e`, or CI — those use stubbed harnesses for speed and determinism.
