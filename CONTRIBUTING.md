@@ -39,6 +39,8 @@ Run a single test file: `vitest run test/unit/path/to/file.test.ts` (add `--conf
 
 The `.no-mistakes.yaml` workflow runs `pnpm test` for tests and `pnpm lint && pnpm typecheck && pnpm format:check` for lint — keep all three green together when changing `src/`.
 
+GitHub CI (`.github/workflows/ci.yml`) gates pull requests, pushes to `main`, and manual dispatches with deterministic checks only: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, `pnpm smoke`, and a packaged install smoke that runs the installed `agent-swarm --version` and `agent-swarm --help` from a packed tarball. CI does not require live harness credentials.
+
 `pnpm smoke` is the repeatable alpha verification: it builds, runs `agent-swarm doctor` against the built CLI, and exercises the `--preset product-decision` flow end to end with a stubbed backend. Use it before cutting a release or after touching bundled agents, presets, or CLI wiring. For Codex-specific coverage, run `pnpm build && vitest run --config vitest.e2e.config.ts test/e2e/codex-backend.test.ts` or the full `pnpm test:e2e`.
 
 ## Conventions
