@@ -115,16 +115,16 @@ Notes:
 
 ## 5. Common failures
 
-| Symptom                                       | Likely cause / fix                                                                                  |
-| --------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `agent-swarm: command not found`              | Global bin not on `PATH`. For source installs, complete the one-time `pnpm setup` (§2.2).            |
-| `npx`/`npm exec` can't find the bin            | Known bin-link caveat — install globally instead.                                                   |
-| doctor reports a harness probe failure         | The harness CLI is missing or unauthenticated. Log in (`claude auth login`, `codex login`, `opencode auth login`) or install `acli` + `rovodev`. |
-| Run fails with a timeout                        | Increase `--timeout-ms` (default 120000); real harnesses are slower than stubs.                     |
-| Run fails after an orchestrator pass            | `--resolve orchestrator` requires a working harness for the bundled `orchestrator`. The run finalizes as `failed` and exits `1`; earlier passes stay in `checkpoint.json`. |
-| Config changes seem ignored                     | Precedence is CLI flags > config > preset. Check for a flag overriding your config value.            |
-| doctor mentions a legacy `.swarm/config.yml`    | Config is being read from the legacy path — migrate to `.agent-swarm/` (§6).                         |
-| Unknown-key / type error in config              | `.agent-swarm/config.yml` is strict. Use only the supported keys (see [SPEC.md](SPEC.md) §3).        |
+| Symptom                                      | Likely cause / fix                                                                                                                                                         |
+| -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `agent-swarm: command not found`             | Global bin not on `PATH`. For source installs, complete the one-time `pnpm setup` (§2.2).                                                                                  |
+| `npx`/`npm exec` can't find the bin          | Known bin-link caveat — install globally instead.                                                                                                                          |
+| doctor reports a harness probe failure       | The harness CLI is missing or unauthenticated. Log in (`claude auth login`, `codex login`, `opencode auth login`) or install `acli` + `rovodev`.                           |
+| Run fails with a timeout                     | Increase `--timeout-ms` (default 120000); real harnesses are slower than stubs.                                                                                            |
+| Run fails after an orchestrator pass         | `--resolve orchestrator` requires a working harness for the bundled `orchestrator`. The run finalizes as `failed` and exits `1`; earlier passes stay in `checkpoint.json`. |
+| Config changes seem ignored                  | Precedence is CLI flags > config > preset. Check for a flag overriding your config value.                                                                                  |
+| doctor mentions a legacy `.swarm/config.yml` | Config is being read from the legacy path — migrate to `.agent-swarm/` (§6).                                                                                               |
+| Unknown-key / type error in config           | `.agent-swarm/config.yml` is strict. Use only the supported keys (see [SPEC.md](SPEC.md) §3).                                                                              |
 
 When reporting an issue, run `agent-swarm --version` and `agent-swarm doctor`
 first (and `pnpm build && pnpm smoke` from source), and include the output —
@@ -170,9 +170,9 @@ npm install --global @calvinnwq/agent-swarm@latest
 # Uninstall (global npm install)
 npm uninstall --global @calvinnwq/agent-swarm
 
-# Source install: refresh the build, or unlink
+# Source install: refresh the build, or unlink the local package
 pnpm install && pnpm build
-pnpm uninstall --global @calvinnwq/agent-swarm   # or: npm unlink
+pnpm unlink                                      # or: npm unlink
 ```
 
 Run artifacts under `.agent-swarm/runs/` are plain files; remove them manually

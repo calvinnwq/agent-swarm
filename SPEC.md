@@ -23,13 +23,13 @@ under **Deferred** is not part of the alpha contract at all.
 Product/storage identity is centralized in `src/lib/identity.ts` and must not be
 hardcoded elsewhere.
 
-| Constant            | Value             | Meaning                                       |
-| ------------------- | ----------------- | --------------------------------------------- |
-| `PRODUCT_NAME`      | `Agent Swarm`     | Human-facing product name                     |
-| `CLI_NAME`          | `agent-swarm`     | CLI command/executable bin name               |
-| `STORAGE_DIR`       | `.agent-swarm`    | Current storage directory (project and user)  |
-| `LEGACY_CLI_NAME`   | `swarm`           | Previous name, retained for migration copy    |
-| `LEGACY_STORAGE_DIR`| `.swarm`          | Legacy storage directory, read-only fallback  |
+| Constant             | Value          | Meaning                                      |
+| -------------------- | -------------- | -------------------------------------------- |
+| `PRODUCT_NAME`       | `Agent Swarm`  | Human-facing product name                    |
+| `CLI_NAME`           | `agent-swarm`  | CLI command/executable bin name              |
+| `STORAGE_DIR`        | `.agent-swarm` | Current storage directory (project and user) |
+| `LEGACY_CLI_NAME`    | `swarm`        | Previous name, retained for migration copy   |
+| `LEGACY_STORAGE_DIR` | `.swarm`       | Legacy storage directory, read-only fallback |
 
 The npm package is scoped (`@calvinnwq/agent-swarm`); the executable bin stays
 `agent-swarm`. New writes always target `.agent-swarm/`; legacy `.swarm/` paths
@@ -54,19 +54,19 @@ two operational commands — `run` and `doctor` — plus Commander's built-in
 
 ### 2.1 `agent-swarm run <rounds> <topic...>`
 
-| Flag             | Type / values                        | Notes                                                              |
-| ---------------- | ------------------------------------ | ------------------------------------------------------------------ |
-| `<rounds>`       | integer 1–3                          | Positional; required.                                              |
-| `<topic...>`     | string                               | Positional; required; variadic (joined).                          |
-| `--agents`       | comma-separated names                | When set, takes precedence over `--preset` for selection.         |
-| `--backend`      | `claude` \| `codex`                  | Run-level backend dial (a `BackendId`).                            |
-| `--resolve`      | `off` \| `orchestrator` \| `agents`  | Between-round resolution mode (synonyms below).                    |
-| `--goal`         | string                               | Primary goal for the swarm.                                        |
-| `--decision`     | string                               | Decision target.                                                   |
-| `--doc`          | path (repeatable)                    | Carry-forward document; deduped by path; must be readable.        |
-| `--preset`       | name                                 | Used when `--agents` is not provided.                             |
-| `--timeout-ms`   | integer ms (default `120000`)        | Per-agent and orchestrator dispatch timeout.                      |
-| `--quiet`        | flag                                 | Force quiet output; default auto-selects by TTY.                  |
+| Flag           | Type / values                       | Notes                                                      |
+| -------------- | ----------------------------------- | ---------------------------------------------------------- |
+| `<rounds>`     | integer 1–3                         | Positional; required.                                      |
+| `<topic...>`   | string                              | Positional; required; variadic (joined).                   |
+| `--agents`     | comma-separated names               | When set, takes precedence over `--preset` for selection.  |
+| `--backend`    | `claude` \| `codex`                 | Run-level backend dial (a `BackendId`).                    |
+| `--resolve`    | `off` \| `orchestrator` \| `agents` | Between-round resolution mode (synonyms below).            |
+| `--goal`       | string                              | Primary goal for the swarm.                                |
+| `--decision`   | string                              | Decision target.                                           |
+| `--doc`        | path (repeatable)                   | Carry-forward document; deduped by path; must be readable. |
+| `--preset`     | name                                | Used when `--agents` is not provided.                      |
+| `--timeout-ms` | integer ms (default `120000`)       | Per-agent and orchestrator dispatch timeout.               |
+| `--quiet`      | flag                                | Force quiet output; default auto-selects by TTY.           |
 
 CLI constraints (enforced in `parse-command.ts`, errors thrown as
 `SwarmCommandError`, exit code `2`):
@@ -123,17 +123,17 @@ with no config file, CLI flags fully describe the run.
 Validated by `SwarmProjectConfigSchema` (strict object — unknown keys are
 errors). Supported keys:
 
-| Key         | Type                          | Notes                                              |
-| ----------- | ----------------------------- | -------------------------------------------------- |
-| `preset`    | non-empty string              | Named preset.                                      |
-| `agents`    | array of 2–5 names            | Alternative to `preset`.                           |
-| `backend`   | `claude` \| `codex`           | Run-level backend.                                 |
-| `resolve`   | `off` \| `orchestrator` \| `agents` | Between-round mode.                          |
-| `timeoutMs` | positive integer              | Mirrors `--timeout-ms` (default `120000`).         |
-| `goal`      | non-empty string              | —                                                  |
-| `decision`  | non-empty string              | —                                                  |
-| `docs`      | array of paths                | Same carry-forward behavior as repeated `--doc`.   |
-| `rounds`    | integer 1–3                   | **Reserved** — accepted/validated but not applied. |
+| Key         | Type                                | Notes                                              |
+| ----------- | ----------------------------------- | -------------------------------------------------- |
+| `preset`    | non-empty string                    | Named preset.                                      |
+| `agents`    | array of 2–5 names                  | Alternative to `preset`.                           |
+| `backend`   | `claude` \| `codex`                 | Run-level backend.                                 |
+| `resolve`   | `off` \| `orchestrator` \| `agents` | Between-round mode.                                |
+| `timeoutMs` | positive integer                    | Mirrors `--timeout-ms` (default `120000`).         |
+| `goal`      | non-empty string                    | —                                                  |
+| `decision`  | non-empty string                    | —                                                  |
+| `docs`      | array of paths                      | Same carry-forward behavior as repeated `--doc`.   |
+| `rounds`    | integer 1–3                         | **Reserved** — accepted/validated but not applied. |
 
 A legacy `.swarm/config.yml` is read only when `.agent-swarm/config.yml` is
 absent; the current path wins when both exist; doctor flags the legacy path.
@@ -145,11 +145,11 @@ Validation errors are reported by doctor and at run start.
 
 `--resolve` controls behavior **between rounds** while a run is in flight.
 
-| Mode           | Behavior                                                                                                                                                           |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `off`          | Deterministic only. The next-round brief embeds a templated summary built from the prior packet. No extra LLM call. Question resolutions stay empty.             |
+| Mode           | Behavior                                                                                                                                                                                                                  |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `off`          | Deterministic only. The next-round brief embeds a templated summary built from the prior packet. No extra LLM call. Question resolutions stay empty.                                                                      |
 | `orchestrator` | Real LLM pass. The bundled `orchestrator` agent reads the prior packet and returns a structured `OrchestratorOutput` (directive, question resolutions, deferred questions, confidence). Each pass is captured for resume. |
-| `agents`       | **Reserved.** Accepted and persisted in `manifest.json`/`synthesis.json` but currently behaves like `off`. Kept on the surface so agent-driven resolution can land without a flag rename. |
+| `agents`       | **Reserved.** Accepted and persisted in `manifest.json`/`synthesis.json` but currently behaves like `off`. Kept on the surface so agent-driven resolution can land without a flag rename.                                 |
 
 In `orchestrator` mode the run additionally produces:
 
@@ -213,11 +213,11 @@ scope. Effective order: project-current → project-legacy → user-current →
 user-legacy → bundled. Same-name override across scopes is allowed (current beats
 legacy beats bundled); duplicate names inside one root are an error.
 
-| Scope   | Agents                                                       | Presets                            |
-| ------- | ------------------------------------------------------------ | ---------------------------------- |
-| Project | `.agent-swarm/agents/*.yml` / `*.md`                         | `.agent-swarm/presets/*.yml`       |
-| User    | `~/.agent-swarm/agents/*.yml` / `*.md`                       | `~/.agent-swarm/presets/*.yml`     |
-| Bundled | ships with `agent-swarm`                                     | ships with `agent-swarm`           |
+| Scope   | Agents                                 | Presets                        |
+| ------- | -------------------------------------- | ------------------------------ |
+| Project | `.agent-swarm/agents/*.yml` / `*.md`   | `.agent-swarm/presets/*.yml`   |
+| User    | `~/.agent-swarm/agents/*.yml` / `*.md` | `~/.agent-swarm/presets/*.yml` |
+| Bundled | ships with `agent-swarm`               | ships with `agent-swarm`       |
 
 ### 6.1 Bundled agents
 
@@ -228,11 +228,11 @@ legacy beats bundled); duplicate names inside one root are an error.
 ### 6.2 Bundled presets
 
 | Preset                      | Agents                                                      | Resolve        |
-| --------------------------- | ---------------------------------------------------------- | -------------- |
-| `product-decision`          | `product-manager`, `principal-engineer`                    | `orchestrator` |
-| `product-decision-codex`    | `product-manager-codex`, `principal-engineer-codex`        | `orchestrator` |
-| `product-decision-opencode` | `product-manager-opencode`, `principal-engineer-opencode`  | `orchestrator` |
-| `triad`                     | `product-manager`, `principal-engineer`, `product-designer`| `orchestrator` |
+| --------------------------- | ----------------------------------------------------------- | -------------- |
+| `product-decision`          | `product-manager`, `principal-engineer`                     | `orchestrator` |
+| `product-decision-codex`    | `product-manager-codex`, `principal-engineer-codex`         | `orchestrator` |
+| `product-decision-opencode` | `product-manager-opencode`, `principal-engineer-opencode`   | `orchestrator` |
+| `triad`                     | `product-manager`, `principal-engineer`, `product-designer` | `orchestrator` |
 
 ### 6.3 Agent definition format
 
