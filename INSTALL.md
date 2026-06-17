@@ -141,7 +141,7 @@ the legacy `.swarm/` locations — project config, agents, presets — are still
 read as a fallback, with the new `.agent-swarm/` path winning when both exist.
 New run artifacts are always written under `.agent-swarm/runs/`.
 
-To migrate, move your legacy directory:
+If the new directory does not exist yet, you can rename the legacy directory:
 
 ```bash
 # project scope
@@ -150,6 +150,11 @@ mv .swarm .agent-swarm
 # user scope
 mv ~/.swarm ~/.agent-swarm
 ```
+
+If `.agent-swarm/` already exists, do not run `mv .swarm .agent-swarm`: it
+will place the legacy directory inside the new one instead of merging the data.
+Copy only the files you still need into the matching `.agent-swarm/` paths, and
+keep the new-path files when both versions exist.
 
 `agent-swarm doctor` flags when config is read from the legacy path so you know
 migration is pending.

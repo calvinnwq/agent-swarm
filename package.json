@@ -57,8 +57,18 @@
   },
   "files": [
     "dist",
+    "ARCHITECTURE.md",
+    "CHANGELOG.md",
+    "CODE_OF_CONDUCT.md",
+    "CONTRIBUTING.md",
+    "docs/release-operations.md",
+    "docs/release-readiness.md",
+    "INSTALL.md",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "SECURITY.md",
+    "SPEC.md",
+    "SUPPORT.md"
   ],
   "engines": {
     "node": ">=20"
