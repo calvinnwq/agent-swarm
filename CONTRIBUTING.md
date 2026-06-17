@@ -71,6 +71,15 @@ For the full operator runbook, including Release Please PR checks, manual npm
 publish steps, registry verification, and the known `npx`/`npm exec` bin-link
 caveat, see [docs/release-operations.md](docs/release-operations.md).
 
+## Community, support, and security
+
+- Support expectations live in [SUPPORT.md](SUPPORT.md).
+- Security reporting expectations live in [SECURITY.md](SECURITY.md).
+- Participation is governed by [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+
+Do not post secrets, tokens, private prompts, customer data, or sensitive local
+paths in issues, PRs, release notes, or logs.
+
 ## Real-harness smoke gate (`pnpm smoke:real`)
 
 `pnpm smoke:real` is a **manual release gate**. It runs the built `agent-swarm` CLI against one or more real harness CLIs and prints a normalized JSON summary. It is intentionally **not** part of `pnpm test`, `pnpm test:e2e`, or CI — those use stubbed harnesses for speed and determinism.
