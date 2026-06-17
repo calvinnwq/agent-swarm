@@ -26,7 +26,7 @@ hardcoded elsewhere.
 | Constant            | Value             | Meaning                                       |
 | ------------------- | ----------------- | --------------------------------------------- |
 | `PRODUCT_NAME`      | `Agent Swarm`     | Human-facing product name                     |
-| `CLI_NAME`          | `agent-swarm`     | CLI command name and npm package (unscoped)   |
+| `CLI_NAME`          | `agent-swarm`     | CLI command/executable bin name               |
 | `STORAGE_DIR`       | `.agent-swarm`    | Current storage directory (project and user)  |
 | `LEGACY_CLI_NAME`   | `swarm`           | Previous name, retained for migration copy    |
 | `LEGACY_STORAGE_DIR`| `.swarm`          | Legacy storage directory, read-only fallback  |
