@@ -2,7 +2,7 @@
 
 Thanks for hacking on Agent Swarm! This guide covers the dev loop, the release flow, the manual real-harness smoke gate, and a map of the source tree.
 
-For end-user docs (install, presets, agents, artifacts), see [README.md](README.md). The README is the authoritative user-facing spec — when alpha behavior is ambiguous, README contracts win.
+For end-user docs (install, presets, agents, artifacts), see [README.md](README.md). The README is the authoritative user-facing spec — when alpha behavior is ambiguous, README contracts win. The durable contract is captured in [SPEC.md](SPEC.md), step-by-step setup in [INSTALL.md](INSTALL.md), and the full runtime map in [ARCHITECTURE.md](ARCHITECTURE.md) (the architecture section below is the condensed version).
 
 ## Prerequisites
 
@@ -37,7 +37,7 @@ pnpm format:check    # prettier --check src test
 
 Run a single test file: `vitest run test/unit/path/to/file.test.ts` (add `--config vitest.e2e.config.ts` for e2e). Filter by name: `vitest run -t "pattern"`.
 
-The `.no-mistakes.yaml` workflow runs `pnpm test` for tests and `pnpm lint && pnpm typecheck && pnpm format:check` for lint — keep all three green together when changing `src/`.
+The `.no-mistakes.yaml` workflow runs `pnpm install --frozen-lockfile && pnpm test` for tests and `pnpm install --frozen-lockfile && pnpm lint && pnpm typecheck && pnpm format:check` for lint — keep all three green together when changing `src/`.
 
 GitHub CI (`.github/workflows/ci.yml`) gates pull requests, pushes to `main`, and manual dispatches with deterministic checks only: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, `pnpm smoke`, and a packaged install smoke that runs the installed `agent-swarm --version` and `agent-swarm --help` from a packed tarball. CI does not require live harness credentials.
 
@@ -219,4 +219,4 @@ All cross-boundary contracts are Zod schemas (no hand-rolled types). Important o
 
 ### Validation constraints
 
-`parse-command.ts` enforces: rounds 1–3, agents 2–5, lowercase agent name with `-`/`_` only, resolve mode `off | orchestrator | agents` (with synonyms). Errors throw `SwarmCommandError` and surface to the user with exit code `2`.
+`parse-command.ts` enforces: rounds 1–3, agents 2–5, resolve mode `off | orchestrator | agents` (with synonyms). Agent and preset schemas require names to start with lowercase letters/numbers and then use lowercase letters/numbers/`-`/`_`. Errors throw `SwarmCommandError` and surface to the user with exit code `2`.

@@ -8,7 +8,7 @@ Guidance for AI coding agents working in this repository.
 
 Product/storage identity is centralized in `src/lib/identity.ts` (`PRODUCT_NAME`, `CLI_NAME = "agent-swarm"`, `STORAGE_DIR = ".agent-swarm"`, legacy `.swarm`). The CLI stores project/user data under `.agent-swarm/`; the legacy `.swarm/` paths are still read as a fallback for at least one release (new path wins when both exist). Don't hardcode either path — use the constants.
 
-The README is the authoritative user-facing spec — when alpha behavior is ambiguous, README contracts win.
+The README is the authoritative user-facing entry point — when alpha behavior is ambiguous, README contracts win. `SPEC.md` is the durable alpha contract, `INSTALL.md` is the step-by-step setup/troubleshooting guide, and `ARCHITECTURE.md` is the contributor runtime map.
 
 ## Commands
 
@@ -27,7 +27,7 @@ pnpm format:check    # prettier --check src test
 
 Run a single test file: `vitest run test/unit/path/to/file.test.ts` (or `--config vitest.e2e.config.ts` for e2e). Filter by name: `vitest run -t "pattern"`.
 
-The `.no-mistakes.yaml` workflow runs `pnpm test` for tests and `pnpm lint && pnpm typecheck && pnpm format:check` for lint — keep all three green together when changing src.
+The `.no-mistakes.yaml` workflow runs `pnpm install --frozen-lockfile && pnpm test` for tests and `pnpm install --frozen-lockfile && pnpm lint && pnpm typecheck && pnpm format:check` for lint — keep all three green together when changing src.
 
 After build, `pnpm link --global` exposes the `agent-swarm` bin. The bin is `dist/cli.mjs`; bundled agent/preset YAML files must be copied into `dist/agents/bundled/` and `dist/presets/bundled/` (the `build` script does this — don't edit `dist/` by hand).
 
@@ -97,7 +97,7 @@ All cross-boundary contracts are Zod schemas (no hand-rolled types). Important o
 
 ### Constraints baked into validation
 
-`parse-command.ts` enforces: rounds 1–3, agents 2–5, lowercase agent name with `-`/`_` only, resolve mode `off | orchestrator | agents` (with synonyms). Errors are thrown as `SwarmCommandError` and surface to the user with exit code `2`.
+`parse-command.ts` enforces: rounds 1–3, agents 2–5, resolve mode `off | orchestrator | agents` (with synonyms). Agent and preset schemas require names to start with lowercase letters/numbers and then use lowercase letters/numbers/`-`/`_`. Errors are thrown as `SwarmCommandError` and surface to the user with exit code `2`.
 
 ### Run artifacts (`.agent-swarm/runs/<ts>-<slug>/`)
 

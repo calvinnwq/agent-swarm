@@ -4,7 +4,7 @@ Run a panel of AI agents in parallel rounds, then synthesize their answers into 
 
 `agent-swarm` is a TypeScript CLI that fans out 2–5 agents over 1–3 rounds, validates their structured JSON output, and produces a single synthesis you can review or check in.
 
-> **Alpha — v0.2 baseline.** The alpha runtime is feature-complete and ready for dogfooding. This README is the authoritative user-facing contract: anything not documented here — and anything flagged _reserved_ — isn't part of it. A dedicated spec/docs site is part of the productionization roadmap; until then, see [Status & roadmap](#status--roadmap).
+> **Alpha — v0.2 baseline.** The alpha runtime is feature-complete and ready for dogfooding. This README is the authoritative user-facing contract: anything not documented here — and anything flagged _reserved_ — isn't part of it. For the durable, versioned contract see [SPEC.md](SPEC.md); for a step-by-step setup guide see [INSTALL.md](INSTALL.md); for the runtime internals see [ARCHITECTURE.md](ARCHITECTURE.md). Also see [Status & roadmap](#status--roadmap).
 
 ## Install
 
@@ -425,6 +425,6 @@ It also remains contract-compatible with the Python swarm prototype: agent defin
 
 ## Contributing & development
 
-Working on `agent-swarm` itself? See [CONTRIBUTING.md](CONTRIBUTING.md) for the dev loop, the real-harness smoke gate, the release process, and an architecture map. Release/publish operations live in [docs/release-operations.md](docs/release-operations.md), and release history lives in [CHANGELOG.md](CHANGELOG.md).
+Working on `agent-swarm` itself? See [CONTRIBUTING.md](CONTRIBUTING.md) for the dev loop, the real-harness smoke gate, the release process, and an architecture map; [ARCHITECTURE.md](ARCHITECTURE.md) goes deeper on runtime internals and [SPEC.md](SPEC.md) is the durable contract. Release/publish operations live in [docs/release-operations.md](docs/release-operations.md), and release history lives in [CHANGELOG.md](CHANGELOG.md).
 
 Community and trust docs: [support](SUPPORT.md), [security](SECURITY.md), [code of conduct](CODE_OF_CONDUCT.md), and [license](LICENSE).

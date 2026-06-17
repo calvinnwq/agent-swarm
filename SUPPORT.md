@@ -6,6 +6,8 @@ reproducible issues.
 ## Start Here
 
 - Install and quickstart: [README.md](README.md)
+- Step-by-step install and troubleshooting: [INSTALL.md](INSTALL.md)
+- Durable alpha contract: [SPEC.md](SPEC.md)
 - Development workflow: [CONTRIBUTING.md](CONTRIBUTING.md)
 - Release/publish operations: [docs/release-operations.md](docs/release-operations.md)
 - Current release-readiness status: [docs/release-readiness.md](docs/release-readiness.md)

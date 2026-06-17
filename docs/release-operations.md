@@ -70,7 +70,11 @@ Inspect the dry-run output for:
 - package name `@calvinnwq/agent-swarm`
 - version matching `package.json`
 - bin entry `agent-swarm -> dist/cli.mjs`
-- expected files only: `dist/`, `LICENSE`, `README.md`, and `package.json`
+- expected files only: `dist/`, the packaged docs/community files listed in
+  `package.json` (`README.md`, `INSTALL.md`, `SPEC.md`, `ARCHITECTURE.md`,
+  `CONTRIBUTING.md`, `CHANGELOG.md`, `SUPPORT.md`, `SECURITY.md`,
+  `CODE_OF_CONDUCT.md`, `docs/release-operations.md`,
+  `docs/release-readiness.md`), `LICENSE`, and `package.json`
 - no local workflow state, temp files, tests, or private agent artifacts
 
 Publish only after explicit approval:

@@ -1,5 +1,5 @@
 agent: opencode
 commands:
-  test: "pnpm test"
-  lint: "pnpm lint && pnpm typecheck && pnpm format:check"
+  test: "pnpm install --frozen-lockfile && pnpm test"
+  lint: "pnpm install --frozen-lockfile && pnpm lint && pnpm typecheck && pnpm format:check"
   format: "pnpm format"

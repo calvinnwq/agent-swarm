@@ -10,26 +10,26 @@
 
 ## Go / No-Go Table
 
-| #     | Gate                                                  | Status  | Evidence / Notes                                                                                         |
-| ----- | ----------------------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------- |
-| M9-01 | Codex JSON schema strict validation                   | ✅ PASS | [see below](#m9-01-codex-json-schema)                                                                    |
-| M9-02 | Manual real-harness smoke runner                      | ✅ PASS | [see below](#m9-02-real-harness-smoke-runner)                                                            |
-| M9-03 | Real Codex run end-to-end                             | ✅ PASS | [NGX-144](https://linear.app/ngxcalvin/issue/NGX-144) — Done 2026-04-28                                  |
-| M9-04 | Real Claude run end-to-end                            | ✅ PASS | [NGX-145](https://linear.app/ngxcalvin/issue/NGX-145) — Done 2026-04-28                                  |
-| M9-05 | Real OpenCode run end-to-end                          | ✅ PASS | [NGX-146](https://linear.app/ngxcalvin/issue/NGX-146) — Done 2026-04-28                                  |
-| M9-06 | Mixed Claude + Codex real harness run                 | ✅ PASS | [NGX-147](https://linear.app/ngxcalvin/issue/NGX-147) — Done 2026-04-28                                  |
-| M9-07 | Offline artifact integrity validator                  | ✅ PASS | [see below](#m9-07-artifact-integrity-validator)                                                         |
-| M9-08 | Resume durability (no re-dispatch)                    | ✅ PASS | [see below](#m9-08-resume-durability)                                                                    |
-| M9-09 | Doctor hardening (actionable messages)                | ✅ PASS | [see below](#m9-09-doctor-hardening)                                                                     |
-| M9-10 | Clean clone quickstart matches README                 | ✅ PASS | [NGX-151](https://linear.app/ngxcalvin/issue/NGX-151) — Done 2026-04-28                                  |
-| M9-11 | Packaged CLI install (pnpm pack)                      | ✅ PASS | [see below](#m9-11-packaged-cli-install)                                                                 |
-| M9-12 | Release-readiness report (this doc)                   | ✅ PASS | —                                                                                                        |
-| M10-01 | Orchestrator resolution output schema                | ✅ PASS | [see below](#m10-orchestrator-resolution-runtime)                                                        |
-| M10-02 | Orchestrator resolution prompt                       | ✅ PASS | [see below](#m10-orchestrator-resolution-runtime)                                                        |
-| M10-03 | Dispatch orchestrator between rounds                 | ✅ PASS | [see below](#m10-orchestrator-resolution-runtime)                                                        |
-| M10-04 | Populate round packet question resolutions           | ✅ PASS | [see below](#m10-orchestrator-resolution-runtime)                                                        |
-| M10-05 | Persist orchestrator passes (ledger/checkpoint/resume) | ✅ PASS | [see below](#m10-orchestrator-resolution-runtime)                                                      |
-| M10-06 | Docs, help text, e2e coverage for orchestrator mode  | ✅ PASS | [see below](#m10-orchestrator-resolution-runtime)                                                        |
+| #      | Gate                                                   | Status  | Evidence / Notes                                                        |
+| ------ | ------------------------------------------------------ | ------- | ----------------------------------------------------------------------- |
+| M9-01  | Codex JSON schema strict validation                    | ✅ PASS | [see below](#m9-01-codex-json-schema)                                   |
+| M9-02  | Manual real-harness smoke runner                       | ✅ PASS | [see below](#m9-02-real-harness-smoke-runner)                           |
+| M9-03  | Real Codex run end-to-end                              | ✅ PASS | [NGX-144](https://linear.app/ngxcalvin/issue/NGX-144) — Done 2026-04-28 |
+| M9-04  | Real Claude run end-to-end                             | ✅ PASS | [NGX-145](https://linear.app/ngxcalvin/issue/NGX-145) — Done 2026-04-28 |
+| M9-05  | Real OpenCode run end-to-end                           | ✅ PASS | [NGX-146](https://linear.app/ngxcalvin/issue/NGX-146) — Done 2026-04-28 |
+| M9-06  | Mixed Claude + Codex real harness run                  | ✅ PASS | [NGX-147](https://linear.app/ngxcalvin/issue/NGX-147) — Done 2026-04-28 |
+| M9-07  | Offline artifact integrity validator                   | ✅ PASS | [see below](#m9-07-artifact-integrity-validator)                        |
+| M9-08  | Resume durability (no re-dispatch)                     | ✅ PASS | [see below](#m9-08-resume-durability)                                   |
+| M9-09  | Doctor hardening (actionable messages)                 | ✅ PASS | [see below](#m9-09-doctor-hardening)                                    |
+| M9-10  | Clean clone quickstart matches README                  | ✅ PASS | [NGX-151](https://linear.app/ngxcalvin/issue/NGX-151) — Done 2026-04-28 |
+| M9-11  | Packaged CLI install (pnpm pack)                       | ✅ PASS | [see below](#m9-11-packaged-cli-install)                                |
+| M9-12  | Release-readiness report (this doc)                    | ✅ PASS | —                                                                       |
+| M10-01 | Orchestrator resolution output schema                  | ✅ PASS | [see below](#m10-orchestrator-resolution-runtime)                       |
+| M10-02 | Orchestrator resolution prompt                         | ✅ PASS | [see below](#m10-orchestrator-resolution-runtime)                       |
+| M10-03 | Dispatch orchestrator between rounds                   | ✅ PASS | [see below](#m10-orchestrator-resolution-runtime)                       |
+| M10-04 | Populate round packet question resolutions             | ✅ PASS | [see below](#m10-orchestrator-resolution-runtime)                       |
+| M10-05 | Persist orchestrator passes (ledger/checkpoint/resume) | ✅ PASS | [see below](#m10-orchestrator-resolution-runtime)                       |
+| M10-06 | Docs, help text, e2e coverage for orchestrator mode    | ✅ PASS | [see below](#m10-orchestrator-resolution-runtime)                       |
 
 All M9 issues (Release Readiness Gauntlet) and all M10 issues (Orchestrator Resolution Runtime) are **Done** in Linear, and both milestones report **100%**. The code, schema, and infrastructure gates carry inline evidence below; the real-harness gates (M9-03–M9-06, M9-10) were proven against live harness CLIs and closed in Linear on 2026-04-28.
 
@@ -39,16 +39,16 @@ All M9 issues (Release Readiness Gauntlet) and all M10 issues (Orchestrator Reso
 
 The repeatable gates that gate every change on `main`. Local runs at the 0.2.0 alpha baseline pass all of these:
 
-| Gate                | Command            | Scope                                                                  |
-| ------------------- | ------------------ | ---------------------------------------------------------------------- |
-| Unit tests          | `pnpm test`        | `vitest run` over `test/unit/**` (stubbed harnesses for determinism)   |
-| Typecheck           | `pnpm typecheck`   | `tsc -p tsconfig.typecheck.json --noEmit`                              |
-| Build               | `pnpm build`       | `tsdown` bundle + bundled-agent/preset copy into `dist/`               |
-| Format              | `pnpm format:check`| `prettier --check src test`                                            |
-| Lint                | `pnpm lint`        | `eslint src`                                                           |
-| Smoke (golden path) | `pnpm smoke`       | builds, then `test/e2e/smoke.test.ts` — `agent-swarm doctor` + `product-decision` end to end with a stubbed backend |
+| Gate                | Command             | Scope                                                                                                               |
+| ------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Unit tests          | `pnpm test`         | `vitest run` over `test/unit/**` (stubbed harnesses for determinism)                                                |
+| Typecheck           | `pnpm typecheck`    | `tsc -p tsconfig.typecheck.json --noEmit`                                                                           |
+| Build               | `pnpm build`        | `tsdown` bundle + bundled-agent/preset copy into `dist/`                                                            |
+| Format              | `pnpm format:check` | `prettier --check src test`                                                                                         |
+| Lint                | `pnpm lint`         | `eslint src`                                                                                                        |
+| Smoke (golden path) | `pnpm smoke`        | builds, then `test/e2e/smoke.test.ts` — `agent-swarm doctor` + `product-decision` end to end with a stubbed backend |
 
-The `.no-mistakes.yaml` workflow runs `pnpm test` (tests) and `pnpm lint && pnpm typecheck && pnpm format:check` (lint) — keep all three green together when changing `src/`. GitHub CI (`.github/workflows/ci.yml`) now runs the deterministic gate set on pull requests, pushes to `main`, and manual dispatches, including a packaged install smoke from a `pnpm pack` tarball. CI and the e2e suite use **stubbed** harnesses for speed and determinism and do not require live harness credentials.
+The `.no-mistakes.yaml` workflow runs `pnpm install --frozen-lockfile && pnpm test` (tests) and `pnpm install --frozen-lockfile && pnpm lint && pnpm typecheck && pnpm format:check` (lint) — keep all three green together when changing `src/`. GitHub CI (`.github/workflows/ci.yml`) now runs the deterministic gate set on pull requests, pushes to `main`, and manual dispatches, including a packaged install smoke from a `pnpm pack` tarball. CI and the e2e suite use **stubbed** harnesses for speed and determinism and do not require live harness credentials.
 
 Real harness binaries are exercised by the **manual** `pnpm smoke:real` gate (not part of CI). It runs the built CLI against live `claude`/`codex`/`opencode` CLIs and emits a normalized JSON summary with offline artifact validation. See [CONTRIBUTING.md](../CONTRIBUTING.md#real-harness-smoke-gate-pnpm-smokereal) for usage and output shape.
 
@@ -140,18 +140,18 @@ Result:  5 new tests passed:
 
 **Issue:** [NGX-152](https://linear.app/ngxcalvin/issue/NGX-152)
 
-`pnpm pack` produces a tarball containing `dist/cli.mjs`, the bundled agents, and the bundled presets. Installed outside the repo (via `npm install <tarball>`), `agent-swarm --version` returns the package version and `agent-swarm doctor` exits 0 discovering bundled assets from the installed path. (This gate was first verified at v0.2.0 when the package was named `swarm`; the npm package is now `@calvinnwq/agent-swarm`, while the bin remains `agent-swarm`.)
+`pnpm pack` produces a tarball containing `dist/cli.mjs`, the bundled agents, the bundled presets, and the packaged docs/community files listed in `package.json`. Installed outside the repo (via `npm install <tarball>`), `agent-swarm --version` returns the package version and `agent-swarm doctor` exits 0 discovering bundled assets from the installed path. (This gate was first verified at v0.2.0 when the package was named `swarm`; the npm package is now `@calvinnwq/agent-swarm`, while the bin remains `agent-swarm`.)
 
 ```
 Command: pnpm build && pnpm pack
-Tarball: agent-swarm-<version>.tgz
+Tarball: calvinnwq-agent-swarm-<version>.tgz
 Contents verified:
   dist/cli.mjs
   dist/agents/bundled/
   dist/presets/bundled/
 
 Command (temp dir outside repo):
-  npm install /path/to/agent-swarm-<version>.tgz
+  npm install /path/to/calvinnwq-agent-swarm-<version>.tgz
   ./node_modules/.bin/agent-swarm --version   → package version
   ./node_modules/.bin/agent-swarm doctor       → exit 0
 ```
@@ -205,9 +205,11 @@ they mutate GitHub repository/release state and npm publication state:
 - [x] **Rename the GitHub repo** `calvinnwq/swarm` → `calvinnwq/agent-swarm`.
       GitHub auto-redirects the old URL, but update the local remote and any
       external links/badges:
-      ```bash
-      git remote set-url origin git@github.com:calvinnwq/agent-swarm.git
-      ```
+
+  ```bash
+  git remote set-url origin git@github.com:calvinnwq/agent-swarm.git
+  ```
+
 - [x] **npm publish is gated and requires explicit approval.** Completed
       2026-06-17: the unscoped `agent-swarm` package was blocked by npm's
       package-name similarity guard against the existing `agentswarm` package,
@@ -222,13 +224,13 @@ they mutate GitHub repository/release state and npm publication state:
 
 The alpha runtime is feature-complete for dogfood. The next phase is productionization, tracked by these Linear milestones:
 
-| Milestone | Theme                                       | Intent                                                                                       |
-| --------- | ------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| **M11**   | Alpha Closeout and Status Reconciliation    | Refresh stale readiness/status docs and establish the productionization baseline (this work). |
-| **M12**   | Public Repo Shell and Release Operations    | CI, issue/PR templates, community files, and release-operation docs to a public-repo standard. |
-| **M13**   | Docs Site, Spec, and Install Guide          | A public docs/spec/install layer so the README can stay concise and authoritative.            |
-| **M14**   | Agent DX and Dogfood Recipes                | Make Agent Swarm reliable for agents to operate and dogfood on real decisions.                  |
-| **M15**   | Runtime Boundary Refactor                   | After contracts are documented, split the runtime into clearer, behavior-preserving boundaries. |
+| Milestone | Theme                                    | Intent                                                                                                                                                                                         |
+| --------- | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **M11**   | Alpha Closeout and Status Reconciliation | Refresh stale readiness/status docs and establish the productionization baseline (this work).                                                                                                  |
+| **M12**   | Public Repo Shell and Release Operations | CI, issue/PR templates, community files, and release-operation docs to a public-repo standard.                                                                                                 |
+| **M13**   | Docs Site, Spec, and Install Guide       | A public docs/spec/install layer so the README can stay concise and authoritative. In progress: [SPEC.md](../SPEC.md), [ARCHITECTURE.md](../ARCHITECTURE.md), and [INSTALL.md](../INSTALL.md). |
+| **M14**   | Agent DX and Dogfood Recipes             | Make Agent Swarm reliable for agents to operate and dogfood on real decisions.                                                                                                                 |
+| **M15**   | Runtime Boundary Refactor                | After contracts are documented, split the runtime into clearer, behavior-preserving boundaries.                                                                                                |
 
 ### To cut a future (non-alpha) release
 
