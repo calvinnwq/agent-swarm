@@ -199,19 +199,21 @@ they mutate GitHub repository/release state and npm publication state:
       0.3.0 GitHub releases now use `v0.1.0`, `v0.2.0`, and `v0.3.0`, their
       release titles match those tags, and the legacy component-prefixed release
       tags were deleted from origin.
-- [ ] **Verify the next Release Please PR** uses a `vX.Y.Z` tag and a `vX.Y.Z`
-      release title.
+- [x] **Verify the next Release Please PR** uses a `vX.Y.Z` tag and a `vX.Y.Z`
+      release title. Completed 2026-06-17: Release Please produced `v0.3.1`
+      and `v0.3.2` after the plain-tag migration.
 - [x] **Rename the GitHub repo** `calvinnwq/swarm` → `calvinnwq/agent-swarm`.
       GitHub auto-redirects the old URL, but update the local remote and any
       external links/badges:
       ```bash
       git remote set-url origin git@github.com:calvinnwq/agent-swarm.git
       ```
-- [ ] **npm publish is gated and requires explicit approval.** Publishing is not
-      part of the release workflow. The unscoped `agent-swarm` package is blocked
-      by npm's package-name similarity guard against the existing `agentswarm`
-      package, so first publication should use `@calvinnwq/agent-swarm`. Keep
-      the executable bin as `agent-swarm`.
+- [x] **npm publish is gated and requires explicit approval.** Completed
+      2026-06-17: the unscoped `agent-swarm` package was blocked by npm's
+      package-name similarity guard against the existing `agentswarm` package,
+      so the public npm package is `@calvinnwq/agent-swarm`. The executable bin
+      remains `agent-swarm`, and future npm publishes remain manual unless a
+      separate trusted-publishing issue is approved.
 - [ ] **Announce the rename + legacy fallback window** to any dogfood users: the
       command is now `agent-swarm`, data lives under `.agent-swarm/`, and legacy
       `.swarm/` paths are read as a fallback for one release.
@@ -234,4 +236,5 @@ The alpha runtime is feature-complete for dogfood. The next phase is productioni
 2. Confirm the current verification gates (`pnpm test`, `pnpm typecheck`, `pnpm build`, `pnpm format:check`, `pnpm lint`, `pnpm smoke`).
 3. Land the corresponding M12–M15 work for the release scope.
 4. Let Release Please open/update the release PR from Conventional Commits on `main`, then merge it to tag and publish the GitHub Release.
-5. Update this report with the new version and re-verified gate evidence.
+5. Follow [release operations](release-operations.md) for the manual npm publish and registry/install smoke.
+6. Update this report with the new version and re-verified gate evidence.
