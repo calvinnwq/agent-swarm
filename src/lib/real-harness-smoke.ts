@@ -1,10 +1,11 @@
 import type { ArtifactValidationResult } from "./artifact-validator.js";
+import { STORAGE_DIR } from "./identity.js";
 
 /**
  * Manual real-harness smoke runner core (NGX-143 / M9-02).
  *
  * Pure logic for the manual release gate: probes the selected harness CLI,
- * shells out to the built `swarm` bin, validates resolved artifacts for
+ * shells out to the built `agent-swarm` bin, validates resolved artifacts for
  * successful runs, normalizes the outcome, and returns a machine-readable
  * summary. The runner does not own its working directory,
  * timeouts, or stdio — those are the caller's responsibility — so this
@@ -33,17 +34,17 @@ const ARTIFACT_MISSING_EXIT_CODE = 0;
 export interface RealHarnessSmokeOptions {
   /** Single harness to run for this smoke pass (claude, codex, or opencode). */
   harness: SmokeHarness;
-  /** Topic argument forwarded to `swarm run`. */
+  /** Topic argument forwarded to `agent-swarm run`. */
   topic: string;
-  /** Working directory the swarm CLI runs in (artifacts land under <cwd>/.swarm/runs). */
+  /** Working directory the CLI runs in (artifacts land under <cwd>/.agent-swarm/runs). */
   cwd: string;
-  /** Absolute path to the built `swarm` CLI bin (typically dist/cli.mjs). */
+  /** Absolute path to the built `agent-swarm` CLI bin (typically dist/cli.mjs). */
   cliBin: string;
   /** Preset to use; defaults to the selected harness's product-decision preset. */
   preset?: string;
   /** Number of rounds (1–3); defaults to 1 for the smoke gate. */
   rounds?: number;
-  /** Timeout in ms passed to swarm run and also used as the hard process cap. */
+  /** Timeout in ms passed to agent-swarm run and also used as the hard process cap. */
   timeoutMs?: number;
 }
 
@@ -95,7 +96,7 @@ export interface RealHarnessSmokeDeps {
   spawnSync: SpawnSyncFn;
   now: () => number;
   nowIso: () => string;
-  /** Returns immediate child names of `<cwd>/.swarm/runs` (empty when missing). */
+  /** Returns immediate child names of `<cwd>/.agent-swarm/runs` (empty when missing). */
   listRunDirs: (runsDir: string) => string[];
   /** Validates artifacts for otherwise successful runs with a resolved artifactDir. */
   validateArtifacts: (artifactDir: string) => ArtifactValidationResult;
@@ -150,7 +151,7 @@ function resolveArtifactDir(
   cwd: string,
   listRunDirs: RealHarnessSmokeDeps["listRunDirs"],
 ): string | null {
-  const runsDir = `${cwd.replace(/\/$/, "")}/.swarm/runs`;
+  const runsDir = `${cwd.replace(/\/$/, "")}/${STORAGE_DIR}/runs`;
   const entries = listRunDirs(runsDir);
   if (entries.length === 0) return null;
   // Run directory names are prefixed with an ISO-ish timestamp slug, so a
@@ -261,15 +262,15 @@ export function runRealHarnessSmoke(
 export interface RealHarnessSmokeMatrixOptions {
   /** Harnesses to run sequentially. Order is preserved in the result. */
   harnesses: readonly SmokeHarness[];
-  /** Topic argument forwarded to `swarm run` for every pass. */
+  /** Topic argument forwarded to `agent-swarm run` for every pass. */
   topic: string;
-  /** Absolute path to the built `swarm` CLI bin (typically dist/cli.mjs). */
+  /** Absolute path to the built `agent-swarm` CLI bin (typically dist/cli.mjs). */
   cliBin: string;
   /** Optional preset override applied to every pass; default is harness-specific. */
   preset?: string;
   /** Number of rounds (1–3) for every pass; defaults to 1. */
   rounds?: number;
-  /** Timeout in ms forwarded to swarm run and applied as a hard process cap. */
+  /** Timeout in ms forwarded to agent-swarm run and applied as a hard process cap. */
   timeoutMs?: number;
   /** Returns a fresh cwd per pass so artifact dirs from different harnesses do not collide. */
   resolveCwd: (harness: SmokeHarness) => string;

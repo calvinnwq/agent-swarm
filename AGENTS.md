@@ -4,7 +4,9 @@ Guidance for AI coding agents working in this repository.
 
 ## Project
 
-`swarm` is a TypeScript CLI that fans out 2–5 agents in parallel rounds (1–3 rounds), collects structured JSON output, and produces a deterministic synthesis. Built as ESM, distributed as a single `dist/cli.mjs` bin via `tsdown`. Node ≥ 20 (24 LTS pinned in `.nvmrc`), pnpm 10.
+`agent-swarm` is a TypeScript CLI that fans out 2–5 agents in parallel rounds (1–3 rounds), collects structured JSON output, and produces a deterministic synthesis. Built as ESM, distributed as a single `dist/cli.mjs` bin via `tsdown`. Node ≥ 20 (24 LTS pinned in `.nvmrc`), pnpm 10.
+
+Product/storage identity is centralized in `src/lib/identity.ts` (`PRODUCT_NAME`, `CLI_NAME = "agent-swarm"`, `STORAGE_DIR = ".agent-swarm"`, legacy `.swarm`). The CLI stores project/user data under `.agent-swarm/`; the legacy `.swarm/` paths are still read as a fallback for at least one release (new path wins when both exist). Don't hardcode either path — use the constants.
 
 The README is the authoritative user-facing spec — when alpha behavior is ambiguous, README contracts win.
 
@@ -27,7 +29,7 @@ Run a single test file: `vitest run test/unit/path/to/file.test.ts` (or `--confi
 
 The `.no-mistakes.yaml` workflow runs `pnpm test` for tests and `pnpm lint && pnpm typecheck && pnpm format:check` for lint — keep all three green together when changing src.
 
-After build, `pnpm link --global` exposes the `swarm` bin. The bin is `dist/cli.mjs`; bundled agent/preset YAML files must be copied into `dist/agents/bundled/` and `dist/presets/bundled/` (the `build` script does this — don't edit `dist/` by hand).
+After build, `pnpm link --global` exposes the `agent-swarm` bin. The bin is `dist/cli.mjs`; bundled agent/preset YAML files must be copied into `dist/agents/bundled/` and `dist/presets/bundled/` (the `build` script does this — don't edit `dist/` by hand).
 
 ## Releases
 
@@ -42,13 +44,20 @@ Please PR. Merging that PR updates `package.json`, writes `CHANGELOG.md`,
 creates a git tag, and creates the GitHub Release. npm publishing is not part of
 the current release workflow.
 
+Release Please is configured with `package-name: agent-swarm`,
+`include-component-in-tag: true`, `include-v-in-tag: true`, and
+`include-v-in-release-name: true`, so tags use the renamed component form
+(`agent-swarm-vX.Y.Z`). The pre-npm GitHub releases were retagged from the old
+component name to `agent-swarm` as part of NGX-478; do not recreate legacy
+pre-rename release tags.
+
 ## Architecture
 
 ### Pipeline (src/lib/run-swarm.ts)
 
 `runSwarm` is the orchestrator. Lifecycle per run:
 
-1. **Resolve config + agents.** `cli.ts` layers CLI flags > project config (`.swarm/config.yml`) > preset defaults, then loads `AgentRegistry` and resolves each agent's runtime (`resolveAgentRuntimes`). When `resolveMode === "orchestrator"`, it also includes the bundled `orchestrator` agent in runtime resolution; without a run-level backend override, homogeneous selected-agent harnesses are inferred onto that orchestrator agent.
+1. **Resolve config + agents.** `cli.ts` layers CLI flags > project config (`.agent-swarm/config.yml`, legacy `.swarm/config.yml` fallback) > preset defaults, then loads `AgentRegistry` and resolves each agent's runtime (`resolveAgentRuntimes`). When `resolveMode === "orchestrator"`, it also includes the bundled `orchestrator` agent in runtime resolution; without a run-level backend override, homogeneous selected-agent harnesses are inferred onto that orchestrator agent.
 2. **Resolve harnesses per agent.** Each agent picks a harness in this order: `agent.harness` → run-level `--backend`/`config.backend` → `agent.backend`. Harness ≠ backend: `BackendId` is `claude | codex` (the run-level dial), `HarnessId` is `claude | codex | opencode | rovo` (per-agent dispatch). `assertResolvedRuntimesAvailable` fails fast on unimplemented harnesses.
 3. **Per-agent dispatch.** `createAgentAdapterResolver` returns a `BackendAdapter` per agent based on its resolved harness; `round-runner.ts` calls that adapter (not the run-level `backend`) for the actual CLI shell-out. The run-level `backend` is still used for run metadata (`wrapperName`).
 4. **Round execution.** `createRoundRunner` runs agents in parallel with `DEFAULT_CONCURRENCY = 3`, `config.timeoutMs` (default `DEFAULT_DISPATCH_TIMEOUT_MS = 120_000`), and one `MAX_FORMAT_REPAIR_ATTEMPTS` retry when JSON parse fails. Output is validated against `AgentOutputSchema` (Zod).
@@ -63,19 +72,19 @@ the current release workflow.
 - `factory.ts` → `createBackendAdapter(BackendId)` for the run-level adapter (claude or codex only).
 - `harness-adapter.ts` → `createHarnessAdapter(HarnessId)` and `HarnessAdapterRegistry` (cached per harness). `buildHarnessAdapterRegistry` pre-warms one adapter per resolved harness; `createAgentAdapterResolver` returns a function `(AgentDefinition) => BackendAdapter` so each agent's dispatch is decoupled from the run-level backend.
 - Each adapter (`claude-cli.ts`, `codex-cli.ts`, `opencode-cli.ts`, `rovo-acli.ts`) shells out to the matching CLI via `execa`. Model selection is harness-specific: `claude --model`, `codex -m`, `opencode --model`, `acli rovodev run --model`.
-- `harness-capability.ts` runs the auth/version probes consumed by `swarm doctor`.
+- `harness-capability.ts` runs the auth/version probes consumed by `agent-swarm doctor`.
 
 ### Registries (project > user > bundled)
 
 `AgentRegistry` (`src/lib/agent-registry.ts`) and `PresetRegistry` (`src/lib/preset-registry.ts`) load from three roots, first match wins:
 
-| Scope   | Agents                                    | Presets                  |
-| ------- | ----------------------------------------- | ------------------------ |
-| Project | `.swarm/agents/*.yml` / `.md`             | `.swarm/presets/*.yml`   |
-| User    | `~/.swarm/agents/*.yml` / `.md`           | `~/.swarm/presets/*.yml` |
-| Bundled | `src/agents/bundled/` (copied to `dist/`) | `src/presets/bundled/`   |
+| Scope   | Agents                                    | Presets                        |
+| ------- | ----------------------------------------- | ------------------------------ |
+| Project | `.agent-swarm/agents/*.yml` / `.md`       | `.agent-swarm/presets/*.yml`   |
+| User    | `~/.agent-swarm/agents/*.yml` / `.md`     | `~/.agent-swarm/presets/*.yml` |
+| Bundled | `src/agents/bundled/` (copied to `dist/`) | `src/presets/bundled/`         |
 
-Same-name override across scopes is allowed; duplicates inside one scope are an error. Markdown agents use YAML frontmatter validated against the same Zod schema as `.yml` agents.
+Within each scope, the current `.agent-swarm/` root is searched before the legacy `.swarm/` root, so the registries resolve roots as: project-current, project-legacy, user-current, user-legacy, bundled. Same-name override across scopes is allowed (current beats legacy beats bundled); duplicates inside one root are an error. Markdown agents use YAML frontmatter validated against the same Zod schema as `.yml` agents.
 
 ### Schemas (src/schemas/)
 
@@ -85,7 +94,7 @@ All cross-boundary contracts are Zod schemas (no hand-rolled types). Important o
 
 `parse-command.ts` enforces: rounds 1–3, agents 2–5, lowercase agent name with `-`/`_` only, resolve mode `off | orchestrator | agents` (with synonyms). Errors are thrown as `SwarmCommandError` and surface to the user with exit code `2`.
 
-### Run artifacts (`.swarm/runs/<ts>-<slug>/`)
+### Run artifacts (`.agent-swarm/runs/<ts>-<slug>/`)
 
 `manifest.json`, `checkpoint.json`, `events.jsonl`, `messages.jsonl`, `seed-brief.md`, optional `carry-forward-docs/{manifest.json,doc-NN.md}` snapshots, `round-NN/{brief.md,agents/<name>.md}`, `synthesis.json`, `synthesis.md`. Per-agent markdown headers include `Harness:` / `Model:` when `agentRuntimes` is present in the manifest.
 
@@ -100,4 +109,4 @@ All cross-boundary contracts are Zod schemas (no hand-rolled types). Important o
 - **No new error-handling for impossible states.** Validation lives at boundaries (CLI parsing, schema decode, harness probe) — internal callers can trust resolved values.
 - **Don't edit `dist/`.** Always rebuild via `pnpm build`. The build step also copies `src/agents/bundled/*` and `src/presets/bundled/*` — adding a new bundled agent/preset means adding the YAML, no code wiring needed.
 - **Tests are split.** Unit tests under `test/unit/` mirror `src/` layout and run via `pnpm test`. End-to-end tests under `test/e2e/` build the CLI and shell out to it; they require `pnpm test:e2e` (which builds first). `pnpm smoke` is the minimal e2e subset to run before cutting an alpha release.
-- **`swarm doctor` before claiming a run works.** It validates project config, configured docs, agent/preset registries, backend compatibility, and probes harness CLIs for auth. Exit codes: `0` ok, `1` checks failed, `2` internal error — match this convention if adding new diagnostics.
+- **`agent-swarm doctor` before claiming a run works.** It validates project config, configured docs, agent/preset registries, backend compatibility, and probes harness CLIs for auth. It also reports explicitly when project config is read from the legacy `.swarm/config.yml` path. Exit codes: `0` ok, `1` checks failed, `2` internal error — match this convention if adding new diagnostics.

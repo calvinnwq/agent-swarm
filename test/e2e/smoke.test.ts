@@ -2,8 +2,8 @@
  * Smoke verification for the README golden path (NGX-95 / M1-07).
  *
  * The alpha contract documented in README.md is:
- *   1. `swarm doctor` reports ready on a fresh checkout
- *   2. `swarm run 2 "<topic>" --preset product-decision` resolves the bundled
+ *   1. `agent-swarm doctor` reports ready on a fresh checkout
+ *   2. `agent-swarm run 2 "<topic>" --preset product-decision` resolves the bundled
  *      preset + bundled agents and produces the full artifact tree
  *
  * This file exercises both halves end-to-end through the built CLI so we
@@ -169,16 +169,18 @@ describe("smoke: README golden path", () => {
     }
   });
 
-  it("`swarm doctor` reports ready against the built CLI", () => {
+  it("`agent-swarm doctor` reports ready against the built CLI", () => {
     const result = spawnSync("node", [cliPath, "doctor"], {
       cwd: baseDir,
       encoding: "utf-8",
     });
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain("swarm doctor: ready");
+    expect(result.stdout).toContain("agent-swarm doctor: ready");
     expect(result.stdout).toContain("[OK] project config");
-    expect(result.stdout).toContain("no .swarm/config.yml (CLI flags only)");
+    expect(result.stdout).toContain(
+      "no .agent-swarm/config.yml (CLI flags only)",
+    );
     expect(result.stdout).toContain("[OK] agent registry");
     expect(result.stdout).toContain("[OK] preset registry");
     expect(result.stdout).not.toContain("harness capability");
@@ -187,7 +189,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` reports ready when project config references a valid preset", () => {
+  it("`agent-swarm doctor` reports ready when project config references a valid preset", () => {
     mkdirSync(join(baseDir, ".swarm"), { recursive: true });
     writeFileSync(
       join(baseDir, ".swarm", "config.yml"),
@@ -201,7 +203,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain("swarm doctor: ready");
+    expect(result.stdout).toContain("agent-swarm doctor: ready");
     expect(result.stdout).toContain("[OK] config preset");
     expect(result.stdout).toContain(
       'preset "product-decision" resolves (2 agent(s))',
@@ -212,7 +214,48 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` reports actionable problems when project config references an unknown preset", () => {
+  it("`agent-swarm doctor` loads a current .agent-swarm/config.yml without a legacy warning", () => {
+    mkdirSync(join(baseDir, ".agent-swarm"), { recursive: true });
+    writeFileSync(
+      join(baseDir, ".agent-swarm", "config.yml"),
+      "preset: product-decision\n",
+      "utf-8",
+    );
+
+    const result = spawnSync("node", [cliPath, "doctor"], {
+      cwd: baseDir,
+      encoding: "utf-8",
+    });
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("agent-swarm doctor: ready");
+    expect(result.stdout).toContain("loaded .agent-swarm/config.yml");
+    expect(result.stdout).not.toContain("legacy path");
+    expect(result.stderr).toBe("");
+  });
+
+  it("`agent-swarm doctor` flags a legacy .swarm/config.yml with a migration hint but stays ready", () => {
+    mkdirSync(join(baseDir, ".swarm"), { recursive: true });
+    writeFileSync(
+      join(baseDir, ".swarm", "config.yml"),
+      "preset: product-decision\n",
+      "utf-8",
+    );
+
+    const result = spawnSync("node", [cliPath, "doctor"], {
+      cwd: baseDir,
+      encoding: "utf-8",
+    });
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("agent-swarm doctor: ready");
+    expect(result.stdout).toContain("loaded .swarm/config.yml");
+    expect(result.stdout).toContain("legacy path");
+    expect(result.stdout).toContain("migrate to .agent-swarm/config.yml");
+    expect(result.stderr).toBe("");
+  });
+
+  it("`agent-swarm doctor` reports actionable problems when project config references an unknown preset", () => {
     mkdirSync(join(baseDir, ".swarm"), { recursive: true });
     writeFileSync(
       join(baseDir, ".swarm", "config.yml"),
@@ -226,7 +269,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("swarm doctor: problems found");
+    expect(result.stdout).toContain("agent-swarm doctor: problems found");
     expect(result.stdout).toContain("[FAIL] config preset");
     expect(result.stdout).toContain('unknown preset "missing-preset"');
     expect(result.stdout).toContain("[OK] agent registry");
@@ -235,7 +278,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` reports actionable problems when project config is invalid", () => {
+  it("`agent-swarm doctor` reports actionable problems when project config is invalid", () => {
     mkdirSync(join(baseDir, ".swarm"), { recursive: true });
     writeFileSync(
       join(baseDir, ".swarm", "config.yml"),
@@ -249,7 +292,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("swarm doctor: problems found");
+    expect(result.stdout).toContain("agent-swarm doctor: problems found");
     expect(result.stdout).toContain("[FAIL] project config");
     expect(result.stdout).toContain("invalid .swarm/config.yml");
     expect(result.stdout).toContain("rounds");
@@ -259,7 +302,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` reports both project-config and global agent-registry failures together", () => {
+  it("`agent-swarm doctor` reports both project-config and global agent-registry failures together", () => {
     const homeDir = join(baseDir, "home");
     mkdirSync(join(baseDir, ".swarm"), { recursive: true });
     mkdirSync(join(homeDir, ".swarm", "agents"), { recursive: true });
@@ -284,7 +327,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("swarm doctor: problems found");
+    expect(result.stdout).toContain("agent-swarm doctor: problems found");
     expect(result.stdout).toContain("[FAIL] project config");
     expect(result.stdout).toContain("invalid .swarm/config.yml");
     expect(result.stdout).toContain("rounds");
@@ -299,7 +342,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` reports both project-config and global preset-registry failures together", () => {
+  it("`agent-swarm doctor` reports both project-config and global preset-registry failures together", () => {
     const homeDir = join(baseDir, "home");
     mkdirSync(join(baseDir, ".swarm"), { recursive: true });
     mkdirSync(join(homeDir, ".swarm", "presets"), { recursive: true });
@@ -324,7 +367,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("swarm doctor: problems found");
+    expect(result.stdout).toContain("agent-swarm doctor: problems found");
     expect(result.stdout).toContain("[FAIL] project config");
     expect(result.stdout).toContain("invalid .swarm/config.yml");
     expect(result.stdout).toContain("rounds");
@@ -338,7 +381,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` reports invalid project config alongside both global registry failures", () => {
+  it("`agent-swarm doctor` reports invalid project config alongside both global registry failures", () => {
     const homeDir = join(baseDir, "home");
     mkdirSync(join(baseDir, ".swarm"), { recursive: true });
     mkdirSync(join(homeDir, ".swarm", "agents"), { recursive: true });
@@ -369,7 +412,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("swarm doctor: problems found");
+    expect(result.stdout).toContain("agent-swarm doctor: problems found");
     expect(result.stdout).toContain("[FAIL] project config");
     expect(result.stdout).toContain("invalid .swarm/config.yml");
     expect(result.stdout).toContain("rounds");
@@ -387,7 +430,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` reports actionable problems when project config preset references an unknown agent", () => {
+  it("`agent-swarm doctor` reports actionable problems when project config preset references an unknown agent", () => {
     mkdirSync(join(baseDir, ".swarm", "presets"), { recursive: true });
     writeFileSync(
       join(baseDir, ".swarm", "config.yml"),
@@ -412,7 +455,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("swarm doctor: problems found");
+    expect(result.stdout).toContain("agent-swarm doctor: problems found");
     expect(result.stdout).toContain("[FAIL] config preset");
     expect(result.stdout).toContain(
       'preset "project-decision" references unknown agent(s): ghost-agent',
@@ -422,7 +465,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` reports actionable problems when project config references an unknown agent", () => {
+  it("`agent-swarm doctor` reports actionable problems when project config references an unknown agent", () => {
     mkdirSync(join(baseDir, ".swarm"), { recursive: true });
     writeFileSync(
       join(baseDir, ".swarm", "config.yml"),
@@ -436,7 +479,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("swarm doctor: problems found");
+    expect(result.stdout).toContain("agent-swarm doctor: problems found");
     expect(result.stdout).toContain("[FAIL] config agents");
     expect(result.stdout).toContain(
       "unknown agent(s) referenced in config: ghost-agent",
@@ -446,7 +489,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` prioritizes explicit config agents even when they fail", () => {
+  it("`agent-swarm doctor` prioritizes explicit config agents even when they fail", () => {
     mkdirSync(join(baseDir, ".swarm", "presets"), { recursive: true });
     writeFileSync(
       join(baseDir, ".swarm", "config.yml"),
@@ -476,7 +519,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("swarm doctor: problems found");
+    expect(result.stdout).toContain("agent-swarm doctor: problems found");
     expect(result.stdout).toContain("[FAIL] config agents");
     expect(result.stdout).toContain(
       "unknown agent(s) referenced in config: ghost-agent",
@@ -487,7 +530,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` skips preset validation when explicit project config agents are valid", () => {
+  it("`agent-swarm doctor` skips preset validation when explicit project config agents are valid", () => {
     mkdirSync(join(baseDir, ".swarm", "presets"), { recursive: true });
     writeFileSync(
       join(baseDir, ".swarm", "config.yml"),
@@ -517,7 +560,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain("swarm doctor: ready");
+    expect(result.stdout).toContain("agent-swarm doctor: ready");
     expect(result.stdout).toContain("[OK] config agents");
     expect(result.stdout).not.toContain("config preset");
     expect(result.stdout).toContain("[OK] agent registry");
@@ -525,7 +568,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` reports ready when project config references valid explicit agents", () => {
+  it("`agent-swarm doctor` reports ready when project config references valid explicit agents", () => {
     mkdirSync(join(baseDir, ".swarm"), { recursive: true });
     writeFileSync(
       join(baseDir, ".swarm", "config.yml"),
@@ -539,7 +582,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain("swarm doctor: ready");
+    expect(result.stdout).toContain("agent-swarm doctor: ready");
     expect(result.stdout).toContain("[OK] config agents");
     expect(result.stdout).toContain("all 2 config agent(s) resolve");
     expect(result.stdout).toContain("[OK] agent registry");
@@ -548,7 +591,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` reports ready when project config is present but empty", () => {
+  it("`agent-swarm doctor` reports ready when project config is present but empty", () => {
     mkdirSync(join(baseDir, ".swarm"), { recursive: true });
     writeFileSync(join(baseDir, ".swarm", "config.yml"), "", "utf-8");
 
@@ -558,7 +601,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain("swarm doctor: ready");
+    expect(result.stdout).toContain("agent-swarm doctor: ready");
     expect(result.stdout).toContain("[OK] project config");
     expect(result.stdout).toContain("loaded .swarm/config.yml");
     expect(result.stdout).toContain("[OK] agent registry");
@@ -568,7 +611,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` reports a project-local agent-registry failure even when project config is present but empty", () => {
+  it("`agent-swarm doctor` reports a project-local agent-registry failure even when project config is present but empty", () => {
     mkdirSync(join(baseDir, ".swarm", "agents"), { recursive: true });
     writeFileSync(join(baseDir, ".swarm", "config.yml"), "", "utf-8");
     writeFileSync(
@@ -583,7 +626,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("swarm doctor: problems found");
+    expect(result.stdout).toContain("agent-swarm doctor: problems found");
     expect(result.stdout).toContain("[OK] project config");
     expect(result.stdout).toContain("loaded .swarm/config.yml");
     expect(result.stdout).toContain("[FAIL] agent registry");
@@ -597,7 +640,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` reports a project-local preset-registry failure even when project config is present but empty", () => {
+  it("`agent-swarm doctor` reports a project-local preset-registry failure even when project config is present but empty", () => {
     mkdirSync(join(baseDir, ".swarm", "presets"), { recursive: true });
     writeFileSync(join(baseDir, ".swarm", "config.yml"), "", "utf-8");
     writeFileSync(
@@ -612,7 +655,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("swarm doctor: problems found");
+    expect(result.stdout).toContain("agent-swarm doctor: problems found");
     expect(result.stdout).toContain("[OK] project config");
     expect(result.stdout).toContain("loaded .swarm/config.yml");
     expect(result.stdout).toContain("[OK] agent registry");
@@ -625,7 +668,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` reports both project-local registry failures even when project config is present but empty", () => {
+  it("`agent-swarm doctor` reports both project-local registry failures even when project config is present but empty", () => {
     mkdirSync(join(baseDir, ".swarm", "agents"), { recursive: true });
     mkdirSync(join(baseDir, ".swarm", "presets"), { recursive: true });
     writeFileSync(join(baseDir, ".swarm", "config.yml"), "", "utf-8");
@@ -646,7 +689,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("swarm doctor: problems found");
+    expect(result.stdout).toContain("agent-swarm doctor: problems found");
     expect(result.stdout).toContain("[OK] project config");
     expect(result.stdout).toContain("loaded .swarm/config.yml");
     expect(result.stdout).toContain("[FAIL] agent registry");
@@ -663,7 +706,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` reports a global agent-registry failure even when project config is present but empty", () => {
+  it("`agent-swarm doctor` reports a global agent-registry failure even when project config is present but empty", () => {
     const homeDir = join(baseDir, "home");
     mkdirSync(join(baseDir, ".swarm"), { recursive: true });
     mkdirSync(join(homeDir, ".swarm", "agents"), { recursive: true });
@@ -684,7 +727,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("swarm doctor: problems found");
+    expect(result.stdout).toContain("agent-swarm doctor: problems found");
     expect(result.stdout).toContain("[OK] project config");
     expect(result.stdout).toContain("loaded .swarm/config.yml");
     expect(result.stdout).toContain("[FAIL] agent registry");
@@ -698,7 +741,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` reports a global preset-registry failure even when project config is present but empty", () => {
+  it("`agent-swarm doctor` reports a global preset-registry failure even when project config is present but empty", () => {
     const homeDir = join(baseDir, "home");
     mkdirSync(join(baseDir, ".swarm"), { recursive: true });
     mkdirSync(join(homeDir, ".swarm", "presets"), { recursive: true });
@@ -719,7 +762,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("swarm doctor: problems found");
+    expect(result.stdout).toContain("agent-swarm doctor: problems found");
     expect(result.stdout).toContain("[OK] project config");
     expect(result.stdout).toContain("loaded .swarm/config.yml");
     expect(result.stdout).toContain("[OK] agent registry");
@@ -732,7 +775,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` reports both global registry failures even when project config is present but empty", () => {
+  it("`agent-swarm doctor` reports both global registry failures even when project config is present but empty", () => {
     const homeDir = join(baseDir, "home");
     mkdirSync(join(baseDir, ".swarm"), { recursive: true });
     mkdirSync(join(homeDir, ".swarm", "agents"), { recursive: true });
@@ -759,7 +802,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("swarm doctor: problems found");
+    expect(result.stdout).toContain("agent-swarm doctor: problems found");
     expect(result.stdout).toContain("[OK] project config");
     expect(result.stdout).toContain("loaded .swarm/config.yml");
     expect(result.stdout).toContain("[FAIL] agent registry");
@@ -776,7 +819,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` reports actionable problems when the agent registry contains an invalid project-local definition", () => {
+  it("`agent-swarm doctor` reports actionable problems when the agent registry contains an invalid project-local definition", () => {
     mkdirSync(join(baseDir, ".swarm", "agents"), { recursive: true });
     writeFileSync(
       join(baseDir, ".swarm", "agents", "broken-agent.md"),
@@ -790,7 +833,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("swarm doctor: problems found");
+    expect(result.stdout).toContain("agent-swarm doctor: problems found");
     expect(result.stdout).toContain("[FAIL] agent registry");
     expect(result.stdout).toContain(
       "markdown definition is missing frontmatter fence",
@@ -802,7 +845,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` reports actionable problems when the agent registry contains an invalid global definition", () => {
+  it("`agent-swarm doctor` reports actionable problems when the agent registry contains an invalid global definition", () => {
     const homeDir = join(baseDir, "home");
     mkdirSync(join(homeDir, ".swarm", "agents"), { recursive: true });
     writeFileSync(
@@ -821,9 +864,11 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("swarm doctor: problems found");
+    expect(result.stdout).toContain("agent-swarm doctor: problems found");
     expect(result.stdout).toContain("[OK] project config");
-    expect(result.stdout).toContain("no .swarm/config.yml (CLI flags only)");
+    expect(result.stdout).toContain(
+      "no .agent-swarm/config.yml (CLI flags only)",
+    );
     expect(result.stdout).toContain("[FAIL] agent registry");
     expect(result.stdout).toContain(
       "markdown definition is missing frontmatter fence",
@@ -835,7 +880,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` still validates config preset when the global agent registry fails to load", () => {
+  it("`agent-swarm doctor` still validates config preset when the global agent registry fails to load", () => {
     const homeDir = join(baseDir, "home");
     mkdirSync(join(baseDir, ".swarm"), { recursive: true });
     mkdirSync(join(homeDir, ".swarm", "agents"), { recursive: true });
@@ -860,7 +905,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("swarm doctor: problems found");
+    expect(result.stdout).toContain("agent-swarm doctor: problems found");
     expect(result.stdout).toContain("[OK] project config");
     expect(result.stdout).toContain("loaded .swarm/config.yml");
     expect(result.stdout).toContain("[FAIL] agent registry");
@@ -877,7 +922,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` suppresses config agent checks when the global agent registry fails to load", () => {
+  it("`agent-swarm doctor` suppresses config agent checks when the global agent registry fails to load", () => {
     const homeDir = join(baseDir, "home");
     mkdirSync(join(baseDir, ".swarm"), { recursive: true });
     mkdirSync(join(homeDir, ".swarm", "agents"), { recursive: true });
@@ -902,7 +947,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("swarm doctor: problems found");
+    expect(result.stdout).toContain("agent-swarm doctor: problems found");
     expect(result.stdout).toContain("[OK] project config");
     expect(result.stdout).toContain("loaded .swarm/config.yml");
     expect(result.stdout).toContain("[FAIL] agent registry");
@@ -916,7 +961,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` suppresses config agent checks when the agent registry fails to load", () => {
+  it("`agent-swarm doctor` suppresses config agent checks when the agent registry fails to load", () => {
     mkdirSync(join(baseDir, ".swarm", "agents"), { recursive: true });
     writeFileSync(
       join(baseDir, ".swarm", "config.yml"),
@@ -935,7 +980,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("swarm doctor: problems found");
+    expect(result.stdout).toContain("agent-swarm doctor: problems found");
     expect(result.stdout).toContain("[OK] project config");
     expect(result.stdout).toContain("loaded .swarm/config.yml");
     expect(result.stdout).toContain("[FAIL] agent registry");
@@ -949,7 +994,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` still validates config preset when the agent registry fails to load", () => {
+  it("`agent-swarm doctor` still validates config preset when the agent registry fails to load", () => {
     mkdirSync(join(baseDir, ".swarm", "agents"), { recursive: true });
     writeFileSync(
       join(baseDir, ".swarm", "config.yml"),
@@ -968,7 +1013,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("swarm doctor: problems found");
+    expect(result.stdout).toContain("agent-swarm doctor: problems found");
     expect(result.stdout).toContain("[OK] project config");
     expect(result.stdout).toContain("loaded .swarm/config.yml");
     expect(result.stdout).toContain("[FAIL] agent registry");
@@ -985,7 +1030,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` skips preset agent validation when the agent registry fails to load", () => {
+  it("`agent-swarm doctor` skips preset agent validation when the agent registry fails to load", () => {
     mkdirSync(join(baseDir, ".swarm", "agents"), { recursive: true });
     mkdirSync(join(baseDir, ".swarm", "presets"), { recursive: true });
     writeFileSync(
@@ -1016,7 +1061,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("swarm doctor: problems found");
+    expect(result.stdout).toContain("agent-swarm doctor: problems found");
     expect(result.stdout).toContain("[OK] project config");
     expect(result.stdout).toContain("loaded .swarm/config.yml");
     expect(result.stdout).toContain("[FAIL] agent registry");
@@ -1039,7 +1084,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` reports actionable problems when the preset registry contains an invalid project-local definition", () => {
+  it("`agent-swarm doctor` reports actionable problems when the preset registry contains an invalid project-local definition", () => {
     mkdirSync(join(baseDir, ".swarm", "presets"), { recursive: true });
     writeFileSync(
       join(baseDir, ".swarm", "presets", "broken-preset.yml"),
@@ -1053,7 +1098,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("swarm doctor: problems found");
+    expect(result.stdout).toContain("agent-swarm doctor: problems found");
     expect(result.stdout).toContain("[OK] agent registry");
     expect(result.stdout).toContain("[FAIL] preset registry");
     expect(result.stdout).toContain("invalid preset in");
@@ -1064,7 +1109,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` reports actionable problems when the preset registry contains an invalid global definition", () => {
+  it("`agent-swarm doctor` reports actionable problems when the preset registry contains an invalid global definition", () => {
     const homeDir = join(baseDir, "home");
     mkdirSync(join(homeDir, ".swarm", "presets"), { recursive: true });
     writeFileSync(
@@ -1083,9 +1128,11 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("swarm doctor: problems found");
+    expect(result.stdout).toContain("agent-swarm doctor: problems found");
     expect(result.stdout).toContain("[OK] project config");
-    expect(result.stdout).toContain("no .swarm/config.yml (CLI flags only)");
+    expect(result.stdout).toContain(
+      "no .agent-swarm/config.yml (CLI flags only)",
+    );
     expect(result.stdout).toContain("[OK] agent registry");
     expect(result.stdout).toContain("[FAIL] preset registry");
     expect(result.stdout).toContain("invalid preset in");
@@ -1096,7 +1143,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` still validates config agents when the global preset registry fails to load", () => {
+  it("`agent-swarm doctor` still validates config agents when the global preset registry fails to load", () => {
     const homeDir = join(baseDir, "home");
     mkdirSync(join(baseDir, ".swarm"), { recursive: true });
     mkdirSync(join(homeDir, ".swarm", "presets"), { recursive: true });
@@ -1121,7 +1168,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("swarm doctor: problems found");
+    expect(result.stdout).toContain("agent-swarm doctor: problems found");
     expect(result.stdout).toContain("[OK] project config");
     expect(result.stdout).toContain("loaded .swarm/config.yml");
     expect(result.stdout).toContain("[OK] agent registry");
@@ -1135,7 +1182,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` suppresses config preset checks when the global preset registry fails to load", () => {
+  it("`agent-swarm doctor` suppresses config preset checks when the global preset registry fails to load", () => {
     const homeDir = join(baseDir, "home");
     mkdirSync(join(baseDir, ".swarm"), { recursive: true });
     mkdirSync(join(homeDir, ".swarm", "presets"), { recursive: true });
@@ -1160,7 +1207,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("swarm doctor: problems found");
+    expect(result.stdout).toContain("agent-swarm doctor: problems found");
     expect(result.stdout).toContain("[OK] project config");
     expect(result.stdout).toContain("loaded .swarm/config.yml");
     expect(result.stdout).toContain("[OK] agent registry");
@@ -1173,7 +1220,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` suppresses config preset checks when the preset registry fails to load", () => {
+  it("`agent-swarm doctor` suppresses config preset checks when the preset registry fails to load", () => {
     mkdirSync(join(baseDir, ".swarm", "presets"), { recursive: true });
     writeFileSync(
       join(baseDir, ".swarm", "config.yml"),
@@ -1192,7 +1239,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("swarm doctor: problems found");
+    expect(result.stdout).toContain("agent-swarm doctor: problems found");
     expect(result.stdout).toContain("[OK] project config");
     expect(result.stdout).toContain("loaded .swarm/config.yml");
     expect(result.stdout).toContain("[OK] agent registry");
@@ -1205,7 +1252,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` still validates config agents when the preset registry fails to load", () => {
+  it("`agent-swarm doctor` still validates config agents when the preset registry fails to load", () => {
     mkdirSync(join(baseDir, ".swarm", "presets"), { recursive: true });
     writeFileSync(
       join(baseDir, ".swarm", "config.yml"),
@@ -1224,7 +1271,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("swarm doctor: problems found");
+    expect(result.stdout).toContain("agent-swarm doctor: problems found");
     expect(result.stdout).toContain("[OK] project config");
     expect(result.stdout).toContain("loaded .swarm/config.yml");
     expect(result.stdout).toContain("[OK] agent registry");
@@ -1238,7 +1285,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` suppresses config preset checks when both global registries fail to load", () => {
+  it("`agent-swarm doctor` suppresses config preset checks when both global registries fail to load", () => {
     const homeDir = join(baseDir, "home");
     mkdirSync(join(baseDir, ".swarm"), { recursive: true });
     mkdirSync(join(homeDir, ".swarm", "agents"), { recursive: true });
@@ -1269,7 +1316,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("swarm doctor: problems found");
+    expect(result.stdout).toContain("agent-swarm doctor: problems found");
     expect(result.stdout).toContain("[OK] project config");
     expect(result.stdout).toContain("loaded .swarm/config.yml");
     expect(result.stdout).toContain("[FAIL] agent registry");
@@ -1286,7 +1333,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` suppresses config preset checks when both registries fail to load", () => {
+  it("`agent-swarm doctor` suppresses config preset checks when both registries fail to load", () => {
     mkdirSync(join(baseDir, ".swarm", "agents"), { recursive: true });
     mkdirSync(join(baseDir, ".swarm", "presets"), { recursive: true });
     writeFileSync(
@@ -1311,7 +1358,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("swarm doctor: problems found");
+    expect(result.stdout).toContain("agent-swarm doctor: problems found");
     expect(result.stdout).toContain("[OK] project config");
     expect(result.stdout).toContain("loaded .swarm/config.yml");
     expect(result.stdout).toContain("[FAIL] agent registry");
@@ -1328,7 +1375,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` suppresses config checks when both registries fail to load for explicit-agent config", () => {
+  it("`agent-swarm doctor` suppresses config checks when both registries fail to load for explicit-agent config", () => {
     mkdirSync(join(baseDir, ".swarm", "agents"), { recursive: true });
     mkdirSync(join(baseDir, ".swarm", "presets"), { recursive: true });
     writeFileSync(
@@ -1353,7 +1400,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("swarm doctor: problems found");
+    expect(result.stdout).toContain("agent-swarm doctor: problems found");
     expect(result.stdout).toContain("[OK] project config");
     expect(result.stdout).toContain("loaded .swarm/config.yml");
     expect(result.stdout).toContain("[FAIL] agent registry");
@@ -1370,7 +1417,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm doctor` suppresses config checks when both global registries fail to load for explicit-agent config", () => {
+  it("`agent-swarm doctor` suppresses config checks when both global registries fail to load for explicit-agent config", () => {
     const homeDir = join(baseDir, "home");
     mkdirSync(join(baseDir, ".swarm"), { recursive: true });
     mkdirSync(join(homeDir, ".swarm", "agents"), { recursive: true });
@@ -1401,7 +1448,7 @@ describe("smoke: README golden path", () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("swarm doctor: problems found");
+    expect(result.stdout).toContain("agent-swarm doctor: problems found");
     expect(result.stdout).toContain("[OK] project config");
     expect(result.stdout).toContain("loaded .swarm/config.yml");
     expect(result.stdout).toContain("[FAIL] agent registry");
@@ -1418,7 +1465,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toBe("");
   });
 
-  it("`swarm run 2 ... --preset product-decision` auto-selects quiet logs on non-TTY stderr and produces the golden-path artifacts", () => {
+  it("`agent-swarm run 2 ... --preset product-decision` auto-selects quiet logs on non-TTY stderr and produces the golden-path artifacts", () => {
     const goal = "Decide on migration strategy";
     const decision = "Adopt / Defer / Reject";
 
@@ -1456,7 +1503,7 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toContain("[round 1] start");
     expect(result.stderr).toContain("[run] complete");
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDirEntries = readdirSync(runsDir);
     expect(runDirEntries).toHaveLength(1);
 
@@ -1517,7 +1564,7 @@ describe("smoke: README golden path", () => {
     expect(synthesisMd).toContain("### Round 2");
   });
 
-  it("`swarm run --quiet` emits one-line event logs while still writing artifacts", () => {
+  it("`agent-swarm run --quiet` emits one-line event logs while still writing artifacts", () => {
     const result = spawnSync(
       "node",
       [
@@ -1552,14 +1599,14 @@ describe("smoke: README golden path", () => {
     expect(result.stderr).toContain("[run] complete rounds=1");
     expect(result.stderr).not.toMatch(/\u001b\[/);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
 
     expect(existsSync(join(runDir, "manifest.json"))).toBe(true);
     expect(existsSync(join(runDir, "synthesis.md"))).toBe(true);
   });
 
-  it("`swarm run` fails fast when project config is invalid", () => {
+  it("`agent-swarm run` fails fast when project config is invalid", () => {
     mkdirSync(join(baseDir, ".swarm"), { recursive: true });
     writeFileSync(
       join(baseDir, ".swarm", "config.yml"),
@@ -1582,12 +1629,12 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(2);
     expect(result.stdout).toBe("");
-    expect(result.stderr).toContain("swarm: invalid .swarm/config.yml");
+    expect(result.stderr).toContain("agent-swarm: invalid .swarm/config.yml");
     expect(result.stderr).toContain("rounds");
-    expect(existsSync(join(baseDir, ".swarm", "runs"))).toBe(false);
+    expect(existsSync(join(baseDir, ".agent-swarm", "runs"))).toBe(false);
   });
 
-  it("`swarm run` fails fast when project config references an unknown preset", () => {
+  it("`agent-swarm run` fails fast when project config references an unknown preset", () => {
     mkdirSync(join(baseDir, ".swarm"), { recursive: true });
     writeFileSync(
       join(baseDir, ".swarm", "config.yml"),
@@ -1610,11 +1657,13 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(2);
     expect(result.stdout).toBe("");
-    expect(result.stderr).toContain('swarm: unknown preset "missing-preset"');
-    expect(existsSync(join(baseDir, ".swarm", "runs"))).toBe(false);
+    expect(result.stderr).toContain(
+      'agent-swarm: unknown preset "missing-preset"',
+    );
+    expect(existsSync(join(baseDir, ".agent-swarm", "runs"))).toBe(false);
   });
 
-  it("`swarm run` fails fast when project config references an unknown explicit agent", () => {
+  it("`agent-swarm run` fails fast when project config references an unknown explicit agent", () => {
     mkdirSync(join(baseDir, ".swarm"), { recursive: true });
     writeFileSync(
       join(baseDir, ".swarm", "config.yml"),
@@ -1637,11 +1686,11 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(2);
     expect(result.stdout).toBe("");
-    expect(result.stderr).toContain('swarm: unknown agent "ghost-agent"');
-    expect(existsSync(join(baseDir, ".swarm", "runs"))).toBe(false);
+    expect(result.stderr).toContain('agent-swarm: unknown agent "ghost-agent"');
+    expect(existsSync(join(baseDir, ".agent-swarm", "runs"))).toBe(false);
   });
 
-  it("`swarm run` fails fast when project config preset references an unknown agent", () => {
+  it("`agent-swarm run` fails fast when project config preset references an unknown agent", () => {
     mkdirSync(join(baseDir, ".swarm", "presets"), { recursive: true });
     writeFileSync(
       join(baseDir, ".swarm", "config.yml"),
@@ -1675,11 +1724,11 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(2);
     expect(result.stdout).toBe("");
-    expect(result.stderr).toContain('swarm: unknown agent "ghost-agent"');
-    expect(existsSync(join(baseDir, ".swarm", "runs"))).toBe(false);
+    expect(result.stderr).toContain('agent-swarm: unknown agent "ghost-agent"');
+    expect(existsSync(join(baseDir, ".agent-swarm", "runs"))).toBe(false);
   });
 
-  it("`swarm run` skips config preset resolution when explicit project config agents are valid", () => {
+  it("`agent-swarm run` skips config preset resolution when explicit project config agents are valid", () => {
     mkdirSync(join(baseDir, ".swarm"), { recursive: true });
     writeFileSync(
       join(baseDir, ".swarm", "config.yml"),
@@ -1709,7 +1758,7 @@ describe("smoke: README golden path", () => {
     expect(result.status).toBe(0);
     expect(result.stderr).not.toContain('unknown preset "missing-preset"');
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -1755,7 +1804,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -1798,7 +1847,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -1853,7 +1902,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -1906,7 +1955,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -1974,7 +2023,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -2027,7 +2076,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const productManagerOutput = readFileSync(
       join(runDir, "round-01", "agents", "product-manager.md"),
@@ -2084,7 +2133,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const productManagerOutput = readFileSync(
       join(runDir, "round-01", "agents", "product-manager.md"),
@@ -2144,7 +2193,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const productManagerOutput = readFileSync(
       join(runDir, "round-01", "agents", "product-manager.md"),
@@ -2208,7 +2257,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const productManagerOutput = readFileSync(
       join(runDir, "round-01", "agents", "product-manager.md"),
@@ -2270,7 +2319,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const productManagerOutput = readFileSync(
       join(runDir, "round-01", "agents", "product-manager.md"),
@@ -2349,7 +2398,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const productManagerOutput = readFileSync(
       join(runDir, "round-01", "agents", "product-manager.md"),
@@ -2429,7 +2478,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const productManagerOutput = readFileSync(
       join(runDir, "round-01", "agents", "product-manager.md"),
@@ -2509,7 +2558,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const productManagerOutput = readFileSync(
       join(runDir, "round-01", "agents", "product-manager.md"),
@@ -2572,7 +2621,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const productManagerOutput = readFileSync(
       join(runDir, "round-01", "agents", "product-manager.md"),
@@ -2631,7 +2680,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const productManagerOutput = readFileSync(
       join(runDir, "round-01", "agents", "product-manager.md"),
@@ -2688,7 +2737,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const productManagerOutput = readFileSync(
       join(runDir, "round-01", "agents", "product-manager.md"),
@@ -2762,7 +2811,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const productManagerOutput = readFileSync(
       join(runDir, "round-01", "agents", "product-manager.md"),
@@ -2837,7 +2886,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const productManagerOutput = readFileSync(
       join(runDir, "round-01", "agents", "product-manager.md"),
@@ -2912,7 +2961,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const productManagerOutput = readFileSync(
       join(runDir, "round-01", "agents", "product-manager.md"),
@@ -2968,7 +3017,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -3016,7 +3065,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const seedBrief = readFileSync(join(runDir, "seed-brief.md"), "utf-8");
     const roundBrief = readFileSync(
@@ -3084,7 +3133,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(2);
     expect(result.stderr).toContain(
-      "swarm: carry-forward doc not found: docs/missing.md",
+      "agent-swarm: carry-forward doc not found: docs/missing.md",
     );
   });
 
@@ -3121,7 +3170,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -3178,7 +3227,7 @@ describe("smoke: README golden path", () => {
     expect(result.status).toBe(0);
     expect(result.stderr).not.toContain("invalid preset");
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -3224,7 +3273,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -3284,7 +3333,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -3347,7 +3396,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -3411,7 +3460,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -3473,7 +3522,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -3543,7 +3592,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -3619,7 +3668,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -3671,7 +3720,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -3728,7 +3777,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -3802,7 +3851,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -3884,7 +3933,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -3973,7 +4022,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -4065,7 +4114,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -4148,7 +4197,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -4212,7 +4261,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -4267,7 +4316,7 @@ describe("smoke: README golden path", () => {
     expect(result.status).toBe(0);
     expect(result.stderr).not.toContain('unknown preset "missing-preset"');
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -4332,7 +4381,7 @@ describe("smoke: README golden path", () => {
     expect(result.status).toBe(0);
     expect(result.stderr).not.toContain("invalid preset");
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -4400,7 +4449,7 @@ describe("smoke: README golden path", () => {
     expect(result.status).toBe(0);
     expect(result.stderr).not.toContain("invalid preset");
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -4458,7 +4507,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -4521,7 +4570,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -4594,7 +4643,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -4675,7 +4724,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -4738,7 +4787,7 @@ describe("smoke: README golden path", () => {
     expect(result.status).toBe(0);
     expect(result.stderr).not.toContain('unknown preset "missing-preset"');
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -4803,7 +4852,7 @@ describe("smoke: README golden path", () => {
     expect(result.status).toBe(0);
     expect(result.stderr).not.toContain("invalid preset");
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -4871,7 +4920,7 @@ describe("smoke: README golden path", () => {
     expect(result.status).toBe(0);
     expect(result.stderr).not.toContain("invalid preset");
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -4947,7 +4996,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -5033,7 +5082,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -5122,7 +5171,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -5185,7 +5234,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),
@@ -5245,7 +5294,7 @@ describe("smoke: README golden path", () => {
 
     expect(result.status).toBe(0);
 
-    const runsDir = join(baseDir, ".swarm", "runs");
+    const runsDir = join(baseDir, ".agent-swarm", "runs");
     const runDir = join(runsDir, readdirSync(runsDir)[0]);
     const manifest = JSON.parse(
       readFileSync(join(runDir, "manifest.json"), "utf-8"),

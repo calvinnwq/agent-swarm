@@ -3,7 +3,10 @@
   "packages": {
     ".": {
       "release-type": "node",
-      "package-name": "swarm",
+      "package-name": "agent-swarm",
+      "include-component-in-tag": true,
+      "include-v-in-tag": true,
+      "include-v-in-release-name": true,
       "changelog-path": "CHANGELOG.md"
     }
   }

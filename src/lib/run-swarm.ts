@@ -31,6 +31,7 @@ import {
   buildOrchestratorPassDirective,
 } from "./brief-generator.js";
 import { buildOrchestratorSynthesis } from "./synthesis.js";
+import { STORAGE_DIR } from "./identity.js";
 import { attachLiveRenderer, attachQuietLogger } from "../ui/index.js";
 import { OutputRouter } from "./output-router.js";
 import type { OutputTarget } from "./output-router.js";
@@ -89,7 +90,7 @@ export interface RunSwarmOpts {
   config: SwarmRunConfig;
   agents: AgentDefinition[];
   backend: BackendAdapter;
-  /** Base directory for run artifacts (default: ".swarm/runs") */
+  /** Base directory for run artifacts (default: ".agent-swarm/runs") */
   baseDir?: string;
   /** Override start time for deterministic output */
   startedAt?: Date;
@@ -239,7 +240,7 @@ function packetWithPriorResolutionContext(
  */
 export async function runSwarm(opts: RunSwarmOpts): Promise<number> {
   const { config, agents, backend } = opts;
-  const baseDir = opts.baseDir ?? ".swarm/runs";
+  const baseDir = opts.baseDir ?? `${STORAGE_DIR}/runs`;
   const startedAt = opts.startedAt ?? new Date();
   const startedAtIso = startedAt.toISOString();
 

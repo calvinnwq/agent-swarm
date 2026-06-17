@@ -179,7 +179,7 @@ export function renderAgentMarkdown(
 }
 
 export interface ArtifactWriterOpts {
-  /** Base directory for runs, e.g. ".swarm/runs" */
+  /** Base directory for runs, e.g. ".agent-swarm/runs" */
   baseDir: string;
   /** The run manifest */
   manifest: RunManifest;
@@ -299,7 +299,7 @@ export class ArtifactWriter implements OutputTarget {
 }
 
 /**
- * Create an ArtifactWriter with the standard .swarm/runs layout.
+ * Create an ArtifactWriter with the standard .agent-swarm/runs layout.
  */
 export function createArtifactWriter(opts: ArtifactWriterOpts): ArtifactWriter {
   return new ArtifactWriter(opts);

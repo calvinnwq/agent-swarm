@@ -118,7 +118,7 @@ describe("runDoctor", () => {
     );
     const config = report.checks.find((c) => c.name === "project config");
     expect(config?.status).toBe("ok");
-    expect(config?.message).toContain("no .swarm/config.yml");
+    expect(config?.message).toContain("no .agent-swarm/config.yml");
     expect(
       report.checks.find((c) => c.name === "harness capability"),
     ).toBeUndefined();
@@ -192,6 +192,43 @@ describe("runDoctor", () => {
     expect(
       report.checks.find((c) => c.name === "harness capability"),
     ).toBeUndefined();
+  });
+
+  it("flags a legacy .swarm/config.yml with an explicit migration hint", async () => {
+    const roots = await makeIsolatedRoots();
+    await installLoggedInClaudeStub(roots.binDir);
+    await writeFileUnder(roots.cwd, ".swarm/config.yml", "");
+
+    const report = await runDoctor(roots);
+    const check = report.checks.find((c) => c.name === "project config");
+    expect(check?.status).toBe("ok");
+    expect(check?.message).toContain("loaded .swarm/config.yml");
+    expect(check?.message).toContain("legacy path");
+    expect(check?.message).toContain("migrate to .agent-swarm/config.yml");
+  });
+
+  it("does not flag the current .agent-swarm/config.yml as legacy", async () => {
+    const roots = await makeIsolatedRoots();
+    await installLoggedInClaudeStub(roots.binDir);
+    await writeFileUnder(roots.cwd, ".agent-swarm/config.yml", "");
+
+    const report = await runDoctor(roots);
+    const check = report.checks.find((c) => c.name === "project config");
+    expect(check?.status).toBe("ok");
+    expect(check?.message).toContain("loaded .agent-swarm/config.yml");
+    expect(check?.message).not.toContain("legacy");
+  });
+
+  it("prefers the current .agent-swarm/config.yml over a legacy .swarm/config.yml", async () => {
+    const roots = await makeIsolatedRoots();
+    await installLoggedInClaudeStub(roots.binDir);
+    await writeFileUnder(roots.cwd, ".swarm/config.yml", "");
+    await writeFileUnder(roots.cwd, ".agent-swarm/config.yml", "");
+
+    const report = await runDoctor(roots);
+    const check = report.checks.find((c) => c.name === "project config");
+    expect(check?.message).toContain("loaded .agent-swarm/config.yml");
+    expect(check?.message).not.toContain("legacy");
   });
 
   it("reports FAIL when config docs reference a missing carry-forward path", async () => {
@@ -378,7 +415,7 @@ describe("formatDoctorReport", () => {
     });
     expect(text).toContain("[OK] a: fine");
     expect(text).toContain("[FAIL] b: broken");
-    expect(text).toContain("swarm doctor: problems found");
+    expect(text).toContain("agent-swarm doctor: problems found");
   });
 
   it("prints the ready summary when all checks pass", () => {
@@ -386,6 +423,6 @@ describe("formatDoctorReport", () => {
       ok: true,
       checks: [{ name: "a", status: "ok", message: "fine" }],
     });
-    expect(text).toContain("swarm doctor: ready");
+    expect(text).toContain("agent-swarm doctor: ready");
   });
 });
