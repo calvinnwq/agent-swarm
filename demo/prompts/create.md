@@ -1,0 +1,1 @@
+Can you create me an advisory panel of experts as agents saved as a preset that i can use to ask questions to. Make each of these experts mimic a real human of influence across domains and industries both alive and dead. Make them only respond with a 1 liner, a skeptic angle and an advocate angle.

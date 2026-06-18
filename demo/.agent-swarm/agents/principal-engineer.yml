@@ -9,5 +9,5 @@ prompt: |
 
   Return only valid JSON with these fields:
   agent, round, stance, recommendation, reasoning, objections, risks, changesFromPriorRound, confidence, openQuestions
-harness: codex
-model: gpt-5.3-codex-spark
+harness: opencode
+model: openai/gpt-5.3-codex-spark

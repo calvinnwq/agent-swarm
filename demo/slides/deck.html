@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Agent Swarm — Decision Panels on the CLI</title>
+    <title>Agent Swarm: Decision Panels on the CLI</title>
     <style>
       :root {
         --bg: #0b1117;
@@ -184,6 +184,15 @@
         font-weight: 600;
       }
 
+      .lede.lede-tight {
+        margin-top: 12px;
+        max-width: 72ch;
+      }
+
+      h2.h2-sm {
+        font-size: clamp(30px, 4vw, 58px);
+      }
+
       .meta-row {
         margin-top: 36px;
         display: flex;
@@ -269,62 +278,54 @@
 
       /* pattern list */
       .patterns {
-        margin-top: 38px;
+        margin-top: 10px;
         display: grid;
-        gap: 12px;
+        gap: 6px;
         max-width: 1180px;
       }
 
       .pat {
         display: grid;
-        grid-template-columns: 150px 1fr auto;
+        grid-template-columns: 80px 1fr;
         align-items: center;
-        gap: 24px;
+        gap: 22px;
         border: 1px solid var(--line);
         background: var(--panel);
         border-radius: 10px;
-        padding: 18px 24px;
+        padding: 9px 22px;
+      }
+
+      .pat .glyph {
+        width: 80px;
+        height: 80px;
+        display: grid;
+        place-items: center;
+        border: 1px solid var(--line);
+        background: var(--bg-soft);
+        border-radius: 12px;
+      }
+
+      .pat .glyph svg {
+        display: block;
+        width: 58px;
+        height: 58px;
+      }
+
+      .pat .ptext {
+        display: grid;
+        gap: 6px;
       }
 
       .pat .name {
-        font-size: clamp(20px, 1.9vw, 27px);
+        font-size: clamp(19px, 1.8vw, 26px);
         font-weight: 700;
       }
 
       .pat .desc {
         color: var(--dim);
-        font-size: clamp(15px, 1.45vw, 19px);
-        line-height: 1.35;
-      }
-
-      .pat.demo {
-        border-color: rgb(90 214 160 / 0.45);
-        background: linear-gradient(
-          90deg,
-          rgb(90 214 160 / 0.07),
-          var(--panel) 60%
-        );
-      }
-
-      .badge {
-        font-family: var(--mono);
-        font-size: 12px;
-        font-weight: 600;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-        padding: 6px 12px;
-        border-radius: 999px;
-        white-space: nowrap;
-      }
-
-      .badge.live {
-        color: var(--bg);
-        background: var(--accent);
-      }
-
-      .badge.lib {
-        color: var(--dim);
-        border: 1px solid var(--line);
+        font-size: clamp(14px, 1.35vw, 18px);
+        line-height: 1.4;
+        max-width: 80ch;
       }
 
       /* demo slide: roles + brief */
@@ -344,14 +345,25 @@
 
       .role {
         display: grid;
-        grid-template-columns: auto 1fr;
+        grid-template-columns: auto auto 1fr;
         gap: 16px;
-        align-items: baseline;
+        align-items: center;
         border: 1px solid var(--line);
         background: var(--panel);
         border-radius: 10px;
-        padding: 18px 20px;
-        border-left: 4px solid var(--rolecolor, var(--accent));
+        padding: 15px 20px;
+      }
+
+      .role .ri {
+        width: 40px;
+        height: 40px;
+        display: grid;
+        place-items: center;
+        font-size: 21px;
+        line-height: 1;
+        border-radius: 9px;
+        background: var(--bg-soft);
+        border: 1px solid var(--rolecolor, var(--accent));
       }
 
       .role .rn {
@@ -448,6 +460,10 @@
         line-height: 1.38;
       }
 
+      .value.wide {
+        grid-column: 1 / -1;
+      }
+
       .takeaway {
         margin-top: 30px;
         font-size: clamp(18px, 1.8vw, 25px);
@@ -461,6 +477,85 @@
 
       .takeaway b {
         color: var(--accent);
+      }
+
+      /* connect / socials */
+      .socials {
+        margin-top: 38px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        max-width: 1000px;
+      }
+
+      .social {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        align-items: center;
+        gap: 16px;
+        border: 1px solid var(--line);
+        background: var(--panel);
+        border-radius: 10px;
+        padding: 20px 22px;
+        text-decoration: none;
+        color: var(--ink);
+        transition:
+          border-color 0.15s ease,
+          background 0.15s ease;
+      }
+
+      .social:hover,
+      .social:focus-visible {
+        border-color: var(--accent);
+        background: var(--bg-soft);
+        outline: none;
+      }
+
+      .social .sicon {
+        width: 42px;
+        height: 42px;
+        display: grid;
+        place-items: center;
+        border-radius: 9px;
+        background: var(--bg-soft);
+        border: 1px solid var(--line);
+        color: var(--ink);
+      }
+
+      .social:hover .sicon,
+      .social:focus-visible .sicon {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+
+      .social .sicon svg {
+        width: 22px;
+        height: 22px;
+        fill: currentColor;
+        display: block;
+      }
+
+      .social .stext {
+        display: grid;
+        gap: 3px;
+        min-width: 0;
+      }
+
+      .social .sname {
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--dim);
+      }
+
+      .social .shandle {
+        font-size: clamp(16px, 1.5vw, 21px);
+        font-weight: 600;
+        color: var(--ink);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       /* footer */
@@ -541,6 +636,7 @@
         .steps,
         .demo,
         .values,
+        .socials,
         .pat {
           grid-template-columns: 1fr;
         }
@@ -578,9 +674,13 @@
         }
         .step,
         .pat,
+        .pat .glyph,
         .role,
+        .role .ri,
         .brief,
         .value,
+        .social,
+        .social .sicon,
         .cmd,
         .pill {
           background: #f5f7f8;
@@ -607,31 +707,56 @@
     </div>
 
     <main class="deck" aria-live="polite">
-      <!-- 1. Intro -->
+      <!-- 1. whoami -->
       <section class="slide active">
         <div class="kick"><span class="num">01</span> · whoami</div>
-        <h1>I build tools for my <span class="swarm">agents</span>.</h1>
+        <h1>I'm <span class="swarm">Calvin</span>.</h1>
         <p class="lede">
-          I'm <b>Calvin</b>. I build tools that make my agents better at
-          building the things I actually want. Agent Swarm came out of a simple
-          frustration: I kept asking one model a fuzzy question when what I
-          really wanted was <b>a few useful opinions and a decision.</b>
+          Senior SWE at <b>Atlassian</b>, all-in on <b>AI-native building</b>
+          everywhere else. I harness agents to ship what one person
+          shouldn't be able to alone, and I'm quietly building a few things
+          <b>of my own</b> on the side.
         </p>
+        <div class="meta-row">
+          <span class="pill">Senior SWE @ <b>Atlassian</b></span>
+          <span class="pill">Building with <b>AI</b></span>
+          <span class="pill">X · Github · LinkedIn · <b>@calvinnwq</b></span>
+        </div>
         <div class="foot">
           <span>agent-swarm · meetup demo</span>
           <span>github.com/calvinnwq/agent-swarm</span>
         </div>
       </section>
 
-      <!-- 2. Origin / spiel -->
+      <!-- 2. Agent Swarm + backstory -->
       <section class="slide">
-        <div class="kick"><span class="num">02</span> · why it exists</div>
-        <h2>Subagents made the pattern click.</h2>
+        <div class="kick"><span class="num">02</span> · agent swarm</div>
+        <h1>Agent <span class="swarm">swarm</span>.</h1>
         <p class="lede">
-          Watching Claude plan work, hand pieces to focused subagents, and pull
-          the answers back together made something obvious: a lot of the magic
-          is in <b>who you put in the room.</b> Agent Swarm turns that into a
-          small CLI workflow I can inspect, rerun, and tweak.
+          A CLI that puts <b>one question</b> to a handful of opinionated AI
+          agents and hands back <b>a single, synthesized decision</b>.
+        </p>
+        <div class="meta-row">
+          <span class="pill"><b>2–5</b> agents, in parallel</span>
+          <span class="pill"><b>1–3</b> rounds</span>
+          <span class="pill">structured JSON → <b>one synthesis</b></span>
+        </div>
+        <div class="foot">
+          <span>one fuzzy question</span>
+          <span>a room of opinions → a decision</span>
+        </div>
+      </section>
+
+      <!-- 3. Origin / spiel -->
+      <section class="slide">
+        <div class="kick"><span class="num">03</span> · why it exists</div>
+        <h2>Subagents you can actually shape.</h2>
+        <p class="lede">
+          Agents already spawn their own subagents, but you can't really shape
+          that: not the <b>structure</b>, not each one's <b>persona</b>, not the
+          <b>harness or model</b> it runs on. Agent Swarm makes all three
+          explicit, so you define every role and <b>mix harnesses and models
+          per agent</b> (Claude, Codex, OpenCode).
         </p>
         <div class="cmd">
           <span class="sigil">$</span> agent-swarm run
@@ -648,74 +773,214 @@
         </div>
       </section>
 
-      <!-- 3. Patterns -->
+      <!-- 4. Patterns -->
       <section class="slide">
-        <div class="kick"><span class="num">03</span> · the shapes</div>
-        <h2>Five panels I keep reaching for.</h2>
+        <div class="kick"><span class="num">04</span> · the shapes</div>
+        <h2 class="h2-sm">Five swarm shapes to start from.</h2>
+        <p class="lede lede-tight">
+          Examples, not a menu. Rename the roles, remix them, or invent your
+          own.
+        </p>
         <div class="patterns">
-          <div class="pat demo">
-            <span class="name">Expert Panel</span>
-            <span class="desc"
-              >Product, engineering, and design sanity-check the next
-              move.</span
-            >
-            <span class="badge live">Live today</span>
-          </div>
-          <div class="pat demo">
-            <span class="name">Adversarial Review</span>
-            <span class="desc"
-              >One agent sells the idea, one pokes holes, one finds the safe
-              slice.</span
-            >
-            <span class="badge live">Live today</span>
-          </div>
-          <div class="pat demo">
-            <span class="name">Customer Panel</span>
-            <span class="desc"
-              >Fake users, real friction. Useful for first-run clarity.</span
-            >
-            <span class="badge live">Live today</span>
+          <div class="pat">
+            <div class="glyph">
+              <svg viewBox="0 0 48 48" width="40" height="40" fill="none">
+                <path
+                  d="M13 13 35 24M13 24 35 24M13 35 35 24"
+                  stroke="#46586a"
+                  stroke-width="1.6"
+                />
+                <circle cx="11" cy="13" r="4" fill="#5ad6a0" />
+                <circle cx="11" cy="24" r="4" fill="#6ab8ff" />
+                <circle cx="11" cy="35" r="4" fill="#f0b860" />
+                <circle
+                  cx="36"
+                  cy="24"
+                  r="5"
+                  fill="#0b1117"
+                  stroke="#e8eef4"
+                  stroke-width="1.8"
+                />
+              </svg>
+            </div>
+            <div class="ptext">
+              <div class="name">Expert Panel</div>
+              <div class="desc">
+                Product, engineering, and design each weigh in on the same
+                call, then converge on a single recommendation. Best for an
+                open "what should we do next?"
+              </div>
+            </div>
           </div>
           <div class="pat">
-            <span class="name">Audit Lanes</span>
-            <span class="desc"
-              >Docs, DX, release, and safety checks without one giant
-              reviewer.</span
-            >
-            <span class="badge lib">In the kit</span>
+            <div class="glyph">
+              <svg viewBox="0 0 48 48" width="40" height="40" fill="none">
+                <path
+                  d="M16 15 32 15M13 19 23 33M35 19 25 33"
+                  stroke="#46586a"
+                  stroke-width="1.6"
+                />
+                <circle cx="12" cy="15" r="4" fill="#5ad6a0" />
+                <circle cx="36" cy="15" r="4" fill="#f08a7a" />
+                <circle cx="24" cy="35" r="4" fill="#6ab8ff" />
+              </svg>
+            </div>
+            <div class="ptext">
+              <div class="name">Adversarial Review</div>
+              <div class="desc">
+                One agent makes the case, another attacks it, a third carves
+                out the shippable slice. A decision pressure-tested before you
+                commit.
+              </div>
+            </div>
           </div>
           <div class="pat">
-            <span class="name">Build Triage</span>
-            <span class="desc"
-              >Turns scope, risk, and tests into a brief someone can actually
-              build.</span
-            >
-            <span class="badge lib">In the kit</span>
+            <div class="glyph">
+              <svg viewBox="0 0 48 48" width="40" height="40" fill="none">
+                <path
+                  d="M12 14 21 21M36 14 27 21M24 37 24 29"
+                  stroke="#46586a"
+                  stroke-width="1.6"
+                />
+                <rect
+                  x="19"
+                  y="19"
+                  width="10"
+                  height="10"
+                  rx="2"
+                  fill="#0b1117"
+                  stroke="#e8eef4"
+                  stroke-width="1.8"
+                />
+                <circle cx="11" cy="13" r="4" fill="#5ad6a0" />
+                <circle cx="37" cy="13" r="4" fill="#6ab8ff" />
+                <circle cx="24" cy="38" r="4" fill="#f0b860" />
+              </svg>
+            </div>
+            <div class="ptext">
+              <div class="name">Customer Panel</div>
+              <div class="desc">
+                A cast of fake-but-plausible users reacts to your product,
+                surfacing first-run friction and the "why should I care?" gaps
+                you stopped noticing.
+              </div>
+            </div>
+          </div>
+          <div class="pat">
+            <div class="glyph">
+              <svg viewBox="0 0 48 48" width="40" height="40" fill="none">
+                <path
+                  d="M14 13 36 13M14 24 36 24M14 35 36 35"
+                  stroke="#46586a"
+                  stroke-width="1.6"
+                />
+                <circle cx="11" cy="13" r="4" fill="#5ad6a0" />
+                <circle cx="11" cy="24" r="4" fill="#6ab8ff" />
+                <circle cx="11" cy="35" r="4" fill="#f0b860" />
+                <rect
+                  x="36"
+                  y="10.5"
+                  width="5.5"
+                  height="5.5"
+                  rx="1.2"
+                  fill="#0b1117"
+                  stroke="#5ad6a0"
+                  stroke-width="1.4"
+                />
+                <rect
+                  x="36"
+                  y="21.5"
+                  width="5.5"
+                  height="5.5"
+                  rx="1.2"
+                  fill="#0b1117"
+                  stroke="#6ab8ff"
+                  stroke-width="1.4"
+                />
+                <rect
+                  x="36"
+                  y="32.5"
+                  width="5.5"
+                  height="5.5"
+                  rx="1.2"
+                  fill="#0b1117"
+                  stroke="#f0b860"
+                  stroke-width="1.4"
+                />
+              </svg>
+            </div>
+            <div class="ptext">
+              <div class="name">Audit Lanes</div>
+              <div class="desc">
+                Independent reviewers each own a lane (docs, DX, release,
+                safety) so nothing slips through one overloaded generalist
+                reviewer.
+              </div>
+            </div>
+          </div>
+          <div class="pat">
+            <div class="glyph">
+              <svg viewBox="0 0 48 48" width="40" height="40" fill="none">
+                <path
+                  d="M10 12 24 23M10 24 24 24M10 36 24 25M24 24 31 24"
+                  stroke="#46586a"
+                  stroke-width="1.6"
+                />
+                <circle cx="8" cy="12" r="3.6" fill="#5ad6a0" />
+                <circle cx="8" cy="24" r="3.6" fill="#6ab8ff" />
+                <circle cx="8" cy="36" r="3.6" fill="#f0b860" />
+                <rect
+                  x="31"
+                  y="17"
+                  width="10"
+                  height="14"
+                  rx="2"
+                  fill="#0b1117"
+                  stroke="#e8eef4"
+                  stroke-width="1.7"
+                />
+                <path
+                  d="M34 22 38 22M34 25 38 25M34 28 37 28"
+                  stroke="#8a99a8"
+                  stroke-width="1.2"
+                />
+              </svg>
+            </div>
+            <div class="ptext">
+              <div class="name">Build Triage</div>
+              <div class="desc">
+                Scope, risk, and testing voices turn a rough idea into a brief
+                that's concrete enough for someone to pick up and build.
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <!-- 4. Expert Panel -->
+      <!-- 5. Expert Panel -->
       <section class="slide">
         <div class="kick">
-          <span class="num">04</span> · demo one — expert panel
+          <span class="num">05</span> · demo one: expert panel
         </div>
         <h2>What should we build next?</h2>
         <div class="demo">
           <div class="roles">
             <div class="role" style="--rolecolor: #5ad6a0">
+              <span class="ri" aria-hidden="true">🎯</span>
               <span class="rn">product&#8209;manager</span>
               <span class="rd"
                 >Keeps asking whether the work will matter to a user.</span
               >
             </div>
             <div class="role" style="--rolecolor: #6ab8ff">
+              <span class="ri" aria-hidden="true">⚙️</span>
               <span class="rn">principal&#8209;engineer</span>
               <span class="rd"
                 >Keeps the idea inside the repo's actual constraints.</span
               >
             </div>
             <div class="role" style="--rolecolor: #f0b860">
+              <span class="ri" aria-hidden="true">🎨</span>
               <span class="rn">product&#8209;designer</span>
               <span class="rd"
                 >Notices where people get confused before they get value.</span
@@ -741,27 +1006,30 @@
         </div>
       </section>
 
-      <!-- 5. Adversarial Review -->
+      <!-- 6. Adversarial Review -->
       <section class="slide">
         <div class="kick">
-          <span class="num">05</span> · demo two — adversarial review
+          <span class="num">06</span> · demo two: adversarial review
         </div>
         <h2>Should this feature survive contact with reality?</h2>
         <div class="demo">
           <div class="roles">
             <div class="role" style="--rolecolor: #5ad6a0">
+              <span class="ri" aria-hidden="true">📣</span>
               <span class="rn">advocate</span>
               <span class="rd"
                 >Makes the strongest honest case for building it now.</span
               >
             </div>
             <div class="role" style="--rolecolor: #f08a7a">
+              <span class="ri" aria-hidden="true">🧐</span>
               <span class="rn">skeptic</span>
               <span class="rd"
                 >Calls out the bit that sounds neat but smells expensive.</span
               >
             </div>
             <div class="role" style="--rolecolor: #6ab8ff">
+              <span class="ri" aria-hidden="true">🔧</span>
               <span class="rn">implementer</span>
               <span class="rd"
                 >Cuts it down to the smallest thing worth shipping.</span
@@ -789,15 +1057,16 @@
         </div>
       </section>
 
-      <!-- 6. Customer Panel -->
+      <!-- 7. Customer Panel -->
       <section class="slide">
         <div class="kick">
-          <span class="num">06</span> · demo three — customer panel
+          <span class="num">07</span> · demo three: customer panel
         </div>
         <h2>Would a real user keep going?</h2>
         <div class="demo">
           <div class="roles">
             <div class="role" style="--rolecolor: #5ad6a0">
+              <span class="ri" aria-hidden="true">🧭</span>
               <span class="rn">new&#8209;user</span>
               <span class="rd"
                 >Tries to understand the repo without already knowing the
@@ -805,6 +1074,7 @@
               >
             </div>
             <div class="role" style="--rolecolor: #6ab8ff">
+              <span class="ri" aria-hidden="true">⏱️</span>
               <span class="rn">busy&#8209;operator</span>
               <span class="rd"
                 >Wants the payoff quickly, because they have other things to
@@ -812,6 +1082,7 @@
               >
             </div>
             <div class="role" style="--rolecolor: #f0b860">
+              <span class="ri" aria-hidden="true">🤔</span>
               <span class="rn">skeptical&#8209;buyer</span>
               <span class="rd">Asks why this deserves attention now.</span>
             </div>
@@ -835,55 +1106,149 @@
         </div>
       </section>
 
-      <!-- 7. Closeout -->
+      <!-- 8. Closeout -->
       <section class="slide">
-        <div class="kick"><span class="num">07</span> · the takeaway</div>
-        <h2>The win is a decision I can reuse.</h2>
+        <div class="kick"><span class="num">08</span> · the takeaway</div>
+        <h2>Six things worth keeping.</h2>
         <div class="values">
           <div class="value">
             <span class="vn">01</span>
             <div>
-              <h3>A repeatable room</h3>
-              <p>The same panel can look at the next question tomorrow.</p>
+              <h3>Customizable, portable agents</h3>
+              <p>
+                Each agent is a small file you can edit, version, and carry
+                across projects.
+              </p>
             </div>
           </div>
           <div class="value">
             <span class="vn">02</span>
             <div>
-              <h3>Named opinions</h3>
-              <p>Each voice has a job, a file, and a point of view.</p>
+              <h3>Presets for panels</h3>
+              <p>
+                Start from a bundled panel preset, or save and reuse your own.
+              </p>
             </div>
           </div>
           <div class="value">
             <span class="vn">03</span>
             <div>
-              <h3>Evidence on disk</h3>
+              <h3>Swarms built for the job</h3>
               <p>
-                I can read the agent outputs, manifest, events, and synthesis.
+                Compose the exact panel a question needs, not a fixed template.
               </p>
             </div>
           </div>
           <div class="value">
             <span class="vn">04</span>
             <div>
-              <h3>Swap the engine</h3>
-              <p>Codex, Claude, OpenCode, whatever. The role stays the role.</p>
+              <h3>Skills to spin them up</h3>
+              <p>
+                Generate and trigger a swarm straight from your coding agent's
+                skills.
+              </p>
+            </div>
+          </div>
+          <div class="value">
+            <span class="vn">05</span>
+            <div>
+              <h3>Swappable engine</h3>
+              <p>
+                Claude, Codex, OpenCode. Mix engines per role for genuine
+                diversity.
+              </p>
+            </div>
+          </div>
+          <div class="value">
+            <span class="vn">06</span>
+            <div>
+              <h3>Provenance on disk</h3>
+              <p>
+                Every agent output, manifest, event, and synthesis lands on disk
+                to read and replay.
+              </p>
             </div>
           </div>
         </div>
-        <p class="takeaway">
-          The useful bit is the shape: a real question, a few opinionated roles,
-          and a synthesis that can become a next step, a brief, or a PR.
-        </p>
         <div class="foot">
           <span>github.com/calvinnwq/agent-swarm</span>
           <span>leave with: which panel would you reuse?</span>
         </div>
       </section>
+
+      <!-- 9. Connect -->
+      <section class="slide">
+        <div class="kick"><span class="num">09</span> · connect</div>
+        <h1>Let's keep <span class="swarm">talking</span>.</h1>
+        <p class="lede">
+          Building with agents, assembling a swarm of your own, or just want to
+          compare notes? I'm <b>@calvinnwq</b> everywhere.
+        </p>
+        <div class="socials">
+          <a
+            class="social"
+            href="https://x.com/calvinnwq"
+            target="_blank"
+            rel="noopener"
+          >
+            <span class="sicon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
+                />
+              </svg>
+            </span>
+            <span class="stext">
+              <span class="sname">X</span>
+              <span class="shandle">@calvinnwq</span>
+            </span>
+          </a>
+          <a
+            class="social"
+            href="https://github.com/calvinnwq"
+            target="_blank"
+            rel="noopener"
+          >
+            <span class="sicon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M12 .5C5.37.5 0 5.78 0 12.29c0 5.2 3.44 9.6 8.21 11.16.6.11.82-.25.82-.56 0-.28-.01-1.02-.02-2-3.34.7-4.04-1.58-4.04-1.58-.55-1.36-1.34-1.73-1.34-1.73-1.09-.73.08-.72.08-.72 1.2.08 1.84 1.21 1.84 1.21 1.07 1.79 2.81 1.27 3.5.97.11-.76.42-1.27.76-1.56-2.67-.3-5.47-1.31-5.47-5.84 0-1.29.47-2.34 1.24-3.17-.12-.3-.54-1.52.12-3.16 0 0 1.01-.32 3.3 1.21.96-.26 1.98-.39 3-.4 1.02.01 2.04.14 3 .4 2.28-1.53 3.29-1.21 3.29-1.21.66 1.64.24 2.86.12 3.16.77.83 1.24 1.88 1.24 3.17 0 4.54-2.81 5.54-5.49 5.83.43.36.81 1.09.81 2.2 0 1.59-.01 2.87-.01 3.26 0 .31.21.68.83.56C20.57 21.88 24 17.48 24 12.29 24 5.78 18.63.5 12 .5z"
+                />
+              </svg>
+            </span>
+            <span class="stext">
+              <span class="sname">GitHub</span>
+              <span class="shandle">@calvinnwq</span>
+            </span>
+          </a>
+          <a
+            class="social"
+            href="https://www.linkedin.com/in/calvinnwq"
+            target="_blank"
+            rel="noopener"
+          >
+            <span class="sicon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z"
+                />
+              </svg>
+            </span>
+            <span class="stext">
+              <span class="sname">LinkedIn</span>
+              <span class="shandle">in/calvinnwq</span>
+            </span>
+          </a>
+        </div>
+        <div class="foot">
+          <span>github.com/calvinnwq/agent-swarm</span>
+          <span>thanks for watching</span>
+        </div>
+      </section>
     </main>
 
     <div class="counter" aria-live="polite">
-      <b id="cur">01</b> / <span id="total">07</span>
+      <b id="cur">01</b> / <span id="total">09</span>
     </div>
     <nav class="nav" aria-label="Slide navigation">
       <button type="button" id="prev" aria-label="Previous slide">‹</button>
