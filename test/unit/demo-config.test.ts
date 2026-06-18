@@ -62,8 +62,8 @@ describe("demo config", () => {
       model: "gpt-5.5",
     });
     expect(agents.getAgent("principal-engineer")).toMatchObject({
-      harness: "codex",
-      model: "gpt-5.3-codex-spark",
+      harness: "opencode",
+      model: "openai/gpt-5.3-codex-spark",
     });
     expect(agents.getAgent("product-designer")).toMatchObject({
       harness: "claude",
@@ -110,7 +110,7 @@ describe("demo config", () => {
     }
   });
 
-  it("keeps the copy-paste prompts wired to the repo Agent Swarm skill", async () => {
+  it("keeps the copy-paste prompts natural and decision-brief oriented", async () => {
     for (const promptName of [
       "expert-panel.md",
       "adversarial-review.md",
@@ -120,9 +120,16 @@ describe("demo config", () => {
         path.join(demoDir, "prompts", promptName),
         "utf-8",
       );
-      expect(prompt).toContain("$agent-swarm");
-      expect(prompt).toContain("Use this decision matrix:");
-      expect(prompt).toContain("After the run, review the synthesis");
+      expect(prompt).toContain("Run the");
+      expect(prompt).toContain(
+        "Please return the synthesis as a Decision Brief",
+      );
+      expect(prompt).toContain("Recommendation: <one of the decision options>");
+      expect(prompt).toContain("Agent votes:");
+      expect(prompt).toContain("Useful disagreement:");
+      expect(prompt).toContain("Smallest next step:");
+      expect(prompt).toContain("Demo takeaway:");
+      expect(prompt).not.toContain("$agent-swarm");
       expect(prompt).not.toContain("node ../dist/cli.mjs");
       expect(prompt).not.toContain("```bash");
       expect(prompt).not.toContain("--goal");
