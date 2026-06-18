@@ -1,13 +1,13 @@
-$agent-swarm Run the adversarial review against `demo/docs/feature-spec.md` to help answer the question "Should we implement this feature now, defer it, or reduce scope?"
+Run the adversarial review swarm against `demo/docs/feature-spec.md` to help answer the question "Should we implement this feature now, defer it, or reduce scope?"
 
-Use this decision matrix:
-- Build now: clear demo value, bounded implementation, acceptable failure risk.
-- Reduce scope: strong idea, but the safe path is a smaller slice.
-- Defer: useful, but not needed for this demo or not ready to implement.
-- Reject: weak value, wrong timing, or too much complexity.
+Please return the synthesis as a Decision Brief with this structure:
 
-After the run, review the synthesis and give me:
-- whether the swarm says build now, reduce scope, defer, or reject
-- the strongest advocate point
-- the strongest skeptic point
-- the smallest safe implementation slice
+Recommendation: <one of the decision options>
+Why this wins: <2-3 sentences>
+Agent votes:
+- <role>: <choice> — <short reason>
+Agreement: <what most agents agreed on>
+Useful disagreement: <the sharpest tension or tradeoff>
+Risks: <top 2 risks if we follow this recommendation>
+Smallest next step: <one concrete action we can take in a day>
+Demo takeaway: <one sentence I can say out loud to explain why this panel was useful>
