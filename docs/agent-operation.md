@@ -54,7 +54,7 @@ Command rules:
 - Use the selected preset with `--preset`.
 - Use the prompt's question as the topic.
 - Pass a short `--goal` derived from the question.
-- Do not pass `--decision` unless the human explicitly asks to override the preset default.
+- Pass `--decision` when the prompt includes a decision matrix that differs from the selected preset's default; omit it only when the matrix already matches the preset or the prompt provides no decision matrix.
 - Use `--doc` only for files named in the prompt or clearly required by the task.
 - Use `--resolve off` when speed matters or when the preset already has the right panel shape.
 - Use `--quiet` for readable agent logs.
@@ -71,7 +71,7 @@ agent-swarm run 1 "<question>" \
   --quiet
 ```
 
-Add `--doc <path>` for each prompt-named context file.
+Add `--doc <path>` for each prompt-named context file. Add `--decision "<label A> / <label B> / ..."` when the prompt-provided decision labels are not already the preset default.
 
 ## Artifacts
 
@@ -130,7 +130,7 @@ Operator behavior:
 - Select the local expert/product-engineering-design preset.
 - Use the quoted question as the topic.
 - Pass a goal such as `Help answer: What should be the next one-day improvement in this repo?`.
-- Let the preset supply the `Build now / Defer / Reject` decision default.
+- Use a preset whose decision default is `Build now / Defer / Reject`, or pass `--decision "Build now / Defer / Reject"` if the best-matching preset uses different labels.
 - Report the winning recommendation, tradeoff, and 60-second explanation.
 
 ### Adversarial review
@@ -157,7 +157,7 @@ Operator behavior:
 
 - Select the local adversarial/stress-test preset.
 - Add `--doc demo/docs/feature-spec.md`.
-- Preserve the preset decision fallback unless the prompt explicitly asks to override it.
+- Pass `--decision "Build now / Reduce scope / Defer / Reject"` unless the selected preset already uses those labels.
 - Report both sides of the disagreement before naming the smallest safe implementation slice.
 
 ### Customer panel
@@ -181,7 +181,7 @@ Operator behavior:
 
 - Select the local customer/new-user/buyer preset.
 - Use the quoted first-10-minute question as the topic and goal source.
-- Map the synthesis to `Fix now` or `Defer`.
+- Pass `--decision "Fix now / Defer"` unless the selected preset already uses those labels, then map the synthesis to `Fix now` or `Defer`.
 - Report the blocker, improvement, and product explanation angle.
 
 ## Verification Expectations

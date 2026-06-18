@@ -47,7 +47,7 @@ When the user triggers this skill with a human prompt:
    - customer panel -> customer-role, first-run friction, or trial-blocker presets.
 3. Extract the quoted question as the CLI topic. If no quoted question exists, use the clearest question sentence from the prompt.
 4. Pass a concise `--goal` derived from the question, for example `Help answer: <question>`.
-5. Do not pass `--decision` unless the user explicitly asks to override the preset decision. If the prompt includes a decision matrix, treat it as context for summarizing and explaining, while letting the preset decision fallback remain in effect.
+5. Pass `--decision` when the prompt includes a decision matrix whose labels differ from the selected preset decision. Omit `--decision` only when the prompt has no decision matrix or the matrix already matches the preset default.
 6. Add `--doc` only for files explicitly named by the user or obviously required by the preset/task.
 7. Run one round by default unless the user asks for more.
 

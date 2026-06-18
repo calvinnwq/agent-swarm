@@ -25,13 +25,14 @@ describe("documentation contract", () => {
     expect(contract).toContain("## Artifacts");
     expect(contract).toContain("## Reporting Format");
     expect(contract).toContain("## Structured Examples");
-    expect(contract).toContain("Do not pass `--decision`");
+    expect(contract).toContain("Pass `--decision` when");
     expect(contract).toContain(".agent-swarm/runs/<timestamp>-<slug>/");
     expect(contract).toContain("No speculative control-plane implementation");
 
     expect(readme).toContain("docs/agent-operation.md");
     expect(spec).toContain("docs/agent-operation.md");
     expect(skill).toContain("docs/agent-operation.md");
+    expect(skill).toContain("Pass `--decision` when");
     expect(JSON.parse(packageJson).files).toContain("docs/agent-operation.md");
   });
 });

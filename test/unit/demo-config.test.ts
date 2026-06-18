@@ -36,7 +36,7 @@ describe("demo config", () => {
     expect(skill).toContain(
       "expert panel -> product, engineering, and design review presets",
     );
-    expect(skill).toContain("Do not pass `--decision`");
+    expect(skill).toContain("Pass `--decision` when");
     expect(skill).not.toContain("Demo Presets");
     expect(skill).not.toContain("demo-expert-panel");
     expect(skill).not.toContain("demo-adversarial-review");
