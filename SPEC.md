@@ -336,7 +336,10 @@ Tracked under the productionization roadmap (M11–M15); not promised:
 - A user-facing `agent-swarm resume` command. Resume is implemented and tested
   internally (`resumeSwarm`) but is **not** exposed as a subcommand.
 - Agent-driven `--resolve agents` resolution.
-- Richer agent developer experience and dogfood recipes (M14).
+- Richer agent developer experience and dogfood recipes (M14). The first
+  operator contract for natural-prompt agent runs is documented in
+  [docs/agent-operation.md](docs/agent-operation.md); deeper recipes remain
+  future work.
 - UI / control-plane ideas beyond the current live/quiet renderers.
 - A public docs/spec site so the README can stay concise.
 - The M15 runtime boundary refactor (behavior-preserving).

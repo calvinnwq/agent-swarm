@@ -7,6 +7,8 @@ description: Run and inspect Agent Swarm CLI panels from the correct project dir
 
 Use this skill when the user asks to run, configure, smoke-test, or summarize an Agent Swarm run. Natural prompts are expected; translate the user's intent into the right CLI invocation instead of asking them for flags.
 
+For the durable operator contract, report shape, artifact expectations, and examples, see `docs/agent-operation.md`.
+
 ## Operating Rules
 
 - Run `agent-swarm` from the directory that owns the intended `.agent-swarm/` config.
