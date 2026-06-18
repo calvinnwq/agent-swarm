@@ -415,7 +415,9 @@ Two rendering modes:
 - `--resolve agents` — accepted and persisted, but currently behaves like `off`.
 - The `rounds` key in `.agent-swarm/config.yml` — reserved but not applied; pass `<rounds>` on the CLI.
 
-**Future (v0.3+ productionization candidates).** Not promised, not part of the alpha contract — tracked in the project roadmap (M11–M15): a user-facing `agent-swarm resume` command (resume is implemented and tested internally but not yet a subcommand), agent-driven `--resolve agents`, a public docs/spec site so this README can stay concise, CI/release-operations hardening, and richer agent DX. Release-readiness status and the full milestone breakdown live in [docs/release-readiness.md](docs/release-readiness.md).
+**Agent operation.** Agents can operate Agent Swarm from natural prompts by following the repeatable workflow in [docs/agent-operation.md](docs/agent-operation.md). That contract covers preset selection, decision-matrix handling, artifact inspection, and synthesis reporting without adding a new runtime control plane.
+
+**Future (v0.3+ productionization candidates).** Not promised, not part of the alpha contract — tracked in the project roadmap (M11–M15): a user-facing `agent-swarm resume` command (resume is implemented and tested internally but not yet a subcommand), agent-driven `--resolve agents`, a public docs/spec site so this README can stay concise, CI/release-operations hardening, and deeper agent DX/recipes beyond the current operator contract. Release-readiness status and the full milestone breakdown live in [docs/release-readiness.md](docs/release-readiness.md).
 
 ## Migration note
 
@@ -425,6 +427,6 @@ It also remains contract-compatible with the Python swarm prototype: agent defin
 
 ## Contributing & development
 
-Working on `agent-swarm` itself? See [CONTRIBUTING.md](CONTRIBUTING.md) for the dev loop, the real-harness smoke gate, the release process, and an architecture map; [ARCHITECTURE.md](ARCHITECTURE.md) goes deeper on runtime internals and [SPEC.md](SPEC.md) is the durable contract. Release/publish operations live in [docs/release-operations.md](docs/release-operations.md), and release history lives in [CHANGELOG.md](CHANGELOG.md).
+Working on `agent-swarm` itself? See [CONTRIBUTING.md](CONTRIBUTING.md) for the dev loop, the real-harness smoke gate, the release process, and an architecture map; [ARCHITECTURE.md](ARCHITECTURE.md) goes deeper on runtime internals and [SPEC.md](SPEC.md) is the durable runtime contract. Agent-operated run guidance lives in [docs/agent-operation.md](docs/agent-operation.md). Release/publish operations live in [docs/release-operations.md](docs/release-operations.md), and release history lives in [CHANGELOG.md](CHANGELOG.md).
 
 Community and trust docs: [support](SUPPORT.md), [security](SECURITY.md), [code of conduct](CODE_OF_CONDUCT.md), and [license](LICENSE).
