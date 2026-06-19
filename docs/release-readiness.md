@@ -54,17 +54,26 @@ Real harness binaries are exercised by the **manual** `pnpm smoke:real` gate (no
 
 ### Agent Skill Maintenance
 
-The packaged repo skill at `.agents/skills/agent-swarm` is a user-facing
-operator asset. Keep maintainer-only verification here, not in the copied skill,
-so external agents can install and use the skill without inheriting repo-local
-release chores.
+The repo skill at `.agents/skills/agent-swarm` is the source of truth and is used
+by the agents that operate this repo. `skills/agent-swarm` is its public mirror —
+the installable skill shipped in the npm package for the generic
+`npx skills add @calvinnwq/agent-swarm --skill agent-swarm` flow. Both are
+user-facing operator assets, so keep maintainer-only verification here, not in the
+copied skill, so external agents can install and use the skill without inheriting
+repo-local release chores.
+
+Edit only the source copy under `.agents/skills/agent-swarm`, then regenerate the
+public mirror with `pnpm skills:sync` and commit both copies. The
+`test/unit/installable-skill.test.ts` drift check fails the build if the two
+copies diverge.
 
 When changing `.agents/skills/agent-swarm/SKILL.md`,
 `.agents/skills/agent-swarm/scripts/agent-swarm-helper.mjs`, or
 `docs/agent-usage.md`, run:
 
 ```bash
-pnpm test test/unit/agent-swarm-skill-helper.test.ts test/unit/docs-contract.test.ts test/unit/default-presets.test.ts test/unit/demo-config.test.ts
+pnpm skills:sync
+pnpm test test/unit/agent-swarm-skill-helper.test.ts test/unit/installable-skill.test.ts test/unit/docs-contract.test.ts test/unit/default-presets.test.ts test/unit/demo-config.test.ts
 node --check .agents/skills/agent-swarm/scripts/agent-swarm-helper.mjs
 pnpm format:check
 git diff --check
@@ -82,8 +91,9 @@ pnpm smoke
 npm pack --dry-run --json
 ```
 
-The package dry-run must include
-`.agents/skills/agent-swarm/scripts/agent-swarm-helper.mjs`; otherwise copied or
+The package dry-run must include both
+`.agents/skills/agent-swarm/scripts/agent-swarm-helper.mjs` and the public mirror
+`skills/agent-swarm/scripts/agent-swarm-helper.mjs`; otherwise copied or
 npm-installed skills will document a helper that does not ship.
 
 ---
