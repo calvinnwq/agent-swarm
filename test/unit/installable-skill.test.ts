@@ -51,6 +51,24 @@ describe("public installable skill", () => {
     expect(packageJson.files).toContain("skills/agent-swarm");
   });
 
+  it("links package-root docs from the installed skill via public URLs", async () => {
+    const skill = await readFile(path.join(publicSkillDir, "SKILL.md"), "utf-8");
+    const docs = [
+      "docs/agent-operation.md",
+      "docs/agent-usage.md",
+      "docs/dogfood-recipes.md",
+    ];
+
+    for (const doc of docs) {
+      expect(skill).toContain(
+        `https://github.com/calvinnwq/agent-swarm/blob/main/${doc}`,
+      );
+    }
+    expect(skill).not.toContain("see `docs/agent-operation.md`");
+    expect(skill).not.toContain("see `docs/agent-usage.md`");
+    expect(skill).not.toContain("see `docs/dogfood-recipes.md`");
+  });
+
   it("documents the generic skills install path agnostically", async () => {
     const usage = await readFile(
       path.join(repoRoot, "docs", "agent-usage.md"),
