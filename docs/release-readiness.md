@@ -52,6 +52,40 @@ The `.no-mistakes.yaml` workflow runs `pnpm install --frozen-lockfile && pnpm te
 
 Real harness binaries are exercised by the **manual** `pnpm smoke:real` gate (not part of CI). It runs the built CLI against live `claude`/`codex`/`opencode` CLIs and emits a normalized JSON summary with offline artifact validation. See [CONTRIBUTING.md](../CONTRIBUTING.md#real-harness-smoke-gate-pnpm-smokereal) for usage and output shape.
 
+### Agent Skill Maintenance
+
+The packaged repo skill at `.agents/skills/agent-swarm` is a user-facing
+operator asset. Keep maintainer-only verification here, not in the copied skill,
+so external agents can install and use the skill without inheriting repo-local
+release chores.
+
+When changing `.agents/skills/agent-swarm/SKILL.md`,
+`.agents/skills/agent-swarm/scripts/agent-swarm-helper.mjs`, or
+`docs/agent-usage.md`, run:
+
+```bash
+pnpm test test/unit/agent-swarm-skill-helper.test.ts test/unit/docs-contract.test.ts test/unit/default-presets.test.ts test/unit/demo-config.test.ts
+node --check .agents/skills/agent-swarm/scripts/agent-swarm-helper.mjs
+pnpm format:check
+git diff --check
+```
+
+Before merging release-facing skill changes, also run the normal release gates:
+
+```bash
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm build
+pnpm smoke
+(cd demo && node ../dist/cli.mjs doctor)
+npm pack --dry-run --json
+```
+
+The package dry-run must include
+`.agents/skills/agent-swarm/scripts/agent-swarm-helper.mjs`; otherwise copied or
+npm-installed skills will document a helper that does not ship.
+
 ---
 
 ## Passed Gates — Evidence

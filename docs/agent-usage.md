@@ -32,10 +32,18 @@ The skill teaches an agent to:
 - report the recommendation, tradeoff, risks, and run path
 
 The helper lives at
-`.agents/skills/agent-swarm/scripts/agent-swarm-helper.mjs`. It handles
-mechanical command construction and latest-run inspection; the operator agent
-still owns the judgment about which project, preset, docs, question, and
-decision to use.
+`scripts/agent-swarm-helper.mjs` inside the copied skill directory. Set
+`AGENT_SWARM_SKILL_DIR` to the directory containing the copied `SKILL.md` before
+using helper examples:
+
+```bash
+export AGENT_SWARM_SKILL_DIR=/path/to/agent/skills/agent-swarm
+```
+
+In this source checkout, the same directory is `.agents/skills/agent-swarm`.
+The helper handles mechanical command construction and latest-run inspection;
+the operator agent still owns the judgment about which project, preset, docs,
+question, decision, and report shape to use.
 
 ## First-Time Defaults
 
@@ -100,7 +108,7 @@ From the project directory that owns `.agent-swarm/`:
 
 ```bash
 agent-swarm doctor
-node .agents/skills/agent-swarm/scripts/agent-swarm-helper.mjs build-run-command \
+node "$AGENT_SWARM_SKILL_DIR/scripts/agent-swarm-helper.mjs" build-run-command \
   --question "<question>" \
   --preset product-triad \
   --decision "Proceed / Defer / Reject" \
@@ -113,19 +121,13 @@ Run the generated command. For source checkouts before installation/linking, add
 Then inspect the newest run:
 
 ```bash
-node .agents/skills/agent-swarm/scripts/agent-swarm-helper.mjs inspect-latest-run \
+node "$AGENT_SWARM_SKILL_DIR/scripts/agent-swarm-helper.mjs" inspect-latest-run \
   --project-dir .
 ```
 
-Report:
-
-```text
-Recommendation: <winning outcome>
-Tradeoff: <main disagreement or cost>
-Why: <1-3 sentences grounded in synthesis>
-Risks: <material caveats>
-Evidence: <run directory path>
-```
+Report in the shape requested by the prompt, preset, or agent instructions. If
+none is specified, include the recommendation, main tradeoff, material risks,
+and run directory path.
 
 ## Non-Goals
 

@@ -85,21 +85,32 @@ describe("documentation contract", () => {
     expect(usage).toContain("adversarial-code-review");
     expect(usage).toContain("customer-panel");
     expect(usage).toContain(".agent-swarm/config.yml");
+    expect(usage).toContain("AGENT_SWARM_SKILL_DIR");
     expect(usage).toContain("agent-swarm-helper.mjs");
     expect(usage).toContain("build-run-command");
     expect(usage).toContain("inspect-latest-run");
+    expect(usage).toContain(
+      "Report in the shape requested by the prompt, preset, or agent instructions",
+    );
     expect(usage).toContain("No saved-run database");
     expect(usage).toContain("No new `agent-swarm templates`");
 
     expect(readme).toContain("docs/agent-usage.md");
     expect(readiness).toContain("agent-usage.md");
+    expect(readiness).toContain("### Agent Skill Maintenance");
+    expect(readiness).toContain("agent-swarm-helper.mjs");
+    expect(readiness).toContain(
+      "pnpm test test/unit/agent-swarm-skill-helper.test.ts",
+    );
     expect(operation).toContain("docs/agent-usage.md");
     expect(skill).toContain("docs/agent-usage.md");
     expect(skill).toContain("Create Or Configure A Swarm");
+    expect(skill).toContain("AGENT_SWARM_SKILL_DIR");
     expect(skill).toContain("agent-swarm-helper.mjs");
     expect(skill).toContain("## Contract");
     expect(skill).toContain("## Phases");
-    expect(skill).toContain("## Output Format");
+    expect(skill).not.toContain("## Output Format");
+    expect(skill).not.toContain("## Verification");
 
     const files = JSON.parse(packageJson).files;
     expect(files).toContain("docs/agent-usage.md");

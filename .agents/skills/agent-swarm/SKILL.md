@@ -21,7 +21,7 @@ This skill owns the agent-operated path from natural language to a real Agent Sw
 - Create or edit project-local `.agent-swarm/` files only when the user asks for custom swarm configuration.
 - Use deterministic helper scripts for command rendering and latest-run inspection instead of retyping fragile shell snippets.
 - Preserve current runtime boundaries: no scheduler, UI, saved-run database, hosted control plane, or new command surface.
-- Report outcomes from artifacts, especially `manifest.json` and `synthesis.md`, with the run directory path.
+- Report outcomes from artifacts, especially `manifest.json` and `synthesis.md`, while honoring any format requested by the prompt, preset, or agent instructions.
 
 ## Trigger Examples
 
@@ -49,19 +49,21 @@ This skill owns the agent-operated path from natural language to a real Agent Sw
 1. Locate the project root that owns the intended `.agent-swarm/` config.
 2. Run `agent-swarm doctor` or the built CLI doctor before dispatch.
 3. Map the user's natural prompt to a bundled or project-local preset.
-4. Render the command with `scripts/agent-swarm-helper.mjs build-run-command` when the inputs are known.
+4. Render the command with the packaged helper when the inputs are known.
 5. Run the swarm only after command inputs are explicit enough to avoid guessing.
-6. Inspect the newest run with `scripts/agent-swarm-helper.mjs inspect-latest-run`.
-7. Report in the output format below and include the run path.
+6. Inspect the newest run with the packaged helper.
+7. Report the result in the prompt/preset-requested shape and include the run path.
 
 ## Deterministic Helper
 
 Use the helper for repeatable mechanical steps. It does not infer intent; the agent still chooses the project, preset, question, docs, and decision.
 
+Resolve the helper relative to the installed skill directory, not the project directory. Set `AGENT_SWARM_SKILL_DIR` to the directory containing this `SKILL.md`. In a source checkout, that directory is `.agents/skills/agent-swarm`.
+
 Build the command:
 
 ```bash
-node .agents/skills/agent-swarm/scripts/agent-swarm-helper.mjs build-run-command \
+node "$AGENT_SWARM_SKILL_DIR/scripts/agent-swarm-helper.mjs" build-run-command \
   --question "<question>" \
   --preset product-triad \
   --decision "Proceed / Defer / Reject" \
@@ -73,7 +75,7 @@ For this repo before installation/linking, add `--built-cli`.
 Inspect the newest run:
 
 ```bash
-node .agents/skills/agent-swarm/scripts/agent-swarm-helper.mjs inspect-latest-run \
+node "$AGENT_SWARM_SKILL_DIR/scripts/agent-swarm-helper.mjs" inspect-latest-run \
   --project-dir .
 ```
 
@@ -148,7 +150,7 @@ When the user triggers this skill with a human prompt:
 Baseline command shape:
 
 ```bash
-node .agents/skills/agent-swarm/scripts/agent-swarm-helper.mjs build-run-command \
+node "$AGENT_SWARM_SKILL_DIR/scripts/agent-swarm-helper.mjs" build-run-command \
   --question "<question>" \
   --preset <preset-name>
 ```
@@ -158,7 +160,7 @@ Add `--doc <path>` for each prompt-named document.
 For this repo before installation/linking, add `--built-cli` and run the generated command from the appropriate project directory:
 
 ```bash
-node .agents/skills/agent-swarm/scripts/agent-swarm-helper.mjs build-run-command \
+node "$AGENT_SWARM_SKILL_DIR/scripts/agent-swarm-helper.mjs" build-run-command \
   --question "<question>" \
   --preset <preset-name> \
   --built-cli
@@ -187,34 +189,14 @@ cat "$latest/manifest.json" | jq '.agentRuntimes'
 Find the newest run:
 
 ```bash
-node .agents/skills/agent-swarm/scripts/agent-swarm-helper.mjs inspect-latest-run \
+node "$AGENT_SWARM_SKILL_DIR/scripts/agent-swarm-helper.mjs" inspect-latest-run \
   --project-dir .
 ```
 
 Report:
 
+- the format requested by the prompt, preset, or agent instructions
 - recommendation
 - tradeoff or disagreement
-- requested explanation format
 - risks or caveats when relevant
 - run directory path
-
-## Output Format
-
-```text
-Recommendation: <winning outcome>
-Tradeoff: <main disagreement or cost>
-Why: <1-3 sentences grounded in synthesis.md>
-Risks: <material caveats, or "none called out">
-Evidence: <run directory path>
-```
-
-## Verification
-
-- Unit tests cover the deterministic helper and default preset contract.
-- Docs-contract tests keep the skill, usage guide, and package file list linked.
-- Run `pnpm test test/unit/agent-swarm-skill-helper.test.ts test/unit/docs-contract.test.ts test/unit/default-presets.test.ts test/unit/demo-config.test.ts` after editing this skill.
-- Run `pnpm format:check`, `git diff --check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, `pnpm smoke`, demo doctor, and `npm pack --dry-run --json` before merging release-facing changes.
-- Reachability / DRY audit: if this skill is imported into a broader skill tree, run that tree's `check_resolvable_local` audit there; this repo ships the skill as a packaged operator asset.
-- LLM evals N/A: this skill invokes existing harness agents through Agent Swarm and adds no separate LLM prompt evaluator.
-- Filing rules N/A: this skill writes project `.agent-swarm/` config and run artifacts only; it does not write memory, wiki, vault, Obsidian, or note files.
