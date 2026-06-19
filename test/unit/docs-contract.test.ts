@@ -70,10 +70,11 @@ describe("documentation contract", () => {
   });
 
   it("ships first-time agent usage guidance and the repo skill", async () => {
-    const [usage, readme, readiness, operation, skill, packageJson] =
+    const [usage, readme, spec, readiness, operation, skill, packageJson] =
       await Promise.all([
         readRepoFile("docs/agent-usage.md"),
         readRepoFile("README.md"),
+        readRepoFile("SPEC.md"),
         readRepoFile("docs/release-readiness.md"),
         readRepoFile("docs/agent-operation.md"),
         readRepoFile(".agents/skills/agent-swarm/SKILL.md"),
@@ -85,6 +86,7 @@ describe("documentation contract", () => {
     expect(usage).toContain("adversarial-code-review");
     expect(usage).toContain("customer-panel");
     expect(usage).toContain(".agent-swarm/config.yml");
+    expect(usage).toContain("Folders are for readability only");
     expect(usage).toContain("AGENT_SWARM_SKILL_DIR");
     expect(usage).toContain("agent-swarm-helper.mjs");
     expect(usage).toContain("build-run-command");
@@ -96,15 +98,21 @@ describe("documentation contract", () => {
     expect(usage).toContain("No new `agent-swarm templates`");
 
     expect(readme).toContain("docs/agent-usage.md");
+    expect(readme).toContain(".agent-swarm/agents/**/*.yml");
+    expect(readme).toContain("folder names are organization only");
+    expect(readme).toContain(".agent-swarm/presets/**/*.yml");
+    expect(operation).toContain("docs/agent-usage.md");
+    expect(spec).toContain(".agent-swarm/agents/**/*.yml");
+    expect(spec).toContain("organization only, not namespaces");
     expect(readiness).toContain("agent-usage.md");
     expect(readiness).toContain("### Agent Skill Maintenance");
     expect(readiness).toContain("agent-swarm-helper.mjs");
     expect(readiness).toContain(
       "pnpm test test/unit/agent-swarm-skill-helper.test.ts",
     );
-    expect(operation).toContain("docs/agent-usage.md");
     expect(skill).toContain("docs/agent-usage.md");
     expect(skill).toContain("Create Or Configure A Swarm");
+    expect(skill).toContain("Subdirectories are organization only");
     expect(skill).toContain("AGENT_SWARM_SKILL_DIR");
     expect(skill).toContain("agent-swarm-helper.mjs");
     expect(skill).toContain("## Contract");

@@ -67,14 +67,16 @@ When a user asks for a custom swarm, create project-local files under
 ```text
 .agent-swarm/
 ├── agents/
-│   ├── <role-a>.yml
-│   └── <role-b>.yml
+│   ├── product/<role-a>.yml
+│   └── review/<role-b>.yml
 ├── presets/
-│   └── <preset-name>.yml
+│   └── product/<preset-name>.yml
 └── config.yml
 ```
 
-Prefer small panels. Presets must reference 2-5 agents.
+Folders are for readability only. Agent and preset identity still comes from
+the YAML `name`, and presets reference those names directly. Prefer small
+panels. Presets must reference 2-5 agents.
 
 Example preset:
 

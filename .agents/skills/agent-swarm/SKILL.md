@@ -100,11 +100,13 @@ Stop and report exact harness/model failures. Do not rewrite agent files unless 
 When the user asks to create a new custom swarm:
 
 1. Use project-local `.agent-swarm/` files.
-2. Create only the needed directories: `.agent-swarm/agents/`, `.agent-swarm/presets/`, and optionally `.agent-swarm/config.yml`.
+2. Create only the needed directories: `.agent-swarm/agents/`, `.agent-swarm/presets/`, and optionally `.agent-swarm/config.yml`. Group agent and preset files in subdirectories when it improves readability.
 3. Prefer 2-5 named agents with narrow roles.
 4. Write presets with `name`, `description`, `agents`, optional `resolve`, `goal`, and `decision`.
 5. Use config for project defaults only. Do not hide CLI precedence: CLI flags > config values > preset defaults.
 6. Run `agent-swarm doctor` after config changes.
+
+Subdirectories are organization only, not namespaces. The YAML `name` remains the canonical identity, and duplicate names within the same registry root are errors.
 
 Minimal preset:
 

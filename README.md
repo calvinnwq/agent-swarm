@@ -195,13 +195,13 @@ agent-swarm run 1 "Should we adopt server components?" \
 
 Presets resolve from three roots, first match wins:
 
-| Source        | Path                           | Scope          |
-| ------------- | ------------------------------ | -------------- |
-| Project-local | `.agent-swarm/presets/*.yml`   | This repo      |
-| User-global   | `~/.agent-swarm/presets/*.yml` | Your machine   |
-| Bundled       | _(ships with agent-swarm)_     | Always present |
+| Source        | Path                                            | Scope          |
+| ------------- | ----------------------------------------------- | -------------- |
+| Project-local | `.agent-swarm/presets/**/*.yml` / `**/*.yaml`   | This repo      |
+| User-global   | `~/.agent-swarm/presets/**/*.yml` / `**/*.yaml` | Your machine   |
+| Bundled       | _(ships with agent-swarm)_                      | Always present |
 
-A project-local preset with the same `name` as a bundled preset fully replaces it for that project. A user-global preset overrides bundled machine-wide but yields to project-local. Duplicate `name` values within a single root are an error.
+Preset files may be grouped in subdirectories for readability; folder names are organization only, not namespaces. A project-local preset with the same `name` as a bundled preset fully replaces it for that project. A user-global preset overrides bundled machine-wide but yields to project-local. Duplicate `name` values within a single root are an error.
 
 > **Legacy paths.** The previous `.swarm/presets/` (and `~/.swarm/presets/`) locations are still read as a fallback for one release. When both exist, the `.agent-swarm/` path wins. Move your presets to `.agent-swarm/presets/` when convenient.
 
@@ -249,13 +249,13 @@ Supported keys: `preset`, `agents` (2–5 names), `backend`, `resolve`, `timeout
 
 Agent definitions are YAML or Markdown files resolved from three roots (first wins):
 
-| Path                                                         | Scope                                   |
-| ------------------------------------------------------------ | --------------------------------------- |
-| `.agent-swarm/agents/*.yml` / `.agent-swarm/agents/*.md`     | Project-local                           |
-| `~/.agent-swarm/agents/*.yml` / `~/.agent-swarm/agents/*.md` | User-global                             |
-| _(bundled)_                                                  | Ships with agent-swarm; see table below |
+| Path                                                       | Scope                                   |
+| ---------------------------------------------------------- | --------------------------------------- |
+| `.agent-swarm/agents/**/*.yml` / `**/*.yaml` / `**/*.md`   | Project-local                           |
+| `~/.agent-swarm/agents/**/*.yml` / `**/*.yaml` / `**/*.md` | User-global                             |
+| _(bundled)_                                                | Ships with agent-swarm; see table below |
 
-A project-local agent with the same `name` as a bundled agent fully replaces it. A user-global agent overrides bundled machine-wide but yields to project-local. Duplicate `name` values within the same root are an error.
+Agent files may be grouped in subdirectories for readability; folder names are organization only, not namespaces. A project-local agent with the same `name` as a bundled agent fully replaces it. A user-global agent overrides bundled machine-wide but yields to project-local. Duplicate `name` values within the same root are an error.
 
 > **Legacy paths.** The previous `.swarm/agents/` (and `~/.swarm/agents/`) locations are still read as a fallback for one release, after their `.agent-swarm/` equivalents. When the same agent name exists in both, the `.agent-swarm/` definition wins.
 

@@ -98,29 +98,12 @@ async function resolveDefaultBundledDir(): Promise<string> {
 async function loadDefinitionsFromRoot(
   root: string,
 ): Promise<RootDefinition[]> {
-  let entries;
-  try {
-    entries = await readdir(root, { withFileTypes: true });
-  } catch (error) {
-    if (isMissingDirectory(error)) {
-      return [];
-    }
-    throw error;
-  }
-
-  const fileNames = entries
-    .filter((entry) => entry.isFile())
-    .map((entry) => entry.name)
-    .filter((name) =>
-      DEFINITION_EXTENSIONS.has(path.extname(name).toLowerCase()),
-    )
-    .sort((left, right) => left.localeCompare(right));
+  const filePaths = await listDefinitionFiles(root);
 
   const definitions: RootDefinition[] = [];
   const seenNames = new Map<string, string>();
 
-  for (const fileName of fileNames) {
-    const filePath = path.join(root, fileName);
+  for (const filePath of filePaths) {
     const definition = await loadDefinitionFile(filePath);
     const existingPath = seenNames.get(definition.name);
     if (existingPath) {
@@ -134,6 +117,40 @@ async function loadDefinitionsFromRoot(
   }
 
   return definitions;
+}
+
+async function listDefinitionFiles(root: string): Promise<string[]> {
+  const filePaths: string[] = [];
+
+  async function visit(dir: string): Promise<void> {
+    let entries;
+    try {
+      entries = await readdir(dir, { withFileTypes: true });
+    } catch (error) {
+      if (dir === root && isMissingDirectory(error)) {
+        return;
+      }
+      throw error;
+    }
+
+    for (const entry of entries) {
+      const entryPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        await visit(entryPath);
+        continue;
+      }
+
+      if (
+        entry.isFile() &&
+        DEFINITION_EXTENSIONS.has(path.extname(entry.name).toLowerCase())
+      ) {
+        filePaths.push(entryPath);
+      }
+    }
+  }
+
+  await visit(root);
+  return filePaths.sort((left, right) => left.localeCompare(right));
 }
 
 async function loadDefinitionFile(filePath: string): Promise<AgentDefinition> {
