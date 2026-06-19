@@ -9,7 +9,7 @@ Use them when the goal is to learn from real decisions before choosing a v0.3 di
 Before every recipe:
 
 ```bash
-cd /Users/ngxcalvin/repos/agent-swarm/demo
+cd "$(git rev-parse --show-toplevel)/demo"
 node ../dist/cli.mjs doctor
 ```
 
