@@ -29,6 +29,7 @@ pnpm test            # vitest unit tests (test/unit/**)
 pnpm test:e2e        # builds, then vitest with vitest.e2e.config.ts (test/e2e/**)
 pnpm smoke           # builds, runs only test/e2e/smoke.test.ts (golden-path verification)
 pnpm smoke:real      # builds, then runs real harness CLIs manually (not CI)
+pnpm skills:sync     # mirror .agents/skills/agent-swarm to skills/agent-swarm
 pnpm typecheck       # tsc -p tsconfig.typecheck.json --noEmit
 pnpm lint            # eslint src
 pnpm format          # prettier --write src test
@@ -38,6 +39,8 @@ pnpm format:check    # prettier --check src test
 Run a single test file: `vitest run test/unit/path/to/file.test.ts` (add `--config vitest.e2e.config.ts` for e2e). Filter by name: `vitest run -t "pattern"`.
 
 The `.no-mistakes.yaml` workflow runs `pnpm install --frozen-lockfile && pnpm test` for tests and `pnpm install --frozen-lockfile && pnpm lint && pnpm typecheck && pnpm format:check` for lint — keep all three green together when changing `src/`.
+
+When editing the agent-operated skill, change `.agents/skills/agent-swarm` first, then run `pnpm skills:sync` to regenerate the public installable mirror under `skills/agent-swarm`.
 
 GitHub CI (`.github/workflows/ci.yml`) gates pull requests, pushes to `main`, and manual dispatches with deterministic checks only: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, `pnpm smoke`, and a packaged install smoke that runs the installed `agent-swarm --version` and `agent-swarm --help` from a packed tarball. CI does not require live harness credentials.
 

@@ -58,7 +58,7 @@ This skill owns the agent-operated path from natural language to a real Agent Sw
 
 Use the helper for repeatable mechanical steps. It does not infer intent; the agent still chooses the project, preset, question, docs, and decision.
 
-Resolve the helper relative to the installed skill directory, not the project directory. Set `AGENT_SWARM_SKILL_DIR` to the directory containing this `SKILL.md`. In a source checkout, that directory is `.agents/skills/agent-swarm`.
+Resolve the helper relative to the installed skill directory, not the project directory. Set `AGENT_SWARM_SKILL_DIR` to the directory containing this `SKILL.md`. In this source checkout, that directory is `.agents/skills/agent-swarm` for repo agents; `skills/agent-swarm` is the synced public mirror shipped to consumers.
 
 Build the command:
 
