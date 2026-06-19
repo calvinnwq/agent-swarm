@@ -52,7 +52,10 @@ describe("public installable skill", () => {
   });
 
   it("links package-root docs from the installed skill via public URLs", async () => {
-    const skill = await readFile(path.join(publicSkillDir, "SKILL.md"), "utf-8");
+    const skill = await readFile(
+      path.join(publicSkillDir, "SKILL.md"),
+      "utf-8",
+    );
     const docs = [
       "docs/agent-operation.md",
       "docs/agent-usage.md",
