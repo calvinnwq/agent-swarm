@@ -1,0 +1,10 @@
+name: adversarial-code-review
+description: >
+  Default adversarial review panel for proposed code changes, PR plans, and architecture diffs.
+agents:
+  - code-reviewer
+  - implementation-skeptic
+  - test-risk-reviewer
+resolve: orchestrator
+goal: Stress-test the proposed code change for correctness, implementation risk, and proof quality.
+decision: Ready / Revise / Reject

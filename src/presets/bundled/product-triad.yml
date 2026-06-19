@@ -1,0 +1,10 @@
+name: product-triad
+description: >
+  Default product triad for first-time product, design, and build decisions.
+agents:
+  - product-manager
+  - product-engineer
+  - product-designer
+resolve: orchestrator
+goal: Reach a decision-ready recommendation grounded in user value, product engineering feasibility, and user experience.
+decision: Proceed / Defer / Reject

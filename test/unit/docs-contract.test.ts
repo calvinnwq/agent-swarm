@@ -69,6 +69,36 @@ describe("documentation contract", () => {
     expect(JSON.parse(packageJson).files).toContain("docs/dogfood-recipes.md");
   });
 
+  it("ships first-time agent usage guidance and the repo skill", async () => {
+    const [usage, readme, readiness, operation, skill, packageJson] =
+      await Promise.all([
+        readRepoFile("docs/agent-usage.md"),
+        readRepoFile("README.md"),
+        readRepoFile("docs/release-readiness.md"),
+        readRepoFile("docs/agent-operation.md"),
+        readRepoFile(".agents/skills/agent-swarm/SKILL.md"),
+        readRepoFile("package.json"),
+      ]);
+
+    expect(usage).toContain("# Agent Usage");
+    expect(usage).toContain("product-triad");
+    expect(usage).toContain("adversarial-code-review");
+    expect(usage).toContain("customer-panel");
+    expect(usage).toContain(".agent-swarm/config.yml");
+    expect(usage).toContain("No saved-run database");
+    expect(usage).toContain("No new `agent-swarm templates`");
+
+    expect(readme).toContain("docs/agent-usage.md");
+    expect(readiness).toContain("agent-usage.md");
+    expect(operation).toContain("docs/agent-usage.md");
+    expect(skill).toContain("docs/agent-usage.md");
+    expect(skill).toContain("Create Or Configure A Swarm");
+
+    const files = JSON.parse(packageJson).files;
+    expect(files).toContain("docs/agent-usage.md");
+    expect(files).toContain(".agents/skills/agent-swarm");
+  });
+
   it("keeps human-readable docs free of maintainer personal-name references", async () => {
     const docs = await Promise.all(
       [
@@ -76,6 +106,7 @@ describe("documentation contract", () => {
         "CODE_OF_CONDUCT.md",
         ".agents/skills/agent-swarm/SKILL.md",
         "docs/agent-operation.md",
+        "docs/agent-usage.md",
         "docs/dogfood-recipes.md",
         "docs/release-operations.md",
         "docs/release-readiness.md",

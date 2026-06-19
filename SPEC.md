@@ -222,17 +222,22 @@ legacy beats bundled); duplicate names inside one root are an error.
 ### 6.1 Bundled agents
 
 `product-manager`, `principal-engineer`, `product-designer`,
-`product-manager-codex`, `principal-engineer-codex`, `product-manager-opencode`,
-`principal-engineer-opencode`, `orchestrator`.
+`product-engineer`, `product-manager-codex`, `principal-engineer-codex`,
+`product-manager-opencode`, `principal-engineer-opencode`, `code-reviewer`,
+`implementation-skeptic`, `test-risk-reviewer`, `first-time-user`,
+`busy-operator`, `skeptical-buyer`, `orchestrator`.
 
 ### 6.2 Bundled presets
 
-| Preset                      | Agents                                                      | Resolve        |
-| --------------------------- | ----------------------------------------------------------- | -------------- |
-| `product-decision`          | `product-manager`, `principal-engineer`                     | `orchestrator` |
-| `product-decision-codex`    | `product-manager-codex`, `principal-engineer-codex`         | `orchestrator` |
-| `product-decision-opencode` | `product-manager-opencode`, `principal-engineer-opencode`   | `orchestrator` |
-| `triad`                     | `product-manager`, `principal-engineer`, `product-designer` | `orchestrator` |
+| Preset                      | Agents                                                          | Resolve        |
+| --------------------------- | --------------------------------------------------------------- | -------------- |
+| `product-decision`          | `product-manager`, `principal-engineer`                         | `orchestrator` |
+| `product-decision-codex`    | `product-manager-codex`, `principal-engineer-codex`             | `orchestrator` |
+| `product-decision-opencode` | `product-manager-opencode`, `principal-engineer-opencode`       | `orchestrator` |
+| `triad`                     | `product-manager`, `principal-engineer`, `product-designer`     | `orchestrator` |
+| `product-triad`             | `product-manager`, `product-engineer`, `product-designer`       | `orchestrator` |
+| `adversarial-code-review`   | `code-reviewer`, `implementation-skeptic`, `test-risk-reviewer` | `orchestrator` |
+| `customer-panel`            | `first-time-user`, `busy-operator`, `skeptical-buyer`           | `orchestrator` |
 
 ### 6.3 Agent definition format
 
