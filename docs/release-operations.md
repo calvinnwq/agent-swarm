@@ -71,10 +71,10 @@ Inspect the dry-run output for:
 - version matching `package.json`
 - bin entry `agent-swarm -> dist/cli.mjs`
 - expected files only: `dist/`, the packaged docs/community files listed in
-  `package.json` (`README.md`, `INSTALL.md`, `SPEC.md`, `ARCHITECTURE.md`,
-  `CONTRIBUTING.md`, `CHANGELOG.md`, `SUPPORT.md`, `SECURITY.md`,
-  `CODE_OF_CONDUCT.md`, `docs/release-operations.md`,
-  `docs/release-readiness.md`), `LICENSE`, and `package.json`
+   `package.json` (`README.md`, `INSTALL.md`, `SPEC.md`, `ARCHITECTURE.md`,
+   `CONTRIBUTING.md`, `CHANGELOG.md`, `SUPPORT.md`, `SECURITY.md`,
+   `CODE_OF_CONDUCT.md`, `docs/dogfood-recipes.md`, `docs/release-operations.md`,
+   `docs/release-readiness.md`), `LICENSE`, and `package.json`
 - no local workflow state, temp files, tests, or private agent artifacts
 
 Publish only after explicit approval:
@@ -131,7 +131,7 @@ These runs require local harness binaries and auth. They are manual release evid
 
 ## Future Automation
 
-npm Trusted Publishing/OIDC is the preferred future direction if npm publishing becomes automated. That should be a separate approved issue because it changes package-release authority. Do not add long-lived `NPM_TOKEN` publishing unless Calvin explicitly chooses that path.
+npm Trusted Publishing/OIDC is the preferred future direction if npm publishing becomes automated. That should be a separate approved issue because it changes package-release authority. Do not add long-lived `NPM_TOKEN` publishing unless the maintainer explicitly chooses that path.
 
 ## References
 

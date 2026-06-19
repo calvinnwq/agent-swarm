@@ -22,7 +22,7 @@ and focused on making the tool better.
 
 ## Enforcement
 
-Calvin is the project maintainer and may edit, hide, lock, or delete comments;
+The project maintainer may edit, hide, lock, or delete comments;
 close issues or PRs; block users; or report abuse to GitHub when needed.
 
 If you see a conduct problem, report it privately when possible. If private

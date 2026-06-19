@@ -86,7 +86,7 @@ Note:    Real harness invocation requires credentials; stub-backed unit tests pr
 
 **Issues:** [NGX-144](https://linear.app/ngxcalvin/issue/NGX-144) (real Codex) · [NGX-145](https://linear.app/ngxcalvin/issue/NGX-145) (real Claude) · [NGX-146](https://linear.app/ngxcalvin/issue/NGX-146) (real OpenCode) · [NGX-147](https://linear.app/ngxcalvin/issue/NGX-147) (mixed Claude + Codex) · [NGX-151](https://linear.app/ngxcalvin/issue/NGX-151) (clean-clone quickstart)
 
-All five real-harness gates were proven against live harness CLIs once credentials and installs were available and closed in Linear on 2026-04-28. Each real run produced a complete artifact set (`manifest.json`, `checkpoint.json`, `events.jsonl`, `messages.jsonl`, per-round output, and `synthesis.{json,md}`) with correct runtime metadata, validated by the same offline artifact validator wired into `pnpm smoke:real` (M9-07). The clean-clone gate confirmed the README quickstart works as written from a fresh checkout with no Calvin-only path assumptions.
+All five real-harness gates were proven against live harness CLIs once credentials and installs were available and closed in Linear on 2026-04-28. Each real run produced a complete artifact set (`manifest.json`, `checkpoint.json`, `events.jsonl`, `messages.jsonl`, per-round output, and `synthesis.{json,md}`) with correct runtime metadata, validated by the same offline artifact validator wired into `pnpm smoke:real` (M9-07). The clean-clone gate confirmed the README quickstart works as written from a fresh checkout with no maintainer-specific path assumptions.
 
 > These gates depend on live harness binaries and credentials, so they are verified through the **manual** `pnpm smoke:real` gate rather than CI. Re-run `pnpm smoke:real --harness <name>` against the relevant CLI to reconfirm before a future release.
 
@@ -224,13 +224,13 @@ they mutate GitHub repository/release state and npm publication state:
 
 The alpha runtime is feature-complete for dogfood. The next phase is productionization, tracked by these Linear milestones:
 
-| Milestone | Theme                                    | Intent                                                                                                                                                                                         |
-| --------- | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **M11**   | Alpha Closeout and Status Reconciliation | Refresh stale readiness/status docs and establish the productionization baseline (this work).                                                                                                  |
-| **M12**   | Public Repo Shell and Release Operations | CI, issue/PR templates, community files, and release-operation docs to a public-repo standard.                                                                                                 |
-| **M13**   | Docs Site, Spec, and Install Guide       | A public docs/spec/install layer so the README can stay concise and authoritative. In progress: [SPEC.md](../SPEC.md), [ARCHITECTURE.md](../ARCHITECTURE.md), and [INSTALL.md](../INSTALL.md). |
-| **M14**   | Agent DX and Dogfood Recipes             | Make Agent Swarm reliable for agents to operate and dogfood on real decisions. First operator contract: [agent-operation.md](agent-operation.md).                                               |
-| **M15**   | Runtime Boundary Refactor                | After contracts are documented, split the runtime into clearer, behavior-preserving boundaries.                                                                                                |
+| Milestone | Theme                                    | Intent                                                                                                                                                                                                        |
+| --------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **M11**   | Alpha Closeout and Status Reconciliation | Refresh stale readiness/status docs and establish the productionization baseline (this work).                                                                                                                 |
+| **M12**   | Public Repo Shell and Release Operations | CI, issue/PR templates, community files, and release-operation docs to a public-repo standard.                                                                                                                |
+| **M13**   | Docs Site, Spec, and Install Guide       | A public docs/spec/install layer so the README can stay concise and authoritative. In progress: [SPEC.md](../SPEC.md), [ARCHITECTURE.md](../ARCHITECTURE.md), and [INSTALL.md](../INSTALL.md).                |
+| **M14**   | Agent DX and Dogfood Recipes             | Make Agent Swarm reliable for agents to operate and dogfood on real decisions. First operator contract: [agent-operation.md](agent-operation.md); runnable recipes: [dogfood-recipes.md](dogfood-recipes.md). |
+| **M15**   | Runtime Boundary Refactor                | After contracts are documented, split the runtime into clearer, behavior-preserving boundaries.                                                                                                               |
 
 ### To cut a future (non-alpha) release
 
