@@ -72,6 +72,36 @@ describe("loadPresetRegistry", () => {
     expect(registry.listPresets()).toEqual([]);
   });
 
+  it("loads nested presets and ignores unsupported files", async () => {
+    const { cwd, homeDir, bundledDir } = await makeIsolatedRoots();
+    const presetsRoot = path.join(cwd, ".agent-swarm", "presets");
+    await writePresetFile(
+      path.join(presetsRoot, "product"),
+      "triad.yml",
+      [
+        "name: triad",
+        "goal: nested product goal",
+        "agents:",
+        "  - product-manager",
+        "  - principal-engineer",
+      ].join("\n"),
+    );
+    await writePresetFile(presetsRoot, "notes.txt", "this should be ignored\n");
+
+    const registry = await loadPresetRegistry({ cwd, homeDir, bundledDir });
+    expect(registry.getPreset("triad")).toMatchObject({
+      name: "triad",
+      goal: "nested product goal",
+    });
+
+    const resolved = await resolvePresetByName("triad", {
+      cwd,
+      homeDir,
+      bundledDir,
+    });
+    expect(resolved.goal).toBe("nested product goal");
+  });
+
   it("throws a clear error for an unknown preset", async () => {
     const { cwd, homeDir, bundledDir } = await makeIsolatedRoots();
     const registry = await loadPresetRegistry({ cwd, homeDir, bundledDir });
@@ -183,6 +213,21 @@ describe("loadPresetRegistry", () => {
     const root = path.join(cwd, ".swarm", "presets");
     await writePresetFile(root, "a.yml", "name: same\nagents: [alpha, beta]");
     await writePresetFile(root, "b.yml", "name: same\nagents: [alpha, beta]");
+    await expect(
+      loadPresetRegistry({ cwd, homeDir, bundledDir }),
+    ).rejects.toThrow(/duplicate preset "same"/);
+  });
+
+  it("throws on duplicate preset names across nested files in the same root", async () => {
+    const { cwd, homeDir, bundledDir } = await makeIsolatedRoots();
+    const root = path.join(cwd, ".agent-swarm", "presets");
+    await writePresetFile(root, "a.yml", "name: same\nagents: [alpha, beta]");
+    await writePresetFile(
+      path.join(root, "product"),
+      "a.yml",
+      "name: same\nagents: [alpha, beta]",
+    );
+
     await expect(
       loadPresetRegistry({ cwd, homeDir, bundledDir }),
     ).rejects.toThrow(/duplicate preset "same"/);

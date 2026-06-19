@@ -149,14 +149,17 @@ agent-swarm doctor
 
 ## Presets
 
-Agent Swarm ships with four bundled presets:
+Agent Swarm ships with seven bundled presets:
 
-| Preset                      | Agents                                                      | Resolve        | Best for                                                                         |
-| --------------------------- | ----------------------------------------------------------- | -------------- | -------------------------------------------------------------------------------- |
-| `product-decision`          | `product-manager`, `principal-engineer`                     | `orchestrator` | Framing a product decision through user-value and engineering-feasibility lenses |
-| `product-decision-codex`    | `product-manager-codex`, `principal-engineer-codex`         | `orchestrator` | The same flow, dispatched through Codex                                          |
-| `product-decision-opencode` | `product-manager-opencode`, `principal-engineer-opencode`   | `orchestrator` | The same flow, dispatched through OpenCode                                       |
-| `triad`                     | `product-manager`, `principal-engineer`, `product-designer` | `orchestrator` | Full product triad: value, feasibility, and UX together                          |
+| Preset                      | Agents                                                          | Resolve        | Best for                                                                         |
+| --------------------------- | --------------------------------------------------------------- | -------------- | -------------------------------------------------------------------------------- |
+| `product-decision`          | `product-manager`, `principal-engineer`                         | `orchestrator` | Framing a product decision through user-value and engineering-feasibility lenses |
+| `product-decision-codex`    | `product-manager-codex`, `principal-engineer-codex`             | `orchestrator` | The same flow, dispatched through Codex                                          |
+| `product-decision-opencode` | `product-manager-opencode`, `principal-engineer-opencode`       | `orchestrator` | The same flow, dispatched through OpenCode                                       |
+| `triad`                     | `product-manager`, `principal-engineer`, `product-designer`     | `orchestrator` | Full product triad: value, feasibility, and UX together                          |
+| `product-triad`             | `product-manager`, `product-engineer`, `product-designer`       | `orchestrator` | First-time default for product, design, and build tradeoffs                      |
+| `adversarial-code-review`   | `code-reviewer`, `implementation-skeptic`, `test-risk-reviewer` | `orchestrator` | Proposed code changes, PR plans, and architecture diffs                          |
+| `customer-panel`            | `first-time-user`, `busy-operator`, `skeptical-buyer`           | `orchestrator` | First-run value, adoption blockers, and outside-in product feedback              |
 
 Invoke by name — no `--agents` required:
 
@@ -192,13 +195,13 @@ agent-swarm run 1 "Should we adopt server components?" \
 
 Presets resolve from three roots, first match wins:
 
-| Source        | Path                           | Scope          |
-| ------------- | ------------------------------ | -------------- |
-| Project-local | `.agent-swarm/presets/*.yml`   | This repo      |
-| User-global   | `~/.agent-swarm/presets/*.yml` | Your machine   |
-| Bundled       | _(ships with agent-swarm)_     | Always present |
+| Source        | Path                                            | Scope          |
+| ------------- | ----------------------------------------------- | -------------- |
+| Project-local | `.agent-swarm/presets/**/*.yml` / `**/*.yaml`   | This repo      |
+| User-global   | `~/.agent-swarm/presets/**/*.yml` / `**/*.yaml` | Your machine   |
+| Bundled       | _(ships with agent-swarm)_                      | Always present |
 
-A project-local preset with the same `name` as a bundled preset fully replaces it for that project. A user-global preset overrides bundled machine-wide but yields to project-local. Duplicate `name` values within a single root are an error.
+Preset files may be grouped in subdirectories for readability; folder names are organization only, not namespaces. A project-local preset with the same `name` as a bundled preset fully replaces it for that project. A user-global preset overrides bundled machine-wide but yields to project-local. Duplicate `name` values within a single root are an error.
 
 > **Legacy paths.** The previous `.swarm/presets/` (and `~/.swarm/presets/`) locations are still read as a fallback for one release. When both exist, the `.agent-swarm/` path wins. Move your presets to `.agent-swarm/presets/` when convenient.
 
@@ -246,28 +249,35 @@ Supported keys: `preset`, `agents` (2–5 names), `backend`, `resolve`, `timeout
 
 Agent definitions are YAML or Markdown files resolved from three roots (first wins):
 
-| Path                                                         | Scope                                   |
-| ------------------------------------------------------------ | --------------------------------------- |
-| `.agent-swarm/agents/*.yml` / `.agent-swarm/agents/*.md`     | Project-local                           |
-| `~/.agent-swarm/agents/*.yml` / `~/.agent-swarm/agents/*.md` | User-global                             |
-| _(bundled)_                                                  | Ships with agent-swarm; see table below |
+| Path                                                       | Scope                                   |
+| ---------------------------------------------------------- | --------------------------------------- |
+| `.agent-swarm/agents/**/*.yml` / `**/*.yaml` / `**/*.md`   | Project-local                           |
+| `~/.agent-swarm/agents/**/*.yml` / `**/*.yaml` / `**/*.md` | User-global                             |
+| _(bundled)_                                                | Ships with agent-swarm; see table below |
 
-A project-local agent with the same `name` as a bundled agent fully replaces it. A user-global agent overrides bundled machine-wide but yields to project-local. Duplicate `name` values within the same root are an error.
+Agent files may be grouped in subdirectories for readability; folder names are organization only, not namespaces. A project-local agent with the same `name` as a bundled agent fully replaces it. A user-global agent overrides bundled machine-wide but yields to project-local. Duplicate `name` values within the same root are an error.
 
 > **Legacy paths.** The previous `.swarm/agents/` (and `~/.swarm/agents/`) locations are still read as a fallback for one release, after their `.agent-swarm/` equivalents. When the same agent name exists in both, the `.agent-swarm/` definition wins.
 
 ### Bundled agents
 
-| Agent                         | Role                                                            |
-| ----------------------------- | --------------------------------------------------------------- |
-| `product-manager`             | User value, scope, and decision framing                         |
-| `principal-engineer`          | System design, feasibility, and operational risk                |
-| `product-designer`            | UX, usability, and user-journey perspective                     |
-| `product-manager-codex`       | Codex-backed product decision framing                           |
-| `principal-engineer-codex`    | Codex-backed engineering feasibility                            |
-| `product-manager-opencode`    | OpenCode-backed product decision framing                        |
-| `principal-engineer-opencode` | OpenCode-backed engineering feasibility                         |
-| `orchestrator`                | Coordinator persona for between-round context and resolve modes |
+| Agent                         | Role                                                               |
+| ----------------------------- | ------------------------------------------------------------------ |
+| `product-manager`             | User value, scope, and decision framing                            |
+| `principal-engineer`          | System design, feasibility, and operational risk                   |
+| `product-engineer`            | Product engineering scope, implementation shape, and delivery risk |
+| `product-designer`            | UX, usability, and user-journey perspective                        |
+| `code-reviewer`               | Correctness, maintainability, and regression risk                  |
+| `implementation-skeptic`      | Scope creep, hidden coupling, and brittle assumptions              |
+| `test-risk-reviewer`          | Test coverage, release risk, rollback, and proof quality           |
+| `first-time-user`             | Onboarding clarity, setup friction, and early comprehension        |
+| `busy-operator`               | Workflow fit, repeated use, and time-to-result pressure            |
+| `skeptical-buyer`             | Adoption barriers, value proof, and willingness to keep using it   |
+| `product-manager-codex`       | Codex-backed product decision framing                              |
+| `principal-engineer-codex`    | Codex-backed engineering feasibility                               |
+| `product-manager-opencode`    | OpenCode-backed product decision framing                           |
+| `principal-engineer-opencode` | OpenCode-backed engineering feasibility                            |
+| `orchestrator`                | Coordinator persona for between-round context and resolve modes    |
 
 ### YAML format
 
@@ -415,7 +425,7 @@ Two rendering modes:
 - `--resolve agents` — accepted and persisted, but currently behaves like `off`.
 - The `rounds` key in `.agent-swarm/config.yml` — reserved but not applied; pass `<rounds>` on the CLI.
 
-**Agent operation.** Agents can operate Agent Swarm from natural prompts by following the repeatable workflow in [docs/agent-operation.md](docs/agent-operation.md). That contract covers preset selection, decision-matrix handling, artifact inspection, and synthesis reporting without adding a new runtime control plane. Runnable dogfood examples for real operator/OpenClaw decisions live in [docs/dogfood-recipes.md](docs/dogfood-recipes.md).
+**Agent operation.** Agents can operate Agent Swarm from natural prompts by following the repeatable workflow in [docs/agent-operation.md](docs/agent-operation.md). First-time agent installation and project setup live in [docs/agent-usage.md](docs/agent-usage.md). That contract covers preset selection, decision-matrix handling, artifact inspection, and synthesis reporting without adding a new runtime control plane. Runnable dogfood examples for real operator/OpenClaw decisions live in [docs/dogfood-recipes.md](docs/dogfood-recipes.md).
 
 **Future (v0.3+ productionization candidates).** Not promised, not part of the alpha contract — tracked in the project roadmap (M11–M15): a user-facing `agent-swarm resume` command (resume is implemented and tested internally but not yet a subcommand), agent-driven `--resolve agents`, a public docs/spec site so this README can stay concise, CI/release-operations hardening, and deeper agent DX/recipes beyond the current operator contract. Release-readiness status and the full milestone breakdown live in [docs/release-readiness.md](docs/release-readiness.md).
 
@@ -427,6 +437,6 @@ It also remains contract-compatible with the Python swarm prototype: agent defin
 
 ## Contributing & development
 
-Working on `agent-swarm` itself? See [CONTRIBUTING.md](CONTRIBUTING.md) for the dev loop, the real-harness smoke gate, the release process, and an architecture map; [ARCHITECTURE.md](ARCHITECTURE.md) goes deeper on runtime internals and [SPEC.md](SPEC.md) is the durable runtime contract. Agent-operated run guidance lives in [docs/agent-operation.md](docs/agent-operation.md), with dogfood recipes in [docs/dogfood-recipes.md](docs/dogfood-recipes.md). Release/publish operations live in [docs/release-operations.md](docs/release-operations.md), and release history lives in [CHANGELOG.md](CHANGELOG.md).
+Working on `agent-swarm` itself? See [CONTRIBUTING.md](CONTRIBUTING.md) for the dev loop, the real-harness smoke gate, the release process, and an architecture map; [ARCHITECTURE.md](ARCHITECTURE.md) goes deeper on runtime internals and [SPEC.md](SPEC.md) is the durable runtime contract. Agent-operated run guidance lives in [docs/agent-operation.md](docs/agent-operation.md), with first-time agent setup in [docs/agent-usage.md](docs/agent-usage.md) and dogfood recipes in [docs/dogfood-recipes.md](docs/dogfood-recipes.md). Release/publish operations live in [docs/release-operations.md](docs/release-operations.md), and release history lives in [CHANGELOG.md](CHANGELOG.md).
 
 Community and trust docs: [support](SUPPORT.md), [security](SECURITY.md), [code of conduct](CODE_OF_CONDUCT.md), and [license](LICENSE).

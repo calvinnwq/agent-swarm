@@ -1,0 +1,144 @@
+# Agent Usage
+
+Agents that support local skills can copy or reference the repo skill at
+[`../.agents/skills/agent-swarm`](../.agents/skills/agent-swarm). Use that skill
+when an operator agent should create, configure, run, inspect, or summarize Agent
+Swarm runs from a project.
+
+This guide is the first-run path for agent-operated usage. It is additive to the
+CLI contract: it does not add a scheduler, UI, saved-run database, or control
+plane.
+
+## Install The Agent Skill
+
+From a source checkout, copy or reference the whole skill directory:
+
+```bash
+cp -R .agents/skills/agent-swarm /path/to/agent/skills/agent-swarm
+```
+
+If the package is installed from npm, the skill is shipped with the package
+files so agent installers can copy the same directory from the installed package
+root.
+
+The skill teaches an agent to:
+
+- choose a default or local preset from natural language
+- create project-local `.agent-swarm/` agents and presets when asked
+- edit `.agent-swarm/config.yml` without hiding CLI precedence
+- run `agent-swarm doctor` before dispatch
+- render repeatable run commands with the packaged helper script
+- inspect the latest run artifact with the packaged helper script
+- report the recommendation, tradeoff, risks, and run path
+
+The helper lives at
+`scripts/agent-swarm-helper.mjs` inside the copied skill directory. Set
+`AGENT_SWARM_SKILL_DIR` to the directory containing the copied `SKILL.md` before
+using helper examples:
+
+```bash
+export AGENT_SWARM_SKILL_DIR=/path/to/agent/skills/agent-swarm
+```
+
+In this source checkout, the same directory is `.agents/skills/agent-swarm`.
+The helper handles mechanical command construction and latest-run inspection;
+the operator agent still owns the judgment about which project, preset, docs,
+question, decision, and report shape to use.
+
+## First-Time Defaults
+
+Start with a bundled preset unless the project already has a local preset that
+matches the request.
+
+| Preset                    | Use When                                                                        |
+| ------------------------- | ------------------------------------------------------------------------------- |
+| `product-triad`           | Product, design, and build tradeoffs need to be considered together             |
+| `adversarial-code-review` | A proposed code change, PR plan, or architecture diff needs review              |
+| `customer-panel`          | First-run value, adoption blockers, or outside-in product feedback need testing |
+
+Existing demo presets are intentionally separate. Do not rename or reinterpret
+demo presets when creating first-time user defaults.
+
+## Create A New Custom Swarm
+
+When a user asks for a custom swarm, create project-local files under
+`.agent-swarm/`:
+
+```text
+.agent-swarm/
+├── agents/
+│   ├── product/<role-a>.yml
+│   └── review/<role-b>.yml
+├── presets/
+│   └── product/<preset-name>.yml
+└── config.yml
+```
+
+Folders are for readability only. Agent and preset identity still comes from
+the YAML `name`, and presets reference those names directly. Prefer small
+panels. Presets must reference 2-5 agents.
+
+Example preset:
+
+```yaml
+name: project-risk-review
+description: Project-local review panel for implementation risk and proof quality.
+agents:
+  - code-reviewer
+  - implementation-skeptic
+  - test-risk-reviewer
+resolve: orchestrator
+goal: Stress-test the proposed change before implementation.
+decision: Ready / Revise / Reject
+```
+
+Example config:
+
+```yaml
+preset: project-risk-review
+resolve: off
+timeoutMs: 600000
+docs:
+  - docs/agent-operation.md
+```
+
+CLI flags still win over config, and config still wins over preset defaults.
+
+## Run And Report
+
+From the project directory that owns `.agent-swarm/`:
+
+```bash
+agent-swarm doctor
+node "$AGENT_SWARM_SKILL_DIR/scripts/agent-swarm-helper.mjs" build-run-command \
+  --question "<question>" \
+  --preset product-triad \
+  --decision "Proceed / Defer / Reject" \
+  --doc docs/agent-operation.md
+```
+
+Run the generated command. For source checkouts before installation/linking, add
+`--built-cli`.
+
+Then inspect the newest run:
+
+```bash
+node "$AGENT_SWARM_SKILL_DIR/scripts/agent-swarm-helper.mjs" inspect-latest-run \
+  --project-dir .
+```
+
+Report in the shape requested by the prompt, preset, or agent instructions. If
+none is specified, include the recommendation, main tradeoff, material risks,
+and run directory path.
+
+## Non-Goals
+
+- No SQLite state.
+- No hosted control plane.
+- No scheduler.
+- No saved-run database.
+- No UI.
+- No new `agent-swarm templates` or `agent-swarm init` command.
+
+Use project-local `.agent-swarm/` files and ordinary `agent-swarm run` commands
+until a future runtime feature is deliberately designed and shipped.

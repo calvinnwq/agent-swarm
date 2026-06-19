@@ -14,7 +14,7 @@ Use this contract when an operator agent needs to:
 
 This is guidance for agents and skills. It does not change `agent-swarm run`, add a scheduler, or introduce a hosted service.
 
-For runnable examples that apply this contract to real operator/OpenClaw decisions, see [docs/dogfood-recipes.md](dogfood-recipes.md).
+For first-time agent installation and project setup, see [docs/agent-usage.md](agent-usage.md). For runnable examples that apply this contract to real operator/OpenClaw decisions, see [docs/dogfood-recipes.md](dogfood-recipes.md).
 
 ## Non-Goals
 
@@ -40,6 +40,8 @@ Prefer a named preset when the prompt gives one. Otherwise map common panel lang
 
 | Human wording      | Preset shape                                                                            |
 | ------------------ | --------------------------------------------------------------------------------------- |
+| product triad      | product manager, product engineer, and product designer review                          |
+| code review        | reviewer, skeptic, implementation, test, or risk review                                 |
 | expert panel       | product, engineering, design, architecture, or domain-expert review                     |
 | adversarial review | advocate, skeptic, implementer, risk review, or stress-test panel                       |
 | customer panel     | customer-role, new-user, buyer, operator, first-run friction, or trial-conversion panel |

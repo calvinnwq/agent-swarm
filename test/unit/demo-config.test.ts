@@ -30,7 +30,11 @@ describe("demo config", () => {
     );
 
     expect(skill).toContain("name: agent-swarm");
-    expect(skill).toContain("Run and inspect Agent Swarm CLI panels");
+    expect(skill).toContain("Create, configure, run, and inspect Agent Swarm");
+    expect(skill).toContain("Create Or Configure A Swarm");
+    expect(skill).toContain("product-triad");
+    expect(skill).toContain("adversarial-code-review");
+    expect(skill).toContain("customer-panel");
     expect(skill).toContain("Natural prompts are expected");
     expect(skill).toContain("Natural Prompt Workflow");
     expect(skill).toContain(

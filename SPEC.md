@@ -211,28 +211,35 @@ Both registries resolve from three scopes, first match wins, with the current
 `.agent-swarm/` root searched before the legacy `.swarm/` root within each
 scope. Effective order: project-current → project-legacy → user-current →
 user-legacy → bundled. Same-name override across scopes is allowed (current beats
-legacy beats bundled); duplicate names inside one root are an error.
+legacy beats bundled); duplicate names inside one root are an error. Agent and
+preset files may be grouped in subdirectories for readability; folder names are
+organization only, not namespaces.
 
-| Scope   | Agents                                 | Presets                        |
-| ------- | -------------------------------------- | ------------------------------ |
-| Project | `.agent-swarm/agents/*.yml` / `*.md`   | `.agent-swarm/presets/*.yml`   |
-| User    | `~/.agent-swarm/agents/*.yml` / `*.md` | `~/.agent-swarm/presets/*.yml` |
-| Bundled | ships with `agent-swarm`               | ships with `agent-swarm`       |
+| Scope   | Agents                                                     | Presets                                         |
+| ------- | ---------------------------------------------------------- | ----------------------------------------------- |
+| Project | `.agent-swarm/agents/**/*.yml` / `**/*.yaml` / `**/*.md`   | `.agent-swarm/presets/**/*.yml` / `**/*.yaml`   |
+| User    | `~/.agent-swarm/agents/**/*.yml` / `**/*.yaml` / `**/*.md` | `~/.agent-swarm/presets/**/*.yml` / `**/*.yaml` |
+| Bundled | ships with `agent-swarm`                                   | ships with `agent-swarm`                        |
 
 ### 6.1 Bundled agents
 
 `product-manager`, `principal-engineer`, `product-designer`,
-`product-manager-codex`, `principal-engineer-codex`, `product-manager-opencode`,
-`principal-engineer-opencode`, `orchestrator`.
+`product-engineer`, `product-manager-codex`, `principal-engineer-codex`,
+`product-manager-opencode`, `principal-engineer-opencode`, `code-reviewer`,
+`implementation-skeptic`, `test-risk-reviewer`, `first-time-user`,
+`busy-operator`, `skeptical-buyer`, `orchestrator`.
 
 ### 6.2 Bundled presets
 
-| Preset                      | Agents                                                      | Resolve        |
-| --------------------------- | ----------------------------------------------------------- | -------------- |
-| `product-decision`          | `product-manager`, `principal-engineer`                     | `orchestrator` |
-| `product-decision-codex`    | `product-manager-codex`, `principal-engineer-codex`         | `orchestrator` |
-| `product-decision-opencode` | `product-manager-opencode`, `principal-engineer-opencode`   | `orchestrator` |
-| `triad`                     | `product-manager`, `principal-engineer`, `product-designer` | `orchestrator` |
+| Preset                      | Agents                                                          | Resolve        |
+| --------------------------- | --------------------------------------------------------------- | -------------- |
+| `product-decision`          | `product-manager`, `principal-engineer`                         | `orchestrator` |
+| `product-decision-codex`    | `product-manager-codex`, `principal-engineer-codex`             | `orchestrator` |
+| `product-decision-opencode` | `product-manager-opencode`, `principal-engineer-opencode`       | `orchestrator` |
+| `triad`                     | `product-manager`, `principal-engineer`, `product-designer`     | `orchestrator` |
+| `product-triad`             | `product-manager`, `product-engineer`, `product-designer`       | `orchestrator` |
+| `adversarial-code-review`   | `code-reviewer`, `implementation-skeptic`, `test-risk-reviewer` | `orchestrator` |
+| `customer-panel`            | `first-time-user`, `busy-operator`, `skeptical-buyer`           | `orchestrator` |
 
 ### 6.3 Agent definition format
 

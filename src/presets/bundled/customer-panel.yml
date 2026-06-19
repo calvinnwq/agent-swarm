@@ -1,0 +1,10 @@
+name: customer-panel
+description: >
+  Default customer panel for first-run value, adoption blockers, and outside-in product feedback.
+agents:
+  - first-time-user
+  - busy-operator
+  - skeptical-buyer
+resolve: orchestrator
+goal: Identify the clearest customer-facing value, friction, and adoption risk.
+decision: Fix now / Defer / Reject

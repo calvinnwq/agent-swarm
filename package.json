@@ -24,7 +24,7 @@
     "agent-swarm": "dist/cli.mjs"
   },
   "scripts": {
-    "build": "tsdown && mkdir -p dist/agents/bundled dist/presets/bundled && cp src/agents/bundled/* dist/agents/bundled/ && cp src/presets/bundled/* dist/presets/bundled/",
+    "build": "tsdown && node -e \"const fs=require('node:fs'); fs.rmSync('dist/agents/bundled',{recursive:true,force:true}); fs.rmSync('dist/presets/bundled',{recursive:true,force:true}); fs.cpSync('src/agents/bundled','dist/agents/bundled',{recursive:true}); fs.cpSync('src/presets/bundled','dist/presets/bundled',{recursive:true});\"",
     "dev": "tsdown --watch",
     "start": "node dist/cli.mjs",
     "lint": "eslint src",
@@ -62,9 +62,11 @@
     "CODE_OF_CONDUCT.md",
     "CONTRIBUTING.md",
     "docs/agent-operation.md",
+    "docs/agent-usage.md",
     "docs/dogfood-recipes.md",
     "docs/release-operations.md",
     "docs/release-readiness.md",
+    ".agents/skills/agent-swarm",
     "INSTALL.md",
     "LICENSE",
     "README.md",

@@ -1204,7 +1204,7 @@ describe("loadAgentRegistry", () => {
     expect(registry.listAgents()).toHaveLength(2);
   });
 
-  it("ignores subdirectories and unsupported files in agent roots", async () => {
+  it("loads nested agent definitions and ignores unsupported files", async () => {
     const roots = await makeTempRoots();
     cleanupDirs.push(roots.rootDir);
 
@@ -1250,14 +1250,59 @@ describe("loadAgentRegistry", () => {
       description: "project analyst",
       prompt: "project prompt",
     });
+    expect(registry.getAgent("reviewer")).toMatchObject({
+      name: "reviewer",
+      description: "nested reviewer",
+      prompt: "nested prompt",
+    });
     expect(registry.listAgents()).toEqual([
       expect.objectContaining({
         name: "analyst",
         description: "project analyst",
         prompt: "project prompt",
       }),
+      expect.objectContaining({
+        name: "reviewer",
+        description: "nested reviewer",
+        prompt: "nested prompt",
+      }),
     ]);
-    expect(() => registry.getAgent("reviewer")).toThrow(/unknown agent/);
+  });
+
+  it("rejects duplicate agent names across nested files in the same root", async () => {
+    const roots = await makeTempRoots();
+    cleanupDirs.push(roots.rootDir);
+
+    await writeDefinition(
+      projectAgentsDir(roots),
+      "analyst.yml",
+      [
+        "name: analyst",
+        "description: project analyst",
+        "persona: project persona",
+        "prompt: project prompt",
+        "",
+      ].join("\n"),
+    );
+    await writeDefinition(
+      path.join(projectAgentsDir(roots), "product"),
+      "analyst.yml",
+      [
+        "name: analyst",
+        "description: nested analyst",
+        "persona: nested persona",
+        "prompt: nested prompt",
+        "",
+      ].join("\n"),
+    );
+
+    await expect(
+      loadAgentRegistry({
+        cwd: roots.cwd,
+        homeDir: roots.homeDir,
+        bundledDir: roots.bundledDir,
+      }),
+    ).rejects.toThrow(/duplicate agent definition "analyst"/);
   });
 
   it("surfaces the file path for malformed yaml files", async () => {
