@@ -239,6 +239,8 @@ docs:
 
 **Precedence: CLI flags > config values > preset defaults.** Everything is optional — when there's no config file, CLI flags fully describe the run. Validation errors (unknown keys, wrong types) are reported by `agent-swarm doctor` and at run start.
 
+Run `agent-swarm init` to create this file with safe defaults (`preset: product-triad`, `resolve: off`, `timeoutMs: 300000`). It only ever touches `.agent-swarm/config.yml`, never overwrites an existing config without `--force`, and the values it writes are still overridden by CLI flags.
+
 A legacy `.swarm/config.yml` is still read when `.agent-swarm/config.yml` is absent (the `.agent-swarm/` path wins if both exist); `agent-swarm doctor` flags the legacy path so you can migrate.
 
 Configured `docs` use the same carry-forward behavior as repeated `--doc` flags: paths are normalized, readable files are required, and each doc contributes at most 4,000 characters. `timeoutMs` accepts a positive integer and matches `--timeout-ms`.
