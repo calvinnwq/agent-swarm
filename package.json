@@ -62,6 +62,7 @@
     "CODE_OF_CONDUCT.md",
     "CONTRIBUTING.md",
     "docs/agent-operation.md",
+    "docs/dogfood-recipes.md",
     "docs/release-operations.md",
     "docs/release-readiness.md",
     "INSTALL.md",

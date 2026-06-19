@@ -14,6 +14,8 @@ Use this contract when an operator agent needs to:
 
 This is guidance for agents and skills. It does not change `agent-swarm run`, add a scheduler, or introduce a hosted service.
 
+For runnable examples that apply this contract to real operator/OpenClaw decisions, see [docs/dogfood-recipes.md](dogfood-recipes.md).
+
 ## Non-Goals
 
 - No speculative control-plane implementation.
@@ -36,11 +38,11 @@ The operator agent should infer CLI details from that prompt. It should not ask 
 
 Prefer a named preset when the prompt gives one. Otherwise map common panel language to local presets by name, description, and agent roles:
 
-| Human wording | Preset shape |
-| --- | --- |
-| expert panel | product, engineering, design, architecture, or domain-expert review |
-| adversarial review | advocate, skeptic, implementer, risk review, or stress-test panel |
-| customer panel | customer-role, new-user, buyer, operator, first-run friction, or trial-conversion panel |
+| Human wording      | Preset shape                                                                            |
+| ------------------ | --------------------------------------------------------------------------------------- |
+| expert panel       | product, engineering, design, architecture, or domain-expert review                     |
+| adversarial review | advocate, skeptic, implementer, risk review, or stress-test panel                       |
+| customer panel     | customer-role, new-user, buyer, operator, first-run friction, or trial-conversion panel |
 
 If multiple presets match, prefer the one whose `decision` values best match the prompt's decision matrix. If no preset matches, stop and report the mismatch instead of inventing a panel.
 

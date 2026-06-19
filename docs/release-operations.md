@@ -131,7 +131,7 @@ These runs require local harness binaries and auth. They are manual release evid
 
 ## Future Automation
 
-npm Trusted Publishing/OIDC is the preferred future direction if npm publishing becomes automated. That should be a separate approved issue because it changes package-release authority. Do not add long-lived `NPM_TOKEN` publishing unless Calvin explicitly chooses that path.
+npm Trusted Publishing/OIDC is the preferred future direction if npm publishing becomes automated. That should be a separate approved issue because it changes package-release authority. Do not add long-lived `NPM_TOKEN` publishing unless the maintainer explicitly chooses that path.
 
 ## References
 
