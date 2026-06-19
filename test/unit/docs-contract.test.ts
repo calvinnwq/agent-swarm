@@ -85,6 +85,9 @@ describe("documentation contract", () => {
     expect(usage).toContain("adversarial-code-review");
     expect(usage).toContain("customer-panel");
     expect(usage).toContain(".agent-swarm/config.yml");
+    expect(usage).toContain("agent-swarm-helper.mjs");
+    expect(usage).toContain("build-run-command");
+    expect(usage).toContain("inspect-latest-run");
     expect(usage).toContain("No saved-run database");
     expect(usage).toContain("No new `agent-swarm templates`");
 
@@ -93,6 +96,10 @@ describe("documentation contract", () => {
     expect(operation).toContain("docs/agent-usage.md");
     expect(skill).toContain("docs/agent-usage.md");
     expect(skill).toContain("Create Or Configure A Swarm");
+    expect(skill).toContain("agent-swarm-helper.mjs");
+    expect(skill).toContain("## Contract");
+    expect(skill).toContain("## Phases");
+    expect(skill).toContain("## Output Format");
 
     const files = JSON.parse(packageJson).files;
     expect(files).toContain("docs/agent-usage.md");

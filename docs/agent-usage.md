@@ -27,9 +27,15 @@ The skill teaches an agent to:
 - create project-local `.agent-swarm/` agents and presets when asked
 - edit `.agent-swarm/config.yml` without hiding CLI precedence
 - run `agent-swarm doctor` before dispatch
-- run a swarm with explicit goal, decision, docs, timeout, and quiet output
-- inspect `.agent-swarm/runs/*/manifest.json` and `synthesis.md`
+- render repeatable run commands with the packaged helper script
+- inspect the latest run artifact with the packaged helper script
 - report the recommendation, tradeoff, risks, and run path
+
+The helper lives at
+`.agents/skills/agent-swarm/scripts/agent-swarm-helper.mjs`. It handles
+mechanical command construction and latest-run inspection; the operator agent
+still owns the judgment about which project, preset, docs, question, and
+decision to use.
 
 ## First-Time Defaults
 
@@ -94,21 +100,21 @@ From the project directory that owns `.agent-swarm/`:
 
 ```bash
 agent-swarm doctor
-agent-swarm run 1 "<question>" \
+node .agents/skills/agent-swarm/scripts/agent-swarm-helper.mjs build-run-command \
+  --question "<question>" \
   --preset product-triad \
-  --goal "Help answer: <question>" \
   --decision "Proceed / Defer / Reject" \
-  --resolve off \
-  --timeout-ms 600000 \
-  --quiet
+  --doc docs/agent-operation.md
 ```
 
-Then inspect:
+Run the generated command. For source checkouts before installation/linking, add
+`--built-cli`.
+
+Then inspect the newest run:
 
 ```bash
-latest=$(ls -td .agent-swarm/runs/* | head -1)
-cat "$latest/manifest.json"
-cat "$latest/synthesis.md"
+node .agents/skills/agent-swarm/scripts/agent-swarm-helper.mjs inspect-latest-run \
+  --project-dir .
 ```
 
 Report:

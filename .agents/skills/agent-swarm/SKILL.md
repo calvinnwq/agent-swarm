@@ -1,13 +1,35 @@
 ---
 name: agent-swarm
-description: Create, configure, run, and inspect Agent Swarm panels from the correct project directory.
+description: |
+  Use when asked to create, configure, run, and inspect Agent Swarm panels,
+  smoke-test setup, or summarize runs from the correct project directory.
 ---
 
 # Agent Swarm
 
 Use this skill when the user asks to create a custom swarm, configure `.agent-swarm/`, manage agents or presets, run a panel, smoke-test setup, inspect artifacts, or summarize an Agent Swarm run. Natural prompts are expected; translate the user's intent into the right config files and CLI invocation instead of asking them for flags.
 
+Create, configure, run, and inspect Agent Swarm panels without adding a scheduler, UI, saved-run database, hosted control plane, or new runtime command surface.
+
 For the durable operator contract, report shape, artifact expectations, and examples, see `docs/agent-operation.md`. For first-time agent installation and project setup, see `docs/agent-usage.md`. For repeatable operator/OpenClaw dogfood runs, see `docs/dogfood-recipes.md`.
+
+## Contract
+
+This skill owns the agent-operated path from natural language to a real Agent Swarm run:
+
+- Choose the project directory, preset, goal, decision, docs, resolve mode, and timeout.
+- Create or edit project-local `.agent-swarm/` files only when the user asks for custom swarm configuration.
+- Use deterministic helper scripts for command rendering and latest-run inspection instead of retyping fragile shell snippets.
+- Preserve current runtime boundaries: no scheduler, UI, saved-run database, hosted control plane, or new command surface.
+- Report outcomes from artifacts, especially `manifest.json` and `synthesis.md`, with the run directory path.
+
+## Trigger Examples
+
+- "Run the product triad on this decision."
+- "Create a local swarm for launch-risk review."
+- "Inspect the latest Agent Swarm result."
+- "Smoke-test the Codex/OpenCode harness routing."
+- "Summarize this swarm run for the PR."
 
 ## Operating Rules
 
@@ -21,6 +43,39 @@ For the durable operator contract, report shape, artifact expectations, and exam
 - Use a generous `--timeout-ms` for human-facing runs. A longer timeout prevents failure; it does not slow the happy path.
 - Keep carry-forward docs minimal and explicit. Two docs is usually enough when the prompt mentions source material.
 - After a run, inspect the newest `.agent-swarm/runs/*/synthesis.md` and summarize the recommendation, tradeoff, risks, and run path.
+
+## Phases
+
+1. Locate the project root that owns the intended `.agent-swarm/` config.
+2. Run `agent-swarm doctor` or the built CLI doctor before dispatch.
+3. Map the user's natural prompt to a bundled or project-local preset.
+4. Render the command with `scripts/agent-swarm-helper.mjs build-run-command` when the inputs are known.
+5. Run the swarm only after command inputs are explicit enough to avoid guessing.
+6. Inspect the newest run with `scripts/agent-swarm-helper.mjs inspect-latest-run`.
+7. Report in the output format below and include the run path.
+
+## Deterministic Helper
+
+Use the helper for repeatable mechanical steps. It does not infer intent; the agent still chooses the project, preset, question, docs, and decision.
+
+Build the command:
+
+```bash
+node .agents/skills/agent-swarm/scripts/agent-swarm-helper.mjs build-run-command \
+  --question "<question>" \
+  --preset product-triad \
+  --decision "Proceed / Defer / Reject" \
+  --doc docs/agent-operation.md
+```
+
+For this repo before installation/linking, add `--built-cli`.
+
+Inspect the newest run:
+
+```bash
+node .agents/skills/agent-swarm/scripts/agent-swarm-helper.mjs inspect-latest-run \
+  --project-dir .
+```
 
 ## Preflight
 
@@ -93,25 +148,20 @@ When the user triggers this skill with a human prompt:
 Baseline command shape:
 
 ```bash
-agent-swarm run 1 "<question>" \
-  --preset <preset-name> \
-  --goal "Help answer: <question>" \
-  --resolve off \
-  --timeout-ms 600000 \
-  --quiet
+node .agents/skills/agent-swarm/scripts/agent-swarm-helper.mjs build-run-command \
+  --question "<question>" \
+  --preset <preset-name>
 ```
 
 Add `--doc <path>` for each prompt-named document.
 
-For this repo before installation/linking, use the built CLI from the appropriate project directory:
+For this repo before installation/linking, add `--built-cli` and run the generated command from the appropriate project directory:
 
 ```bash
-node ../dist/cli.mjs run 1 "<question>" \
+node .agents/skills/agent-swarm/scripts/agent-swarm-helper.mjs build-run-command \
+  --question "<question>" \
   --preset <preset-name> \
-  --goal "Help answer: <question>" \
-  --resolve off \
-  --timeout-ms 600000 \
-  --quiet
+  --built-cli
 ```
 
 ## Harness/Model Smoke
@@ -137,13 +187,8 @@ cat "$latest/manifest.json" | jq '.agentRuntimes'
 Find the newest run:
 
 ```bash
-latest=$(ls -td .agent-swarm/runs/* | head -1)
-```
-
-Read:
-
-```bash
-cat "$latest/synthesis.md"
+node .agents/skills/agent-swarm/scripts/agent-swarm-helper.mjs inspect-latest-run \
+  --project-dir .
 ```
 
 Report:
@@ -153,3 +198,23 @@ Report:
 - requested explanation format
 - risks or caveats when relevant
 - run directory path
+
+## Output Format
+
+```text
+Recommendation: <winning outcome>
+Tradeoff: <main disagreement or cost>
+Why: <1-3 sentences grounded in synthesis.md>
+Risks: <material caveats, or "none called out">
+Evidence: <run directory path>
+```
+
+## Verification
+
+- Unit tests cover the deterministic helper and default preset contract.
+- Docs-contract tests keep the skill, usage guide, and package file list linked.
+- Run `pnpm test test/unit/agent-swarm-skill-helper.test.ts test/unit/docs-contract.test.ts test/unit/default-presets.test.ts test/unit/demo-config.test.ts` after editing this skill.
+- Run `pnpm format:check`, `git diff --check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, `pnpm smoke`, demo doctor, and `npm pack --dry-run --json` before merging release-facing changes.
+- Reachability / DRY audit: if this skill is imported into a broader skill tree, run that tree's `check_resolvable_local` audit there; this repo ships the skill as a packaged operator asset.
+- LLM evals N/A: this skill invokes existing harness agents through Agent Swarm and adds no separate LLM prompt evaluator.
+- Filing rules N/A: this skill writes project `.agent-swarm/` config and run artifacts only; it does not write memory, wiki, vault, Obsidian, or note files.
