@@ -155,9 +155,14 @@ describe("agent-swarm skill helper", () => {
   });
 
   it("keeps the helper script in the packaged repo skill directory", () => {
-    expect(helperPath).toContain(
-      ".agents/skills/agent-swarm/scripts/agent-swarm-helper.mjs",
+    expect(path.relative(repoRoot, helperPath)).toBe(
+      path.join(
+        ".agents",
+        "skills",
+        "agent-swarm",
+        "scripts",
+        "agent-swarm-helper.mjs",
+      ),
     );
-    expect(repoRoot).toContain("agent-swarm");
   });
 });
