@@ -75,8 +75,8 @@ Inspect the dry-run output for:
   `CONTRIBUTING.md`, `CHANGELOG.md`, `SUPPORT.md`, `SECURITY.md`,
   `CODE_OF_CONDUCT.md`, `docs/agent-usage.md`,
   `docs/dogfood-recipes.md`, `docs/release-operations.md`,
-  `docs/release-readiness.md`, `.agents/skills/agent-swarm`), `LICENSE`,
-  and `package.json`
+  `docs/release-readiness.md`, `.agents/skills/agent-swarm`,
+  `skills/agent-swarm`), `LICENSE`, and `package.json`
 - no local workflow state, temp files, tests, or private agent artifacts
 
 Publish only after explicit approval:

@@ -19,6 +19,7 @@ pnpm test            # vitest unit tests (test/unit/**)
 pnpm test:e2e        # builds, then vitest with vitest.e2e.config.ts (test/e2e/**)
 pnpm smoke           # builds, runs only test/e2e/smoke.test.ts (golden-path verification)
 pnpm smoke:real      # builds, then runs real harness CLIs manually (not CI)
+pnpm skills:sync     # mirror .agents/skills/agent-swarm to skills/agent-swarm
 pnpm typecheck       # tsc -p tsconfig.typecheck.json --noEmit
 pnpm lint            # eslint src
 pnpm format          # prettier --write src test

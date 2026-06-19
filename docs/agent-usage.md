@@ -1,7 +1,8 @@
 # Agent Usage
 
-Agents that support local skills can copy or reference the repo skill at
-[`../.agents/skills/agent-swarm`](../.agents/skills/agent-swarm). Use that skill
+Agents that support local skills can install the public `agent-swarm` skill (see
+[Install The Agent Skill](#install-the-agent-skill)) or reference the in-repo copy
+at [`../.agents/skills/agent-swarm`](../.agents/skills/agent-swarm). Use that skill
 when an operator agent should create, configure, run, inspect, or summarize Agent
 Swarm runs from a project.
 
@@ -11,15 +12,28 @@ plane.
 
 ## Install The Agent Skill
 
-From a source checkout, copy or reference the whole skill directory:
+The public adoption path is skill-first: the package ships an installable skill
+at `skills/agent-swarm`, so any agent that follows the common skills-installer
+convention can add it without a global CLI install.
 
 ```bash
-cp -R .agents/skills/agent-swarm /path/to/agent/skills/agent-swarm
+npx skills add @calvinnwq/agent-swarm --skill agent-swarm
 ```
 
-If the package is installed from npm, the skill is shipped with the package
-files so agent installers can copy the same directory from the installed package
-root.
+This copies the `skills/agent-swarm` directory into the agent's local skills
+directory. The flow is agent-agnostic — it does not assume a specific agent
+runtime and does not require installing the `agent-swarm` CLI globally.
+
+From a source checkout, copy or reference the same directory directly:
+
+```bash
+cp -R skills/agent-swarm /path/to/agent/skills/agent-swarm
+```
+
+The repository keeps a byte-identical copy at `.agents/skills/agent-swarm` for
+the agents that operate this repo. `skills/agent-swarm` is the public mirror that
+ships to consumers; both stay in sync via `pnpm skills:sync`, and a drift check
+fails the build if they diverge.
 
 The skill teaches an agent to:
 
@@ -40,7 +54,8 @@ using helper examples:
 export AGENT_SWARM_SKILL_DIR=/path/to/agent/skills/agent-swarm
 ```
 
-In this source checkout, the same directory is `.agents/skills/agent-swarm`.
+In this source checkout, that directory is `skills/agent-swarm` (or the identical
+`.agents/skills/agent-swarm`).
 The helper handles mechanical command construction and latest-run inspection;
 the operator agent still owns the judgment about which project, preset, docs,
 question, decision, and report shape to use.
