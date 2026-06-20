@@ -19,9 +19,7 @@ import type { SchedulerPolicy } from "./scheduler.js";
 import { ArtifactWriter } from "./artifact-writer.js";
 import { buildRunDirName } from "./artifact-writer.js";
 import { buildSeedBrief } from "./brief-generator.js";
-import { buildOrchestratorSynthesis } from "./synthesis.js";
 import { STORAGE_DIR } from "./identity.js";
-import { attachLiveRenderer, attachQuietLogger } from "../ui/index.js";
 import { OutputRouter } from "./output-router.js";
 import type { OutputTarget } from "./output-router.js";
 import { LedgerWriter } from "./ledger-writer.js";
@@ -35,19 +33,16 @@ import {
   roundPacketsToResults,
   restoreCheckpointRoundResults,
 } from "./round-results.js";
-import {
-  attachRoundLoopHandlers,
-  createRunEventFactory,
-  type RoundLoopState,
-} from "./round-loop.js";
+import { createRunEventFactory, type RoundLoopState } from "./round-loop.js";
 import {
   createBetweenRounds,
   OrchestratorDispatchError,
 } from "./between-rounds.js";
+import { executeRun, type SwarmUiMode } from "./execute-run.js";
 
 export { OrchestratorDispatchError };
 
-export type SwarmUiMode = "live" | "quiet" | "silent";
+export type { SwarmUiMode };
 
 export interface ResumeSwarmOpts {
   config: SwarmRunConfig;
@@ -232,15 +227,13 @@ export async function runSwarm(opts: RunSwarmOpts): Promise<number> {
 
   const uiMode: SwarmUiMode =
     opts.ui ?? (process.stderr.isTTY ? "live" : "quiet");
-  let liveHandle: { destroy: () => void } | null = null;
-  if (uiMode === "live") {
-    liveHandle = attachLiveRenderer(emitter);
-  } else if (uiMode === "quiet") {
-    attachQuietLogger(emitter);
-  }
 
-  attachRoundLoopHandlers({
+  return executeRun({
     emitter,
+    run,
+    uiMode,
+    manifest,
+    priorRoundResults: [],
     config,
     runId: manifest.runId,
     seedBrief,
@@ -258,38 +251,6 @@ export async function runSwarm(opts: RunSwarmOpts): Promise<number> {
     activeRoundMessages,
     pendingRoundWrites,
   });
-
-  try {
-    let result: Awaited<ReturnType<typeof run>>;
-    try {
-      result = await run();
-    } catch (err) {
-      if (err instanceof OrchestratorDispatchError) {
-        await Promise.all(pendingRoundWrites.values());
-        ledger.appendEvent(
-          makeEvent("run:failed", { metadata: { error: err.message } }),
-        );
-        await router.finalize(new Date().toISOString(), "failed");
-        return 1;
-      }
-      throw err;
-    }
-    await Promise.all(pendingRoundWrites.values());
-
-    if (result.ok) {
-      const synthesis = buildOrchestratorSynthesis(manifest, result.rounds);
-      await router.writeSynthesis(synthesis);
-    }
-
-    ledger.appendEvent(makeEvent(result.ok ? "run:completed" : "run:failed"));
-    const finishedAt = new Date().toISOString();
-    const finalStatus = result.ok ? "done" : "failed";
-    await router.finalize(finishedAt, finalStatus);
-
-    return result.ok ? 0 : 1;
-  } finally {
-    liveHandle?.destroy();
-  }
 }
 
 /**
@@ -470,15 +431,13 @@ export async function resumeSwarm(opts: ResumeSwarmOpts): Promise<number> {
 
   const uiMode: SwarmUiMode =
     opts.ui ?? (process.stderr.isTTY ? "live" : "quiet");
-  let liveHandle: { destroy: () => void } | null = null;
-  if (uiMode === "live") {
-    liveHandle = attachLiveRenderer(emitter);
-  } else if (uiMode === "quiet") {
-    attachQuietLogger(emitter);
-  }
 
-  attachRoundLoopHandlers({
+  return executeRun({
     emitter,
+    run,
+    uiMode,
+    manifest,
+    priorRoundResults: resumedRoundResults,
     config,
     runId: manifest.runId,
     seedBrief,
@@ -496,39 +455,4 @@ export async function resumeSwarm(opts: ResumeSwarmOpts): Promise<number> {
     activeRoundMessages,
     pendingRoundWrites,
   });
-
-  try {
-    let result: Awaited<ReturnType<typeof run>>;
-    try {
-      result = await run();
-    } catch (err) {
-      if (err instanceof OrchestratorDispatchError) {
-        await Promise.all(pendingRoundWrites.values());
-        ledger.appendEvent(
-          makeEvent("run:failed", { metadata: { error: err.message } }),
-        );
-        await router.finalize(new Date().toISOString(), "failed");
-        return 1;
-      }
-      throw err;
-    }
-    await Promise.all(pendingRoundWrites.values());
-
-    if (result.ok) {
-      const synthesis = buildOrchestratorSynthesis(manifest, [
-        ...resumedRoundResults,
-        ...result.rounds,
-      ]);
-      await router.writeSynthesis(synthesis);
-    }
-
-    ledger.appendEvent(makeEvent(result.ok ? "run:completed" : "run:failed"));
-    const finishedAt = new Date().toISOString();
-    const finalStatus = result.ok ? "done" : "failed";
-    await router.finalize(finishedAt, finalStatus);
-
-    return result.ok ? 0 : 1;
-  } finally {
-    liveHandle?.destroy();
-  }
 }

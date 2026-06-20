@@ -160,8 +160,12 @@ handlers. `between-rounds.ts` owns the shared between-rounds pass itself
 (`createBetweenRounds`, plus the `OrchestratorDispatchError` it throws, re-exported from
 `run-swarm.ts`): the pending-write await, the two checkpoints, the deterministic-or-
 orchestrator directive, and the broadcast staging — parameterized only by the run start
-timestamp so both entry points share one implementation. Synthesis on resume concatenates
-`resumedRoundResults` with `result.rounds`.
+timestamp so both entry points share one implementation. `execute-run.ts` owns the shared
+run-execution tail (`executeRun`): it attaches the UI renderer then the round-loop handlers,
+drives the round runner to completion, finalizes the run (or fails it on an escaping
+`OrchestratorDispatchError`), and writes the deterministic synthesis — parameterized only by
+`priorRoundResults`, which is empty for a fresh run and the rehydrated rounds on resume, so
+synthesis on resume concatenates `resumedRoundResults` with `result.rounds`.
 Resume is implemented and tested but **not** exposed as a user-facing
 subcommand in the alpha (see [SPEC.md](SPEC.md) §10).
 
@@ -229,8 +233,11 @@ which guards the boundaries documented here and in [SPEC.md](SPEC.md) so the
 following behavior-preserving boundary cleanups can move code between layers
 deliberately. Candidate cleanups include:
 
-- Tightening the `runSwarm` / `resumeSwarm` split so the shared pipeline core is
-  reused rather than partially duplicated.
+- The `runSwarm` / `resumeSwarm` split now shares its whole pipeline core rather
+  than duplicating it: `round-loop.ts` (lifecycle handlers + run-event factory),
+  `between-rounds.ts` (between-rounds pass), and `execute-run.ts` (`executeRun`,
+  the UI-attach → run → finalize → synthesis tail) leave each entry point as just
+  its own setup/rehydration plus a single `executeRun` call.
 - Clarifying the seam between run-level `BackendAdapter` (metadata) and per-agent
   harness adapters (dispatch).
 - Isolating the `OutputRouter` → writers fan-out behind a narrower persistence
