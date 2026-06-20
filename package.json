@@ -1,6 +1,6 @@
 {
   "name": "@calvinnwq/agent-swarm",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "Standalone TypeScript agent-swarm CLI — fan out agents, collect structured output, synthesize",
   "license": "MIT",
   "type": "module",

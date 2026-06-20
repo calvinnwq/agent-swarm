@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.4.0](https://github.com/calvinnwq/agent-swarm/compare/v0.3.2...v0.4.0) (2026-06-20)
+
+
+### Features
+
+* **cli:** add project config initialization ([dc486f2](https://github.com/calvinnwq/agent-swarm/commit/dc486f21967a563b045157e8879368bdcd75b4e1))
+* **docs:** add skill-first install path ([e3db54a](https://github.com/calvinnwq/agent-swarm/commit/e3db54a1ab8f5b704c0ea4161571f389aff5a254))
+* **init:** add agent-swarm init command for minimal project config defaults ([c9f8154](https://github.com/calvinnwq/agent-swarm/commit/c9f81541cc20ba85a18d389c022987300b7f6aee))
+* **skills:** add installable agent-swarm skill ([dff6ccb](https://github.com/calvinnwq/agent-swarm/commit/dff6ccbcee0948fa7025a216037c7b0de2eeedd6))
+* **skills:** add public installable agent-swarm skill path ([af59d0e](https://github.com/calvinnwq/agent-swarm/commit/af59d0e292d5f69e36da4dad11d9fe865fc8a957))
+
+
+### Reverts
+
+* remove demo slide deck from main ([fbc4b72](https://github.com/calvinnwq/agent-swarm/commit/fbc4b7271979ca3c291ca7a9678278829b489ca5))
+
 ## [0.3.2](https://github.com/calvinnwq/agent-swarm/compare/v0.3.1...v0.3.2) (2026-06-17)
 
 
