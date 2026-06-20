@@ -57,7 +57,7 @@ Real harness binaries are exercised by the **manual** `pnpm smoke:real` gate (no
 The repo skill at `.agents/skills/agent-swarm` is the source of truth and is used
 by the agents that operate this repo. `skills/agent-swarm` is its public mirror —
 the installable skill shipped in the npm package for the generic
-`npx skills add @calvinnwq/agent-swarm --skill agent-swarm` flow. Both are
+`npx skills add calvinnwq/agent-swarm --skill agent-swarm` flow. Both are
 user-facing operator assets, so keep maintainer-only verification here, not in the
 copied skill, so external agents can install and use the skill without inheriting
 repo-local release chores.

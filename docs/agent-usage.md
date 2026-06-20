@@ -17,7 +17,7 @@ at `skills/agent-swarm`, so any agent that follows the common skills-installer
 convention can add it without a global CLI install.
 
 ```bash
-npx skills add @calvinnwq/agent-swarm --skill agent-swarm
+npx skills add calvinnwq/agent-swarm --skill agent-swarm
 ```
 
 This copies the `skills/agent-swarm` directory into the agent's local skills
