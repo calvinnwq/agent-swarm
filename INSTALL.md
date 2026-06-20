@@ -96,12 +96,12 @@ The bundled `product-triad` / `product-decision` presets use Claude; the
 Agent Swarm reads project defaults from `.agent-swarm/config.yml`. You don't need
 one to run a bundled preset, but it lets a project pin its own defaults.
 
-Drop a minimal config with `agent-swarm init` (or `npx -y @calvinnwq/agent-swarm
-init`):
+Drop a minimal config with `npx -y @calvinnwq/agent-swarm init` (or
+`agent-swarm init` when using a global/source CLI):
 
 ```bash
-agent-swarm init            # creates the config; leaves an existing one alone
-agent-swarm init --force    # overwrite an existing/broken config with defaults
+npx -y @calvinnwq/agent-swarm init            # creates the config; leaves an existing one alone
+npx -y @calvinnwq/agent-swarm init --force    # overwrite an existing/broken config with defaults
 ```
 
 It writes only `.agent-swarm/config.yml` with safe defaults and never touches
