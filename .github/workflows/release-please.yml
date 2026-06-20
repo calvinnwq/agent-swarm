@@ -5,17 +5,94 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      publish_version:
+        description: Version to publish from an existing tag, for example 0.4.0
+        required: false
+        type: string
 
 permissions:
   contents: write
   pull-requests: write
+  id-token: write
 
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
     steps:
       - name: Run Release Please
+        id: release
         uses: googleapis/release-please-action@v4
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+
+  publish-npm:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created == 'true' || (github.event_name == 'workflow_dispatch' && inputs.publish_version != '') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Resolve publish ref
+        id: publish-meta
+        env:
+          INPUT_VERSION: ${{ inputs.publish_version }}
+        run: |
+          if [ -n "$INPUT_VERSION" ]; then
+            echo "ref=v$INPUT_VERSION" >> "$GITHUB_OUTPUT"
+            echo "expected_version=$INPUT_VERSION" >> "$GITHUB_OUTPUT"
+          else
+            echo "ref=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+            echo "expected_version=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check out release
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ steps.publish-meta.outputs.ref }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          registry-url: https://registry.npmjs.org
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build package
+        run: pnpm build
+
+      - name: Read package metadata
+        id: package
+        env:
+          EXPECTED_VERSION: ${{ steps.publish-meta.outputs.expected_version }}
+        run: |
+          name="$(node -p "require('./package.json').name")"
+          version="$(node -p "require('./package.json').version")"
+          if [ -n "$EXPECTED_VERSION" ] && [ "$version" != "$EXPECTED_VERSION" ]; then
+            echo "Expected package version $EXPECTED_VERSION but found $version" >&2
+            exit 1
+          fi
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Check whether version is already published
+        id: published
+        run: |
+          if npm view "${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }}" version --json >/dev/null 2>&1; then
+            echo "already=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "already=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish to npm
+        if: ${{ steps.published.outputs.already != 'true' }}
+        run: npm publish --access public --provenance
