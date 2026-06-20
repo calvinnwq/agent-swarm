@@ -205,9 +205,11 @@ These hold across the runtime and should be preserved by any change:
 
 ## 7. M15 runtime refactor candidates
 
-The M15 milestone (Runtime Boundary Refactor) is **deferred** — documented here
-but not performed in this docs batch. Now that the contract is captured in
-[SPEC.md](SPEC.md), candidate behavior-preserving boundary cleanups include:
+The M15 milestone (Runtime Boundary Refactor) builds on the architecture
+contracts locked in by `test/unit/architecture-contract.test.ts` (NGX-474),
+which guards the boundaries documented here and in [SPEC.md](SPEC.md) so the
+following behavior-preserving boundary cleanups can move code between layers
+deliberately. Candidate cleanups include:
 
 - Tightening the `runSwarm` / `resumeSwarm` split so the shared pipeline core is
   reused rather than partially duplicated.
