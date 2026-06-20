@@ -173,7 +173,7 @@ Per-pass `failureReason` is one of `harness-binary-missing | swarm-run-nonzero |
 
 ```
 src/
-├── cli.ts                 # Commander entry point
+├── cli.ts                 # Thin bin entry: reads version, hands argv to runCli
 ├── backends/
 │   ├── claude-cli.ts      # Claude CLI backend adapter
 │   ├── codex-cli.ts       # Codex CLI backend adapter
@@ -201,6 +201,7 @@ src/
 │   ├── inbox-manager.ts           # Staged/committed message delivery
 │   ├── scheduler.ts               # Per-round agent selection
 │   ├── run-swarm.ts               # Pipeline orchestrator
+│   ├── cli-program.ts             # Commander program + command routing
 │   ├── parse-command.ts           # CLI argument parsing/validation
 │   └── config.ts                  # SwarmRunConfig types
 ├── scripts/
