@@ -23,6 +23,7 @@ export * from "./parse-command.js";
 export * from "./preset-registry.js";
 export * from "./real-harness-smoke.js";
 export * from "./resolution-context.js";
+export * from "./round-loop.js";
 export * from "./round-results.js";
 export * from "./round-runner.js";
 export * from "./scheduler.js";

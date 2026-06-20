@@ -152,7 +152,11 @@ the same `runDir`/`runId`, skips `ArtifactWriter.init()` (which would clobber
 `manifest.json`/`seed-brief.md`), and restarts from `lastCompletedRound + 1`.
 `round-results.ts` owns the serialization seam between live round results and the
 durable checkpoint shape (`checkpointRoundResults` / `restoreCheckpointRoundResults`).
-Synthesis on resume concatenates `resumedRoundResults` with `result.rounds`.
+`round-loop.ts` owns the shared round-lifecycle emitter wiring
+(`attachRoundLoopHandlers`) and the run-event factory (`createRunEventFactory`), so
+both `runSwarm` and `resumeSwarm` stage briefs, commit inbox messages, append ledger
+events, and write round artifacts/checkpoints identically rather than duplicating the
+handlers. Synthesis on resume concatenates `resumedRoundResults` with `result.rounds`.
 Resume is implemented and tested but **not** exposed as a user-facing
 subcommand in the alpha (see [SPEC.md](SPEC.md) §10).
 
