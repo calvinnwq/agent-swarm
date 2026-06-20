@@ -40,7 +40,7 @@ The skill teaches an agent to:
 - choose a default or local preset from natural language
 - create project-local `.agent-swarm/` agents and presets when asked
 - edit `.agent-swarm/config.yml` without hiding CLI precedence
-- run `agent-swarm doctor` before dispatch
+- run the CLI doctor preflight before dispatch
 - render repeatable run commands with the packaged helper script
 - inspect the latest run artifact with the packaged helper script
 - report the recommendation, tradeoff, risks, and run path
@@ -129,7 +129,7 @@ CLI flags still win over config, and config still wins over preset defaults.
 From the project directory that owns `.agent-swarm/`:
 
 ```bash
-agent-swarm doctor
+npx -y @calvinnwq/agent-swarm doctor
 node "$AGENT_SWARM_SKILL_DIR/scripts/agent-swarm-helper.mjs" build-run-command \
   --question "<question>" \
   --preset product-triad \
@@ -137,9 +137,10 @@ node "$AGENT_SWARM_SKILL_DIR/scripts/agent-swarm-helper.mjs" build-run-command \
   --doc docs/agent-operation.md
 ```
 
-Run the generated command. For global/source installs on `PATH`, add
-`--global-cli`. For source checkouts before installation/linking, add
-`--built-cli`.
+Run the generated command. For global/source installs on `PATH`, run
+`agent-swarm doctor` instead and add `--global-cli` to the helper. For source
+checkouts before installation/linking, run `node ../dist/cli.mjs doctor` and add
+`--built-cli` to the helper.
 
 Then inspect the newest run:
 
