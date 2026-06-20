@@ -134,6 +134,8 @@ and `HarnessId` are deliberately separate schemas.
    `MessageEnvelope` for the next-round recipients (via `selectAgentsForRound` in
    `scheduler.ts`); `orchestratorPasses` and `pendingBetweenRounds` are persisted
    for resume; a failed orchestrator dispatch finalizes the run as failed.
+   `resolution-context.ts` folds prior-pass question resolutions and deferred
+   questions into the packet before each orchestrator pass.
 6. **Persistence.** Three append-only writers fan out from `OutputRouter`. Round
    writes happen on `round:done` and are awaited in `betweenRounds` so checkpoint
    ordering is deterministic.
@@ -148,6 +150,8 @@ and `HarnessId` are deliberately separate schemas.
 optional carry-forward doc snapshots and prior orchestrator pass state, reuses
 the same `runDir`/`runId`, skips `ArtifactWriter.init()` (which would clobber
 `manifest.json`/`seed-brief.md`), and restarts from `lastCompletedRound + 1`.
+`round-results.ts` owns the serialization seam between live round results and the
+durable checkpoint shape (`checkpointRoundResults` / `restoreCheckpointRoundResults`).
 Synthesis on resume concatenates `resumedRoundResults` with `result.rounds`.
 Resume is implemented and tested but **not** exposed as a user-facing
 subcommand in the alpha (see [SPEC.md](SPEC.md) §10).

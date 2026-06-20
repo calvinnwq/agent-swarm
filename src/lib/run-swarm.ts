@@ -7,7 +7,6 @@ import type {
   RunManifest,
   RunEvent,
   RoundPacket,
-  QuestionResolution,
   MessageEnvelope,
 } from "../schemas/index.js";
 import type { BackendAdapter } from "../backends/index.js";
@@ -43,6 +42,13 @@ import {
   materializeCarryForwardDocPackets,
 } from "./doc-inputs.js";
 import { dispatchOrchestratorPass } from "./orchestrator-dispatcher.js";
+import {
+  didRoundSucceed,
+  roundPacketsToResults,
+  checkpointRoundResults,
+  restoreCheckpointRoundResults,
+} from "./round-results.js";
+import { packetWithPriorResolutionContext } from "./resolution-context.js";
 
 export class OrchestratorDispatchError extends Error {
   constructor(message: string) {
@@ -133,105 +139,6 @@ export interface RunSwarmOpts {
    * deterministic between-round directive is used regardless of mode.
    */
   orchestratorAgent?: AgentDefinition;
-}
-
-function didRoundSucceed(agentResults: RoundResult["agentResults"]): boolean {
-  return agentResults.filter((r) => r.ok).length >= 2;
-}
-
-function roundPacketsToResults(packets: RoundPacket[]): RoundResult[] {
-  return packets.map((packet, index) => ({
-    round: typeof packet.round === "number" ? packet.round : index + 1,
-    agentResults: [],
-    packet,
-  }));
-}
-
-function checkpointRoundResults(roundResults: RoundResult[]) {
-  return roundResults.map(({ round, agentResults, packet }) => ({
-    round,
-    packet,
-    agentResults: agentResults.map(({ agent, ok, output, error }) => ({
-      agent,
-      ok,
-      output,
-      error,
-    })),
-  }));
-}
-
-function restoreCheckpointRoundResults(
-  checkpointResults: NonNullable<
-    import("../schemas/index.js").RunCheckpoint["completedRoundResults"]
-  >,
-): RoundResult[] {
-  return checkpointResults.map(({ round, agentResults, packet }) => ({
-    round,
-    packet,
-    agentResults: agentResults.map(({ agent, ok, output, error }) => ({
-      agent,
-      ok,
-      output,
-      error,
-      raw: null,
-    })),
-  }));
-}
-
-function addUniqueStrings(target: string[], values: readonly string[]): void {
-  const seen = new Set(target);
-  for (const value of values) {
-    if (seen.has(value)) continue;
-    seen.add(value);
-    target.push(value);
-  }
-}
-
-function addUniqueQuestionResolutions(
-  target: QuestionResolution[],
-  values: readonly QuestionResolution[],
-): void {
-  const seen = new Set(target.map((resolution) => resolution.question));
-  for (const resolution of values) {
-    if (seen.has(resolution.question)) continue;
-    seen.add(resolution.question);
-    target.push(resolution);
-  }
-}
-
-function packetWithPriorResolutionContext(
-  packet: RoundPacket,
-  orchestratorPasses: readonly OrchestratorPassRecord[],
-): RoundPacket {
-  if (orchestratorPasses.length === 0) return packet;
-
-  const questionResolutions: QuestionResolution[] = [];
-  const deferredQuestions: string[] = [];
-
-  for (const pass of orchestratorPasses) {
-    addUniqueQuestionResolutions(
-      questionResolutions,
-      pass.output.questionResolutions,
-    );
-    addUniqueStrings(deferredQuestions, pass.output.deferredQuestions);
-  }
-  addUniqueQuestionResolutions(questionResolutions, packet.questionResolutions);
-  addUniqueStrings(deferredQuestions, packet.deferredQuestions);
-
-  return {
-    ...packet,
-    questionResolutions,
-    deferredQuestions,
-    questionResolutionLimit:
-      packet.questionResolutionLimit > 0
-        ? packet.questionResolutionLimit
-        : Math.max(
-            0,
-            ...orchestratorPasses.map(
-              (pass) => pass.output.questionResolutionLimit,
-            ),
-          ),
-  };
 }
 
 /**
