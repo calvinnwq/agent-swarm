@@ -66,8 +66,8 @@ npx -y @calvinnwq/agent-swarm run 1 "<question>" --preset product-triad
 
 `npx -y @calvinnwq/agent-swarm` runs the scoped package's `agent-swarm` bin; the
 `-y` flag auto-confirms the one-time package download. If your environment can't
-resolve the bin through npx, install globally (§4) and the same `agent-swarm`
-commands will use that instead.
+resolve the bin through npx, install globally (§4) and ask the skill to use the
+global CLI fallback.
 
 ---
 
@@ -139,9 +139,10 @@ than fetching through npx on every call.
 npm install -g @calvinnwq/agent-swarm
 ```
 
-This exposes the `agent-swarm` command on your `PATH`, and the skill's
-`agent-swarm` commands then use it directly. (`npm install --global …` is the
-same thing.)
+This exposes the `agent-swarm` command on your `PATH`. When using the skill
+helper in this mode, add `--global-cli` so generated commands start with
+`agent-swarm` instead of `npx -y @calvinnwq/agent-swarm`. (`npm install --global
+…` is the same thing.)
 
 ### Source install
 
@@ -214,9 +215,9 @@ Notes:
 
 | Symptom                                      | Likely cause / fix                                                                                                                                                         |
 | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npx skills add` does nothing / wrong source | Use the GitHub `owner/repo` form `calvinnwq/agent-swarm`, not the npm name `@calvinnwq/agent-swarm` — `skills add` resolves a repo, not an npm package.                     |
+| `npx skills add` does nothing / wrong source | Use the GitHub `owner/repo` form `calvinnwq/agent-swarm`, not the npm name `@calvinnwq/agent-swarm` — `skills add` resolves a repo, not an npm package.                    |
 | `agent-swarm: command not found`             | No global/source install on `PATH`. Use `npx -y @calvinnwq/agent-swarm …`, or install globally (§4). For source installs, complete the one-time `pnpm setup` (§4).         |
-| `npx` can't resolve the bin                  | Known scoped-package bin-link caveat in some environments — install globally instead (§4).                                                                                 |
+| `npx` can't resolve the bin                  | Known scoped-package bin-link caveat in some environments — install globally (§4), then use the skill helper's `--global-cli` fallback.                                    |
 | doctor reports a harness probe failure       | The harness CLI is missing or unauthenticated. Log in (`claude auth login`, `codex login`, `opencode auth login`) or install `acli` + `rovodev`.                           |
 | Run fails with a timeout                     | Increase `--timeout-ms` (default 120000); real harnesses are slower than stubs.                                                                                            |
 | Run fails after an orchestrator pass         | `--resolve orchestrator` requires a working harness for the bundled `orchestrator`. The run finalizes as `failed` and exits `1`; earlier passes stay in `checkpoint.json`. |

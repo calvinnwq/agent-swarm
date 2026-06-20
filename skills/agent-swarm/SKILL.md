@@ -71,7 +71,7 @@ node "$AGENT_SWARM_SKILL_DIR/scripts/agent-swarm-helper.mjs" build-run-command \
   --doc docs/agent-operation.md
 ```
 
-For this repo before installation/linking, add `--built-cli`.
+For global/source installs on `PATH`, add `--global-cli`. For this repo before installation/linking, add `--built-cli`.
 
 Inspect the newest run:
 
@@ -160,7 +160,7 @@ node "$AGENT_SWARM_SKILL_DIR/scripts/agent-swarm-helper.mjs" build-run-command \
 
 Add `--doc <path>` for each prompt-named document.
 
-For this repo before installation/linking, add `--built-cli` and run the generated command from the appropriate project directory:
+For global/source installs on `PATH`, add `--global-cli`. For this repo before installation/linking, add `--built-cli` and run the generated command from the appropriate project directory:
 
 ```bash
 node "$AGENT_SWARM_SKILL_DIR/scripts/agent-swarm-helper.mjs" build-run-command \

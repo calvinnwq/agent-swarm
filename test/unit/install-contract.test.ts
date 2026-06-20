@@ -66,6 +66,25 @@ describe("INSTALL agent-operated setup contract", () => {
     ).toEqual(["node", "../dist/cli.mjs"]);
   });
 
+  it("renders global CLI fallback commands when requested", async () => {
+    const helper = await import(
+      path.join(
+        repoRoot,
+        ".agents/skills/agent-swarm/scripts/agent-swarm-helper.mjs",
+      )
+    );
+
+    expect(
+      helper
+        .buildRunCommand({
+          question: "Should we launch?",
+          preset: "product-triad",
+          globalCli: true,
+        })
+        .argv.slice(0, 1),
+    ).toEqual(["agent-swarm"]);
+  });
+
   it("keeps the global install optional for repeat use and performance", async () => {
     const install = await readRepoFile("INSTALL.md");
     expect(install).toContain("npm install -g @calvinnwq/agent-swarm");

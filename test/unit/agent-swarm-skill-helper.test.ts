@@ -109,6 +109,22 @@ describe("agent-swarm skill helper", () => {
     ).rejects.toThrow("--preset requires a value");
   });
 
+  it("builds a run command for the global CLI fallback", async () => {
+    const stdout = await runHelper([
+      "build-run-command",
+      "--question",
+      "Should we ship?",
+      "--preset",
+      "product-triad",
+      "--global-cli",
+      "--json",
+    ]);
+    const result = JSON.parse(stdout);
+
+    expect(result.argv.slice(0, 2)).toEqual(["agent-swarm", "run"]);
+    expect(result.command).toContain("agent-swarm run 1");
+  });
+
   it("inspects the newest run artifact from a local fixture", async () => {
     const project = await tempProject();
     const runsDir = path.join(project, ".agent-swarm", "runs");

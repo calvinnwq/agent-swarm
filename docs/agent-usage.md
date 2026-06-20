@@ -137,7 +137,8 @@ node "$AGENT_SWARM_SKILL_DIR/scripts/agent-swarm-helper.mjs" build-run-command \
   --doc docs/agent-operation.md
 ```
 
-Run the generated command. For source checkouts before installation/linking, add
+Run the generated command. For global/source installs on `PATH`, add
+`--global-cli`. For source checkouts before installation/linking, add
 `--built-cli`.
 
 Then inspect the newest run:
