@@ -92,7 +92,7 @@ Run the expert panel to help answer the question "Which Agent Swarm Linear issue
 Use these options:
 - Start NGX-471: dogfood recipes are the best immediate continuation.
 - Start NGX-469: docs site should be restored to milestone order.
-- Start M15: runtime refactor should begin now.
+- Continue M15: the next behavior-preserving runtime boundary slice should begin now.
 - Defer project work: demo rehearsal or release housekeeping matters more.
 
 Use docs/release-readiness.md and docs/agent-operation.md as context.
@@ -106,7 +106,7 @@ Command:
 node ../dist/cli.mjs run 1 "Which Agent Swarm Linear issue should we start next?" \
   --preset demo-expert-panel \
   --goal "Choose the next Agent Swarm project slice from current roadmap evidence." \
-  --decision "Start NGX-471 / Start NGX-469 / Start M15 / Defer project work" \
+  --decision "Start NGX-471 / Start NGX-469 / Continue M15 / Defer project work" \
   --doc ../docs/release-readiness.md \
   --doc ../docs/agent-operation.md \
   --resolve off \
