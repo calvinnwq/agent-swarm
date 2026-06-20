@@ -73,6 +73,7 @@ describe("architecture contract — ARCHITECTURE.md is the runtime source of tru
     // one half of this assertion fails.
     const ownedModules = [
       "src/cli.ts",
+      "src/lib/cli-program.ts",
       "src/lib/parse-command.ts",
       "src/lib/load-project-config.ts",
       "src/lib/init-config.ts",
@@ -119,25 +120,17 @@ describe("architecture contract — contributor docs point to it", () => {
 });
 
 describe("architecture contract — src/cli.ts stays a thin command entry", () => {
-  it("dispatches exactly the documented public commands and hand-off targets", async () => {
-    const [cli, architecture] = await Promise.all([
-      readRepoFile("src/cli.ts"),
-      readRepoFile("ARCHITECTURE.md"),
-    ]);
+  it("delegates argv to the command-routing boundary instead of wiring commands", async () => {
+    const cli = await readRepoFile("src/cli.ts");
 
-    for (const command of ["run", "init", "doctor"]) {
-      expect(cli, `cli.ts should register the ${command} command`).toContain(
-        `.command("${command}"`,
-      );
-    }
-
-    // The behavior these commands dispatch to lives in src/lib and is pulled in
-    // through the barrel, not defined in the Commander wiring.
-    for (const symbol of ["runSwarm", "initProjectConfig", "runDoctor"]) {
-      expect(cli, `cli.ts should delegate to ${symbol}`).toContain(symbol);
-    }
-    expect(architecture).toContain("runSwarm");
-    expect(architecture).toContain("initProjectConfig");
+    // NGX-475 (M15-02) moved Commander wiring into src/lib/cli-program.ts. The
+    // bin entry now only reads the package version and hands off to runCli, so
+    // no command registration may live in the shim.
+    expect(cli, "cli.ts should delegate to runCli").toContain("runCli");
+    expect(
+      cli,
+      "cli.ts should not register Commander commands; that belongs in cli-program.ts",
+    ).not.toContain(".command(");
   });
 
   it("imports only layer barrels, never deep runtime modules", async () => {
@@ -153,17 +146,44 @@ describe("architecture contract — src/cli.ts stays a thin command entry", () =
     }
   });
 
-  it("stays thin — behavior belongs in src/lib, not the Commander wiring", async () => {
+  it("stays thin — behavior belongs in src/lib, not the bin entry", async () => {
     const cli = await readRepoFile("src/cli.ts");
     const lineCount = cli.split("\n").length;
 
-    // Deliberate non-growth ceiling. The M15 refactor should shrink this entry
-    // point; if a change pushes past the ceiling, extract behavior into src/lib
-    // (and lower the ceiling) rather than raising it.
+    // Deliberate non-growth ceiling, lowered by NGX-475 once command routing
+    // moved into src/lib/cli-program.ts. If a change pushes past the ceiling,
+    // extract behavior into src/lib (and lower the ceiling) rather than raising
+    // it.
     expect(
       lineCount,
       `src/cli.ts has ${lineCount} lines; extract behavior into src/lib instead of growing the entry point`,
-    ).toBeLessThanOrEqual(320);
+    ).toBeLessThanOrEqual(20);
+  });
+});
+
+describe("architecture contract — command routing lives in src/lib/cli-program.ts", () => {
+  it("registers exactly the documented public commands and hand-off targets", async () => {
+    const [program, architecture] = await Promise.all([
+      readRepoFile("src/lib/cli-program.ts"),
+      readRepoFile("ARCHITECTURE.md"),
+    ]);
+
+    for (const command of ["run", "init", "doctor"]) {
+      expect(
+        program,
+        `cli-program.ts should register the ${command} command`,
+      ).toContain(`.command("${command}"`);
+    }
+
+    // The behavior these commands dispatch to lives in src/lib and is pulled in
+    // through sibling modules, not redefined in the Commander wiring.
+    for (const symbol of ["runSwarm", "initProjectConfig", "runDoctor"]) {
+      expect(program, `cli-program.ts should delegate to ${symbol}`).toContain(
+        symbol,
+      );
+    }
+    expect(architecture).toContain("runSwarm");
+    expect(architecture).toContain("initProjectConfig");
   });
 });
 

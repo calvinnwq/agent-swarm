@@ -159,7 +159,7 @@ Per-pass `failureReason` is one of `harness-binary-missing | swarm-run-nonzero |
 
 `runSwarm` (in `src/lib/run-swarm.ts`) is the orchestrator. The lifecycle:
 
-1. **Resolve config + agents.** `cli.ts` layers CLI flags > project config > preset defaults, then loads `AgentRegistry` and resolves each agent's runtime via `resolveAgentRuntimes`. When `resolveMode === "orchestrator"`, the bundled `orchestrator` agent is included in runtime resolution; without a run-level backend override, homogeneous selected-agent harnesses are inferred onto that orchestrator.
+1. **Resolve config + agents.** `cli-program.ts` layers CLI flags > project config > preset defaults, then loads `AgentRegistry` and resolves each agent's runtime via `resolveAgentRuntimes`. When `resolveMode === "orchestrator"`, the bundled `orchestrator` agent is included in runtime resolution; without a run-level backend override, homogeneous selected-agent harnesses are inferred onto that orchestrator.
 2. **Resolve harnesses per agent.** Each agent picks a harness via `agent.harness` → run-level `--backend`/`config.backend` → `agent.backend`. Harness ≠ backend: `BackendId` is `claude | codex` (the run-level dial), `HarnessId` is `claude | codex | opencode | rovo` (per-agent dispatch). `assertResolvedRuntimesAvailable` fails fast on unimplemented harnesses.
 3. **Per-agent dispatch.** `createAgentAdapterResolver` returns a `BackendAdapter` per agent based on resolved harness; `round-runner.ts` calls that adapter, not the run-level backend. The run-level backend is still used for run metadata (`wrapperName`).
 4. **Round execution.** `createRoundRunner` runs agents in parallel with `DEFAULT_CONCURRENCY = 3`, `config.timeoutMs` (default `DEFAULT_DISPATCH_TIMEOUT_MS = 120_000`), and one `MAX_FORMAT_REPAIR_ATTEMPTS` retry on JSON parse failure. Output is validated against `AgentOutputSchema`.
@@ -173,7 +173,7 @@ Per-pass `failureReason` is one of `harness-binary-missing | swarm-run-nonzero |
 
 ```
 src/
-├── cli.ts                 # Commander entry point
+├── cli.ts                 # Thin bin entry: reads version, hands argv to runCli
 ├── backends/
 │   ├── claude-cli.ts      # Claude CLI backend adapter
 │   ├── codex-cli.ts       # Codex CLI backend adapter
@@ -201,6 +201,7 @@ src/
 │   ├── inbox-manager.ts           # Staged/committed message delivery
 │   ├── scheduler.ts               # Per-round agent selection
 │   ├── run-swarm.ts               # Pipeline orchestrator
+│   ├── cli-program.ts             # Commander program + command routing
 │   ├── parse-command.ts           # CLI argument parsing/validation
 │   └── config.ts                  # SwarmRunConfig types
 ├── scripts/

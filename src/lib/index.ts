@@ -5,6 +5,7 @@ export * from "./output-router.js";
 export * from "./backend-selection.js";
 export * from "./artifact-writer.js";
 export * from "./brief-generator.js";
+export * from "./cli-program.js";
 export * from "./config.js";
 export * from "./doctor.js";
 export * from "./doc-inputs.js";

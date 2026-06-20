@@ -14,12 +14,13 @@ Agent Swarm is an ESM TypeScript CLI bundled with `tsdown` into a single
 ## 1. Layers at a glance
 
 ```
-cli.ts (Commander)            thin entry: parse, layer config, dispatch
-  └─ parse-command.ts         validate args → SwarmCommandError on bad input
-  └─ load-project-config.ts   .agent-swarm/config.yml (legacy .swarm fallback)
-  └─ init-config.ts           deterministic .agent-swarm/config.yml writer
-  └─ registries               AgentRegistry, PresetRegistry (project>user>bundled)
-  └─ harness-resolution.ts    per-agent (harness, model) resolution
+cli.ts (bin shim)             read version, hand argv to runCli
+  └─ cli-program.ts           Commander routing: run/init/doctor, layer config, dispatch
+       └─ parse-command.ts        validate args → SwarmCommandError on bad input
+       └─ load-project-config.ts  .agent-swarm/config.yml (legacy .swarm fallback)
+       └─ init-config.ts          deterministic .agent-swarm/config.yml writer
+       └─ registries              AgentRegistry, PresetRegistry (project>user>bundled)
+       └─ harness-resolution.ts   per-agent (harness, model) resolution
         │
         ▼
 run-swarm.ts (runSwarm/resumeSwarm)   pipeline orchestrator
@@ -40,16 +41,19 @@ ui/ (live-renderer | quiet-logger)    terminal rendering
 
 ## 2. Module map
 
-### CLI and parsing (`src/cli.ts`, `src/lib/parse-command.ts`)
+### CLI and command routing (`src/cli.ts`, `src/lib/cli-program.ts`, `src/lib/parse-command.ts`)
 
-`cli.ts` is the Commander entry point and is intentionally **thin**: its job is
-to parse arguments, layer configuration, build a `SwarmRunConfig`, and hand off
-to `runSwarm` for runs, `doctor` for diagnostics, or `initProjectConfig` for
-the deterministic config writer. `parse-command.ts` owns argument validation
-(rounds 1–3, agents 2–5, resolve-mode synonyms) and throws `SwarmCommandError`,
-which surfaces with exit code `2`. Agent and preset schemas own definition-name
-validation. Run dispatch returns an exit code; `doctor` exits `0`/`1`/`2`; `init`
-exits `0` on create/overwrite/preserve and `2` on command errors.
+`cli.ts` is the bin entry and is intentionally **thin**: it reads the package
+version and hands argv to `runCli` (`src/lib/cli-program.ts`). `cli-program.ts`
+owns command routing — it builds the Commander program, registers the `run`,
+`init`, and `doctor` commands, layers configuration, builds a `SwarmRunConfig`,
+and hands off to `runSwarm` for runs, `runDoctor` for diagnostics, or
+`initProjectConfig` for the deterministic config writer. `parse-command.ts` owns
+argument validation (rounds 1–3, agents 2–5, resolve-mode synonyms) and throws
+`SwarmCommandError`, which surfaces with exit code `2`. Agent and preset schemas
+own definition-name validation. Run dispatch returns an exit code; `doctor`
+exits `0`/`1`/`2`; `init` exits `0` on create/overwrite/preserve and `2` on
+command errors.
 
 ### Config loading (`src/lib/load-project-config.ts`, `src/lib/config.ts`, `src/schemas/swarm-config.ts`)
 
@@ -57,7 +61,7 @@ Project config is loaded from `.agent-swarm/config.yml`, with the legacy
 `.swarm/config.yml` read only when the current path is absent. The strict
 `SwarmProjectConfigSchema` rejects unknown keys. `config.ts` defines the
 `SwarmRunConfig` shape consumed by the pipeline. Precedence is **CLI flags >
-config values > preset defaults**, resolved in `cli.ts`.
+config values > preset defaults**, resolved in `cli-program.ts`.
 
 `src/lib/init-config.ts` backs `agent-swarm init`: it creates or, with `--force`,
 overwrites only `.agent-swarm/config.yml` with minimal defaults (`preset:
@@ -108,8 +112,8 @@ and `HarnessId` are deliberately separate schemas.
 
 `runSwarm` (`src/lib/run-swarm.ts`) is the orchestrator. Per run:
 
-1. **Resolve config + agents.** `cli.ts` layers flags > config > preset, loads
-   `AgentRegistry`, and resolves runtimes via `resolveAgentRuntimes`. With
+1. **Resolve config + agents.** `cli-program.ts` layers flags > config > preset,
+   loads `AgentRegistry`, and resolves runtimes via `resolveAgentRuntimes`. With
    `resolveMode === "orchestrator"`, the bundled `orchestrator` agent is included
    in runtime resolution; absent a run-level backend override, homogeneous
    selected-agent harnesses are inferred onto the orchestrator.
@@ -179,8 +183,9 @@ output shape.
 
 These hold across the runtime and should be preserved by any change:
 
-- **Thin CLI.** `cli.ts` parses, layers config, and dispatches. Behavior lives in
-  `src/lib/`, not in the Commander wiring.
+- **Thin CLI.** `cli.ts` is a bin shim that reads the version and hands argv to
+  `runCli`; command routing, config layering, and dispatch live in
+  `src/lib/cli-program.ts`. Behavior lives in `src/lib/`, not the bin entry.
 - **ESM only, `.js` import specifiers.** TS source imports use `.js` extensions
   (`moduleResolution: "bundler"`). Don't drop the extension.
 - **Zod at every boundary.** All disk/wire-crossing data is a Zod schema; prefer
