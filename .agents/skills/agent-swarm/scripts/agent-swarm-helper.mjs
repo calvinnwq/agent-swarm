@@ -28,7 +28,9 @@ export function buildRunCommand(options) {
   }
 
   const cliTokens =
-    options.builtCli === true ? ["node", "../dist/cli.mjs"] : ["agent-swarm"];
+    options.builtCli === true
+      ? ["node", "../dist/cli.mjs"]
+      : ["npx", "-y", "@calvinnwq/agent-swarm"];
   const goal = options.goal ?? `Help answer: ${question}`;
   const docs = options.docs ?? [];
   const tokens = [

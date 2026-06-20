@@ -31,6 +31,41 @@ describe("INSTALL agent-operated setup contract", () => {
     expect(install).toContain("npx -y @calvinnwq/agent-swarm");
   });
 
+  it("renders installed-skill run commands through npx", async () => {
+    const helper = await import(
+      path.join(
+        repoRoot,
+        ".agents/skills/agent-swarm/scripts/agent-swarm-helper.mjs",
+      )
+    );
+
+    expect(
+      helper.buildRunCommand({
+        question: "Should we launch?",
+        preset: "product-triad",
+      }).argv,
+    ).toEqual(expect.arrayContaining(["npx", "-y", "@calvinnwq/agent-swarm"]));
+  });
+
+  it("keeps source-checkout built CLI override available", async () => {
+    const helper = await import(
+      path.join(
+        repoRoot,
+        ".agents/skills/agent-swarm/scripts/agent-swarm-helper.mjs",
+      )
+    );
+
+    expect(
+      helper
+        .buildRunCommand({
+          question: "Should we launch?",
+          preset: "product-triad",
+          builtCli: true,
+        })
+        .argv.slice(0, 2),
+    ).toEqual(["node", "../dist/cli.mjs"]);
+  });
+
   it("keeps the global install optional for repeat use and performance", async () => {
     const install = await readRepoFile("INSTALL.md");
     expect(install).toContain("npm install -g @calvinnwq/agent-swarm");
