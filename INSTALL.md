@@ -85,6 +85,17 @@ Without a project config, doctor skips harness-capability checks — so a clean
 `doctor` with no config does not by itself prove your harness is authenticated.
 Run a quickstart (below) to confirm end-to-end.
 
+To drop a minimal `.agent-swarm/config.yml` with safe defaults
+(`preset: product-triad`, `resolve: off`, `timeoutMs: 300000`), run:
+
+```bash
+agent-swarm init            # creates the config; leaves an existing one alone
+agent-swarm init --force    # overwrite an existing/broken config with defaults
+```
+
+It only ever touches `.agent-swarm/config.yml` — never agents, presets, or the
+legacy `.swarm/` path. See [SPEC.md](SPEC.md) §2.3.
+
 ---
 
 ## 4. First run
@@ -124,7 +135,7 @@ Notes:
 | Run fails after an orchestrator pass         | `--resolve orchestrator` requires a working harness for the bundled `orchestrator`. The run finalizes as `failed` and exits `1`; earlier passes stay in `checkpoint.json`. |
 | Config changes seem ignored                  | Precedence is CLI flags > config > preset. Check for a flag overriding your config value.                                                                                  |
 | doctor mentions a legacy `.swarm/config.yml` | Config is being read from the legacy path — migrate to `.agent-swarm/` (§6).                                                                                               |
-| Unknown-key / type error in config           | `.agent-swarm/config.yml` is strict. Use only the supported keys (see [SPEC.md](SPEC.md) §3).                                                                              |
+| Unknown-key / type error in config           | `.agent-swarm/config.yml` is strict. Use only the supported keys (see [SPEC.md](SPEC.md) §3), or recover with `agent-swarm init --force`.              |
 
 When reporting an issue, run `agent-swarm --version` and `agent-swarm doctor`
 first (and `pnpm build && pnpm smoke` from source), and include the output —

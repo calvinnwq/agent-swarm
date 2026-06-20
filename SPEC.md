@@ -45,12 +45,13 @@ Usage: agent-swarm [options] [command]
 Commands:
   run [options] <rounds> <topic...>  Run a swarm
   doctor                             Diagnose swarm setup
+  init [options]                     Create .agent-swarm/config.yml defaults
   help [command]                     Display help for a command
 ```
 
 `agent-swarm --version` prints the package version. The alpha surface is exactly
-two operational commands — `run` and `doctor` — plus Commander's built-in
-`help`.
+three operational commands — `run`, `doctor`, and `init` — plus Commander's
+built-in `help`.
 
 ### 2.1 `agent-swarm run <rounds> <topic...>`
 
@@ -111,6 +112,38 @@ points to `.agent-swarm/config.yml`.
 **Doctor exit codes:** `0` ready, `1` at least one check failed (with actionable
 per-check messages), `2` internal command error.
 
+### 2.3 `agent-swarm init`
+
+A tiny, deterministic helper that writes the current project's
+`.agent-swarm/config.yml` with minimal safe defaults so coding agents don't
+hand-roll inconsistent configs. It is not a setup wizard: it never runs swarms,
+installs packages or skills, creates custom agents/presets, or mutates any file
+other than `config.yml`.
+
+The generated file is exactly:
+
+```yaml
+# agent-swarm project config
+# CLI flags override these values, which override preset defaults.
+preset: product-triad
+resolve: off
+timeoutMs: 300000
+```
+
+| Flag      | Behavior                                                                                |
+| --------- | --------------------------------------------------------------------------------------- |
+| (none)    | Creates `.agent-swarm/config.yml` when absent; leaves an existing file unchanged.        |
+| `--force` | Overwrites an existing `.agent-swarm/config.yml` with the defaults (recovers bad files). |
+
+Init always targets the current `.agent-swarm/` path; a legacy `.swarm/config.yml`
+is detected and reported but never modified. An existing config — even an invalid
+one — is preserved unless `--force` is passed, so init never destroys user data.
+The generated config parses cleanly under `SwarmProjectConfigSchema` and is fully
+compatible with `doctor` and `run`.
+
+**Init exit codes:** `0` on create, overwrite, or a preserved existing file; `2`
+on internal command error (e.g. the config cannot be written).
+
 ---
 
 ## 3. Configuration precedence
@@ -137,7 +170,8 @@ errors). Supported keys:
 
 A legacy `.swarm/config.yml` is read only when `.agent-swarm/config.yml` is
 absent; the current path wins when both exist; doctor flags the legacy path.
-Validation errors are reported by doctor and at run start.
+Validation errors are reported by doctor and at run start. `agent-swarm init`
+(§2.3) writes this file with minimal safe defaults.
 
 ---
 

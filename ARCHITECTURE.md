@@ -17,6 +17,7 @@ Agent Swarm is an ESM TypeScript CLI bundled with `tsdown` into a single
 cli.ts (Commander)            thin entry: parse, layer config, dispatch
   └─ parse-command.ts         validate args → SwarmCommandError on bad input
   └─ load-project-config.ts   .agent-swarm/config.yml (legacy .swarm fallback)
+  └─ init-config.ts           deterministic .agent-swarm/config.yml writer
   └─ registries               AgentRegistry, PresetRegistry (project>user>bundled)
   └─ harness-resolution.ts    per-agent (harness, model) resolution
         │
@@ -43,10 +44,12 @@ ui/ (live-renderer | quiet-logger)    terminal rendering
 
 `cli.ts` is the Commander entry point and is intentionally **thin**: its job is
 to parse arguments, layer configuration, build a `SwarmRunConfig`, and hand off
-to `runSwarm`. `parse-command.ts` owns argument validation (rounds 1–3, agents
-2–5, resolve-mode synonyms) and throws `SwarmCommandError`, which surfaces with
-exit code `2`. Agent and preset schemas own definition-name validation. Run
-dispatch returns an exit code; `doctor` exits `0`/`1`/`2`.
+to `runSwarm` for runs, `doctor` for diagnostics, or `initProjectConfig` for
+the deterministic config writer. `parse-command.ts` owns argument validation
+(rounds 1–3, agents 2–5, resolve-mode synonyms) and throws `SwarmCommandError`,
+which surfaces with exit code `2`. Agent and preset schemas own definition-name
+validation. Run dispatch returns an exit code; `doctor` exits `0`/`1`/`2`; `init`
+exits `0` on create/overwrite/preserve and `2` on command errors.
 
 ### Config loading (`src/lib/load-project-config.ts`, `src/lib/config.ts`, `src/schemas/swarm-config.ts`)
 
@@ -55,6 +58,11 @@ Project config is loaded from `.agent-swarm/config.yml`, with the legacy
 `SwarmProjectConfigSchema` rejects unknown keys. `config.ts` defines the
 `SwarmRunConfig` shape consumed by the pipeline. Precedence is **CLI flags >
 config values > preset defaults**, resolved in `cli.ts`.
+
+`src/lib/init-config.ts` backs `agent-swarm init`: it creates or, with `--force`,
+overwrites only `.agent-swarm/config.yml` with minimal defaults (`preset:
+product-triad`, `resolve: off`, `timeoutMs: 300000`). It reports a legacy
+`.swarm/config.yml` when present but never mutates the legacy path.
 
 ### Registries (`src/lib/agent-registry.ts`, `src/lib/preset-registry.ts`)
 

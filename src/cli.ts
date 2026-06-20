@@ -6,6 +6,8 @@ import {
   buildConfig,
   backendToHarness,
   formatDoctorReport,
+  formatInitResult,
+  initProjectConfig,
   loadAgentRegistry,
   loadPresetRegistry,
   loadProjectConfig,
@@ -226,6 +228,26 @@ program
       }
     },
   );
+
+program
+  .command("init")
+  .description(
+    "Create .agent-swarm/config.yml with minimal safe defaults (CLI flags override config)",
+  )
+  .option("--force", "overwrite an existing .agent-swarm/config.yml")
+  .action(async (options: Record<string, unknown>) => {
+    try {
+      const result = await initProjectConfig({ force: options.force === true });
+      process.stdout.write(`${formatInitResult(result)}\n`);
+      process.exit(0);
+    } catch (err) {
+      if (err instanceof SwarmCommandError) {
+        process.stderr.write(`${CLI_NAME}: ${err.message}\n`);
+        process.exit(2);
+      }
+      throw err;
+    }
+  });
 
 program
   .command("doctor")
