@@ -109,14 +109,21 @@ npm install --prefix "$tmpdir" @calvinnwq/agent-swarm@X.Y.Z
 command -v trash >/dev/null && trash "$tmpdir"
 ```
 
-The documented install path is:
+The documented public-adoption path is skill-first:
+
+```bash
+npx skills add calvinnwq/agent-swarm --skill agent-swarm
+npx -y @calvinnwq/agent-swarm --version
+```
+
+The documented optional global fallback is:
 
 ```bash
 npm install --global @calvinnwq/agent-swarm
 agent-swarm --version
 ```
 
-During the first scoped publish, `npm exec --package @calvinnwq/agent-swarm@0.3.2 -- agent-swarm` and equivalent `npx` calls did not reliably link the bin during verification, while global/local install did. Treat `npm exec`/`npx` as optional extra checks until they are re-proven.
+During the first scoped publish, `npm exec --package @calvinnwq/agent-swarm@0.3.2 -- agent-swarm` and equivalent `npx` calls did not reliably link the bin during verification, while global/local install did. Re-prove the `npx -y @calvinnwq/agent-swarm` path before publishing changes that affect installation, and keep the global install fallback documented until that path is consistently reliable.
 
 ## Manual Real-harness Gate
 

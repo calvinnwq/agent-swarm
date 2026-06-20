@@ -11,7 +11,7 @@ Use this skill when the user asks to create a custom swarm, configure `.agent-sw
 
 Create, configure, run, and inspect Agent Swarm panels without adding a scheduler, UI, saved-run database, hosted control plane, or runtime command surface beyond `run`, `doctor`, and the minimal `init` helper.
 
-For the durable operator contract, report shape, artifact expectations, and examples, see <https://github.com/calvinnwq/agent-swarm/blob/main/docs/agent-operation.md>. For first-time agent installation and project setup, see <https://github.com/calvinnwq/agent-swarm/blob/main/docs/agent-usage.md>. For repeatable operator/OpenClaw dogfood runs, see <https://github.com/calvinnwq/agent-swarm/blob/main/docs/dogfood-recipes.md>.
+For the durable operator contract, report shape, artifact expectations, and examples, see <https://github.com/calvinnwq/agent-swarm/blob/main/docs/agent-operation.md>. For first-time agent-operated setup, start with <https://github.com/calvinnwq/agent-swarm/blob/main/INSTALL.md>; the detailed skill workflow lives in <https://github.com/calvinnwq/agent-swarm/blob/main/docs/agent-usage.md>. For repeatable operator/OpenClaw dogfood runs, see <https://github.com/calvinnwq/agent-swarm/blob/main/docs/dogfood-recipes.md>.
 
 ## Contract
 

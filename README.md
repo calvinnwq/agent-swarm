@@ -8,11 +8,28 @@ Run a panel of AI agents in parallel rounds, then synthesize their answers into 
 
 ## Install
 
-You'll need:
+For agent-operated setup, start with the skill-first guide in [INSTALL.md](INSTALL.md):
+
+```bash
+npx skills add calvinnwq/agent-swarm --skill agent-swarm
+```
+
+That installs the public `agent-swarm` skill into agents that support local
+skills; the skill runs the CLI on demand with `npx -y @calvinnwq/agent-swarm`,
+so a global CLI install is optional.
+
+For direct CLI use, you'll need:
 
 - Node ≥ 20 (Node 24 LTS recommended — `.nvmrc` pins it; run `nvm use`)
-- pnpm 10
+- pnpm 10 for source installs and development
 - A harness CLI on `PATH`, authenticated. The bundled `product-decision` preset uses Claude (`claude auth login`); other presets use Codex (`codex login`) or OpenCode (`opencode auth login`).
+
+```bash
+npx -y @calvinnwq/agent-swarm --version
+```
+
+For repeat use or if `npx` cannot resolve the scoped-package bin, install the
+optional global CLI:
 
 ```bash
 npm install --global @calvinnwq/agent-swarm
@@ -43,10 +60,10 @@ The supported alpha flow uses the bundled `product-decision` preset, which pairs
 
 ```bash
 # 1. Verify your setup
-agent-swarm doctor
+npx -y @calvinnwq/agent-swarm doctor
 
 # 2. Run a one-round swarm
-agent-swarm run 1 "Should we adopt server components?" \
+npx -y @calvinnwq/agent-swarm run 1 "Should we adopt server components?" \
   --preset product-decision \
   --goal "Decide on migration strategy" \
   --decision "Adopt / Defer / Reject" \

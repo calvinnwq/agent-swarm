@@ -14,7 +14,7 @@ Use this contract when an operator agent needs to:
 
 This is guidance for agents and skills. It does not change `agent-swarm run`, `agent-swarm init`, add a scheduler, or introduce a hosted service.
 
-For first-time agent installation and project setup, see [docs/agent-usage.md](agent-usage.md). For runnable examples that apply this contract to real operator/OpenClaw decisions, see [docs/dogfood-recipes.md](dogfood-recipes.md).
+For first-time agent-operated setup, start with [INSTALL.md](../INSTALL.md); the detailed skill workflow lives in [docs/agent-usage.md](agent-usage.md). For runnable examples that apply this contract to real operator/OpenClaw decisions, see [docs/dogfood-recipes.md](dogfood-recipes.md).
 
 ## Non-Goals
 
@@ -198,4 +198,4 @@ pnpm format:check
 git diff --check
 ```
 
-For a real agent-operated run, also run `agent-swarm doctor` from the target project before dispatch and inspect the newest run's `manifest.json` plus `synthesis.md` afterward.
+For a real agent-operated run, also run doctor with the selected CLI form from the target project before dispatch and inspect the newest run's `manifest.json` plus `synthesis.md` afterward.

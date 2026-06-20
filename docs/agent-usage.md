@@ -167,5 +167,5 @@ and run directory path.
   tiny helper that writes the minimal `.agent-swarm/config.yml`; it is not a
   wizard and never installs packages, skills, agents, or presets.
 
-Use project-local `.agent-swarm/` files and ordinary `agent-swarm run` commands
+Use project-local `.agent-swarm/` files and ordinary CLI `run` commands
 until a future runtime feature is deliberately designed and shipped.
