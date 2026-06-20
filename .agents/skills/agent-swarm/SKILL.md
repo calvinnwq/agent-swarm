@@ -33,9 +33,9 @@ This skill owns the agent-operated path from natural language to a real Agent Sw
 
 ## Operating Rules
 
-- Run `npx -y @calvinnwq/agent-swarm` from the directory that owns the intended `.agent-swarm/` config.
+- Run `npx -y @calvinnwq/agent-swarm` from the directory that owns the intended `.agent-swarm/` config. If npx cannot resolve the scoped-package bin and the package is installed globally or linked from source, replace every direct CLI command in this skill with `agent-swarm` and add `--global-cli` to helper-generated run commands. In this repo before installation/linking, use `node ../dist/cli.mjs` for direct CLI commands and add `--built-cli` to helper-generated run commands.
 - Use `.agent-swarm/` for current config, agents, presets, and run artifacts. Treat `.swarm/` as legacy fallback only.
-- Use `npx -y @calvinnwq/agent-swarm init` for first-time minimal project config; it writes only `.agent-swarm/config.yml`, preserves existing config unless `--force` is passed, and CLI flags still override every value.
+- Use the selected CLI form with `init` for first-time minimal project config; it writes only `.agent-swarm/config.yml`, preserves existing config unless `--force` is passed, and CLI flags still override every value.
 - Leave demo presets and demo prompt language alone unless the user explicitly asks to edit the demo.
 - Prefer bundled first-time defaults before creating custom files: `product-triad`, `adversarial-code-review`, and `customer-panel`.
 - Prefer focused one-round runs for smoke tests, live runs, and quick decisions.
@@ -48,7 +48,7 @@ This skill owns the agent-operated path from natural language to a real Agent Sw
 ## Phases
 
 1. Locate the project root that owns the intended `.agent-swarm/` config.
-2. Run `npx -y @calvinnwq/agent-swarm doctor` or the built CLI doctor before dispatch.
+2. Run doctor with the selected CLI form before dispatch.
 3. Map the user's natural prompt to a bundled or project-local preset.
 4. Render the command with the packaged helper when the inputs are known.
 5. Run the swarm only after command inputs are explicit enough to avoid guessing.
@@ -88,7 +88,13 @@ From the intended project or demo directory:
 npx -y @calvinnwq/agent-swarm doctor
 ```
 
-If the repo has not linked or installed the package locally, use the built CLI:
+If npx cannot resolve the scoped-package bin and the package is installed globally or linked from source, use:
+
+```bash
+agent-swarm doctor
+```
+
+If this repo has not linked or installed the package locally, use the built CLI:
 
 ```bash
 node ../dist/cli.mjs doctor
@@ -101,11 +107,11 @@ Stop and report exact harness/model failures. Do not rewrite agent files unless 
 When the user asks to create a new custom swarm:
 
 1. Use project-local `.agent-swarm/` files.
-2. Create only the needed directories: `.agent-swarm/agents/`, `.agent-swarm/presets/`, and optionally `.agent-swarm/config.yml`; prefer `npx -y @calvinnwq/agent-swarm init` for the default config skeleton. Group agent and preset files in subdirectories when it improves readability.
+2. Create only the needed directories: `.agent-swarm/agents/`, `.agent-swarm/presets/`, and optionally `.agent-swarm/config.yml`; prefer `init` with the selected CLI form for the default config skeleton. Group agent and preset files in subdirectories when it improves readability.
 3. Prefer 2-5 named agents with narrow roles.
 4. Write presets with `name`, `description`, `agents`, optional `resolve`, `goal`, and `decision`.
 5. Use config for project defaults only. Do not hide CLI precedence: CLI flags > config values > preset defaults.
-6. Run `npx -y @calvinnwq/agent-swarm doctor` after config changes.
+6. Run doctor with the selected CLI form after config changes.
 
 Subdirectories are organization only, not namespaces. The YAML `name` remains the canonical identity, and duplicate names within the same registry root are errors.
 
@@ -173,6 +179,8 @@ node "$AGENT_SWARM_SKILL_DIR/scripts/agent-swarm-helper.mjs" build-run-command \
 
 For harness/model smoke, use the fastest local presets that cover the runtimes you need. Keep the prompt tiny and inspect `manifest.json` afterward.
 
+Default npx form:
+
 ```bash
 npx -y @calvinnwq/agent-swarm run 1 "Smoke test harness/model routing only. Return minimal valid JSON saying smoke-ok." \
   --preset <preset-name> \
@@ -181,6 +189,8 @@ npx -y @calvinnwq/agent-swarm run 1 "Smoke test harness/model routing only. Retu
   --timeout-ms 600000 \
   --quiet
 ```
+
+If using the global/source fallback, replace the command prefix with `agent-swarm`. If using the built CLI fallback, replace it with `node ../dist/cli.mjs`.
 
 ```bash
 latest=$(ls -td .agent-swarm/runs/* | head -1)
