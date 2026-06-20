@@ -12,14 +12,14 @@ Use this contract when an operator agent needs to:
 - inspect durable artifacts after the run
 - report a concise decision summary with enough proof to trust it
 
-This is guidance for agents and skills. It does not change `agent-swarm run`, add a scheduler, or introduce a hosted service.
+This is guidance for agents and skills. It does not change `agent-swarm run`, `agent-swarm init`, add a scheduler, or introduce a hosted service.
 
 For first-time agent installation and project setup, see [docs/agent-usage.md](agent-usage.md). For runnable examples that apply this contract to real operator/OpenClaw decisions, see [docs/dogfood-recipes.md](dogfood-recipes.md).
 
 ## Non-Goals
 
 - No speculative control-plane implementation.
-- No new runtime command or background worker.
+- No runtime command beyond the documented `run`, `doctor`, and `init` surfaces; no background worker.
 - No replacement for `agent-swarm run`; this contract only explains how an operator agent should choose and report a run.
 
 ## Inputs
