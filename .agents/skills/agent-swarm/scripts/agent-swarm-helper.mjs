@@ -28,7 +28,11 @@ export function buildRunCommand(options) {
   }
 
   const cliTokens =
-    options.builtCli === true ? ["node", "../dist/cli.mjs"] : ["agent-swarm"];
+    options.builtCli === true
+      ? ["node", "../dist/cli.mjs"]
+      : options.globalCli === true
+        ? ["agent-swarm"]
+        : ["npx", "-y", "@calvinnwq/agent-swarm"];
   const goal = options.goal ?? `Help answer: ${question}`;
   const docs = options.docs ?? [];
   const tokens = [
@@ -75,7 +79,11 @@ export async function inspectLatestRun(projectDir = process.cwd()) {
       continue;
     }
     const fullPath = path.join(runsDir, entry.name);
-    runDirs.push({ name: entry.name, path: fullPath, stat: await stat(fullPath) });
+    runDirs.push({
+      name: entry.name,
+      path: fullPath,
+      stat: await stat(fullPath),
+    });
   }
   if (runDirs.length === 0) {
     throw new Error(`No Agent Swarm run directories found at ${runsDir}`);
@@ -133,6 +141,10 @@ export function parseArgs(argv) {
       options.builtCli = true;
       continue;
     }
+    if (arg === "--global-cli") {
+      options.globalCli = true;
+      continue;
+    }
     if (arg === "--json") {
       options.json = true;
       continue;
@@ -163,12 +175,16 @@ async function main(argv) {
   const { command, options } = parseArgs(argv);
   if (command === "build-run-command") {
     const result = buildRunCommand(options);
-    console.log(options.json ? JSON.stringify(result, null, 2) : result.command);
+    console.log(
+      options.json ? JSON.stringify(result, null, 2) : result.command,
+    );
     return;
   }
   if (command === "inspect-latest-run") {
     const result = await inspectLatestRun(options.projectDir ?? process.cwd());
-    console.log(options.json ? JSON.stringify(result, null, 2) : formatRunReport(result));
+    console.log(
+      options.json ? JSON.stringify(result, null, 2) : formatRunReport(result),
+    );
     return;
   }
   throw new Error(
@@ -185,7 +201,11 @@ function requireText(value, label) {
 
 function parsePositiveInt(value, label) {
   const parsed = Number.parseInt(value, 10);
-  if (!Number.isInteger(parsed) || parsed < 1 || String(parsed) !== String(value)) {
+  if (
+    !Number.isInteger(parsed) ||
+    parsed < 1 ||
+    String(parsed) !== String(value)
+  ) {
     throw new Error(`${label} must be a positive integer`);
   }
   return parsed;

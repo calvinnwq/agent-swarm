@@ -17,7 +17,7 @@ at `skills/agent-swarm`, so any agent that follows the common skills-installer
 convention can add it without a global CLI install.
 
 ```bash
-npx skills add @calvinnwq/agent-swarm --skill agent-swarm
+npx skills add calvinnwq/agent-swarm --skill agent-swarm
 ```
 
 This copies the `skills/agent-swarm` directory into the agent's local skills
@@ -40,7 +40,7 @@ The skill teaches an agent to:
 - choose a default or local preset from natural language
 - create project-local `.agent-swarm/` agents and presets when asked
 - edit `.agent-swarm/config.yml` without hiding CLI precedence
-- run `agent-swarm doctor` before dispatch
+- run the CLI doctor preflight before dispatch
 - render repeatable run commands with the packaged helper script
 - inspect the latest run artifact with the packaged helper script
 - report the recommendation, tradeoff, risks, and run path
@@ -62,10 +62,13 @@ question, decision, and report shape to use.
 
 ## First-Time Defaults
 
-Run `agent-swarm init` to drop a minimal `.agent-swarm/config.yml`
-(`preset: product-triad`, `resolve: off`, `timeoutMs: 300000`) into the current
-project. It never overwrites an existing config without `--force`, only ever
-touches `config.yml`, and CLI flags still override every value it writes.
+Run `npx -y @calvinnwq/agent-swarm init` to drop a minimal
+`.agent-swarm/config.yml` (`preset: product-triad`, `resolve: off`,
+`timeoutMs: 300000`) into the current project. For global/source installs on
+`PATH`, use `agent-swarm init`; for source checkouts before
+installation/linking, use `node ../dist/cli.mjs init`. It never overwrites an
+existing config without `--force`, only ever touches `config.yml`, and CLI flags
+still override every value it writes.
 
 Start with a bundled preset unless the project already has a local preset that
 matches the request.
@@ -129,7 +132,7 @@ CLI flags still win over config, and config still wins over preset defaults.
 From the project directory that owns `.agent-swarm/`:
 
 ```bash
-agent-swarm doctor
+npx -y @calvinnwq/agent-swarm doctor
 node "$AGENT_SWARM_SKILL_DIR/scripts/agent-swarm-helper.mjs" build-run-command \
   --question "<question>" \
   --preset product-triad \
@@ -137,8 +140,10 @@ node "$AGENT_SWARM_SKILL_DIR/scripts/agent-swarm-helper.mjs" build-run-command \
   --doc docs/agent-operation.md
 ```
 
-Run the generated command. For source checkouts before installation/linking, add
-`--built-cli`.
+Run the generated command. For global/source installs on `PATH`, run
+`agent-swarm doctor` instead and add `--global-cli` to the helper. For source
+checkouts before installation/linking, run `node ../dist/cli.mjs doctor` and add
+`--built-cli` to the helper.
 
 Then inspect the newest run:
 
@@ -162,5 +167,5 @@ and run directory path.
   tiny helper that writes the minimal `.agent-swarm/config.yml`; it is not a
   wizard and never installs packages, skills, agents, or presets.
 
-Use project-local `.agent-swarm/` files and ordinary `agent-swarm run` commands
+Use project-local `.agent-swarm/` files and ordinary CLI `run` commands
 until a future runtime feature is deliberately designed and shipped.

@@ -8,11 +8,28 @@ Run a panel of AI agents in parallel rounds, then synthesize their answers into 
 
 ## Install
 
-You'll need:
+For agent-operated setup, start with the skill-first guide in [INSTALL.md](INSTALL.md):
+
+```bash
+npx skills add calvinnwq/agent-swarm --skill agent-swarm
+```
+
+That installs the public `agent-swarm` skill into agents that support local
+skills; the skill runs the CLI on demand with `npx -y @calvinnwq/agent-swarm`,
+so a global CLI install is optional.
+
+For direct CLI use, you'll need:
 
 - Node ≥ 20 (Node 24 LTS recommended — `.nvmrc` pins it; run `nvm use`)
-- pnpm 10
+- pnpm 10 for source installs and development
 - A harness CLI on `PATH`, authenticated. The bundled `product-decision` preset uses Claude (`claude auth login`); other presets use Codex (`codex login`) or OpenCode (`opencode auth login`).
+
+```bash
+npx -y @calvinnwq/agent-swarm --version
+```
+
+For repeat use or if `npx` cannot resolve the scoped-package bin, install the
+optional global CLI:
 
 ```bash
 npm install --global @calvinnwq/agent-swarm
@@ -43,10 +60,10 @@ The supported alpha flow uses the bundled `product-decision` preset, which pairs
 
 ```bash
 # 1. Verify your setup
-agent-swarm doctor
+npx -y @calvinnwq/agent-swarm doctor
 
 # 2. Run a one-round swarm
-agent-swarm run 1 "Should we adopt server components?" \
+npx -y @calvinnwq/agent-swarm run 1 "Should we adopt server components?" \
   --preset product-decision \
   --goal "Decide on migration strategy" \
   --decision "Adopt / Defer / Reject" \
@@ -427,7 +444,7 @@ Two rendering modes:
 - `--resolve agents` — accepted and persisted, but currently behaves like `off`.
 - The `rounds` key in `.agent-swarm/config.yml` — reserved but not applied; pass `<rounds>` on the CLI.
 
-**Agent operation.** Agents can operate Agent Swarm from natural prompts by following the repeatable workflow in [docs/agent-operation.md](docs/agent-operation.md). First-time agent skill installation and project setup live in [docs/agent-usage.md](docs/agent-usage.md); the npm package ships an installable `skills/agent-swarm` mirror for `npx skills add @calvinnwq/agent-swarm --skill agent-swarm`. That contract covers preset selection, decision-matrix handling, artifact inspection, and synthesis reporting without adding a new runtime control plane. Runnable dogfood examples for real operator/OpenClaw decisions live in [docs/dogfood-recipes.md](docs/dogfood-recipes.md).
+**Agent operation.** Agents can operate Agent Swarm from natural prompts by following the repeatable workflow in [docs/agent-operation.md](docs/agent-operation.md). For agent-operated setup — installing the skill into a coding agent and the first run — see [INSTALL.md](INSTALL.md); first-time agent skill installation and project setup also live in [docs/agent-usage.md](docs/agent-usage.md). The npm package ships an installable `skills/agent-swarm` mirror, added with `npx skills add calvinnwq/agent-swarm --skill agent-swarm`. That contract covers preset selection, decision-matrix handling, artifact inspection, and synthesis reporting without adding a new runtime control plane. Runnable dogfood examples for real operator/OpenClaw decisions live in [docs/dogfood-recipes.md](docs/dogfood-recipes.md).
 
 **Future (v0.3+ productionization candidates).** Not promised, not part of the alpha contract — tracked in the project roadmap (M11–M15): a user-facing `agent-swarm resume` command (resume is implemented and tested internally but not yet a subcommand), agent-driven `--resolve agents`, a public docs/spec site so this README can stay concise, CI/release-operations hardening, and deeper agent DX/recipes beyond the current operator contract. Release-readiness status and the full milestone breakdown live in [docs/release-readiness.md](docs/release-readiness.md).
 
