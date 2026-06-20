@@ -156,7 +156,12 @@ durable checkpoint shape (`checkpointRoundResults` / `restoreCheckpointRoundResu
 (`attachRoundLoopHandlers`) and the run-event factory (`createRunEventFactory`), so
 both `runSwarm` and `resumeSwarm` stage briefs, commit inbox messages, append ledger
 events, and write round artifacts/checkpoints identically rather than duplicating the
-handlers. Synthesis on resume concatenates `resumedRoundResults` with `result.rounds`.
+handlers. `between-rounds.ts` owns the shared between-rounds pass itself
+(`createBetweenRounds`, plus the `OrchestratorDispatchError` it throws, re-exported from
+`run-swarm.ts`): the pending-write await, the two checkpoints, the deterministic-or-
+orchestrator directive, and the broadcast staging — parameterized only by the run start
+timestamp so both entry points share one implementation. Synthesis on resume concatenates
+`resumedRoundResults` with `result.rounds`.
 Resume is implemented and tested but **not** exposed as a user-facing
 subcommand in the alpha (see [SPEC.md](SPEC.md) §10).
 
@@ -230,9 +235,10 @@ deliberately. Candidate cleanups include:
   harness adapters (dispatch).
 - Isolating the `OutputRouter` → writers fan-out behind a narrower persistence
   interface.
-- Extracting between-round orchestration (`betweenRounds` +
-  `orchestrator-dispatcher`) into a clearer module boundary so a future
-  `--resolve agents` path can slot in without touching the round runner.
+- Between-round orchestration is now extracted into `between-rounds.ts`
+  (`createBetweenRounds`, shared by `runSwarm`/`resumeSwarm`) on top of
+  `orchestrator-dispatcher.ts`, so a future `--resolve agents` path can slot in
+  without touching the round runner or duplicating the pass.
 
 These are candidates only; they must preserve the alpha contract and are tracked
 under the productionization roadmap (see

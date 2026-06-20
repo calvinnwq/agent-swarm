@@ -5,9 +5,7 @@ import type {
   OrchestratorPassRecord,
   ResolvedAgentRuntime,
   RunManifest,
-  RunEvent,
   RoundPacket,
-  MessageEnvelope,
 } from "../schemas/index.js";
 import type { BackendAdapter } from "../backends/index.js";
 import type { SwarmRunConfig } from "./config.js";
@@ -17,13 +15,10 @@ import type {
   BackendAdapterResolver,
   RoundResult,
 } from "./round-runner.js";
-import { selectAgentsForRound, type SchedulerPolicy } from "./scheduler.js";
+import type { SchedulerPolicy } from "./scheduler.js";
 import { ArtifactWriter } from "./artifact-writer.js";
 import { buildRunDirName } from "./artifact-writer.js";
-import {
-  buildSeedBrief,
-  buildOrchestratorPassDirective,
-} from "./brief-generator.js";
+import { buildSeedBrief } from "./brief-generator.js";
 import { buildOrchestratorSynthesis } from "./synthesis.js";
 import { STORAGE_DIR } from "./identity.js";
 import { attachLiveRenderer, attachQuietLogger } from "../ui/index.js";
@@ -36,25 +31,21 @@ import {
   loadCarryForwardDocSnapshots,
   materializeCarryForwardDocPackets,
 } from "./doc-inputs.js";
-import { dispatchOrchestratorPass } from "./orchestrator-dispatcher.js";
 import {
   roundPacketsToResults,
-  checkpointRoundResults,
   restoreCheckpointRoundResults,
 } from "./round-results.js";
-import { packetWithPriorResolutionContext } from "./resolution-context.js";
 import {
   attachRoundLoopHandlers,
   createRunEventFactory,
   type RoundLoopState,
 } from "./round-loop.js";
+import {
+  createBetweenRounds,
+  OrchestratorDispatchError,
+} from "./between-rounds.js";
 
-export class OrchestratorDispatchError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "OrchestratorDispatchError";
-  }
-}
+export { OrchestratorDispatchError };
 
 export type SwarmUiMode = "live" | "quiet" | "silent";
 
@@ -207,125 +198,26 @@ export async function runSwarm(opts: RunSwarmOpts): Promise<number> {
   const pendingRoundWrites = new Map<number, Promise<void>>();
   const activeRoundMessages = new Map<number, Set<string>>();
 
-  const awaitRoundWrite = async (round: number) => {
-    const pending = pendingRoundWrites.get(round);
-    if (pending) await pending;
-  };
-
-  const betweenRounds = async ({
-    round,
-    packet,
-  }: {
-    round: number;
-    packet: RoundPacket;
-  }) => {
-    await awaitRoundWrite(round);
-
-    checkpoint.write({
-      runId: manifest.runId,
-      lastCompletedRound: round,
-      priorPacket: packet,
-      completedRoundPackets: [...completedRoundPackets],
-      completedRoundResults: checkpointRoundResults(completedRoundResults),
-      orchestratorDirective: loopState.orchestratorDirective,
-      ...(orchestratorPasses.length > 0
-        ? { orchestratorPasses: [...orchestratorPasses] }
-        : {}),
-      pendingBetweenRounds: true,
-      checkpointedAt: new Date().toISOString(),
-      startedAt: startedAtIso,
-    });
-
-    let directive = buildOrchestratorPassDirective(packet);
-    let orchestratorPassMetadata: RunEvent["metadata"] | undefined;
-    if (
-      config.resolveMode === "orchestrator" &&
-      opts.orchestratorAgent !== undefined
-    ) {
-      const orchAgent = opts.orchestratorAgent;
-      const orchBackend = opts.resolveBackend?.(orchAgent) ?? backend;
-      const result = await dispatchOrchestratorPass({
-        backend: orchBackend,
-        agent: orchAgent,
-        packet: packetWithPriorResolutionContext(packet, orchestratorPasses),
-        goal: config.goal,
-        decision: config.decision,
-        nextRound: round + 1,
-        timeoutMs: config.timeoutMs,
-      });
-      if (!result.ok) {
-        throw new OrchestratorDispatchError(
-          `Orchestrator dispatch failed: ${result.error}`,
-        );
-      }
-      directive = result.output.directive;
-      packet.questionResolutions = result.output.questionResolutions;
-      packet.questionResolutionLimit = result.output.questionResolutionLimit;
-      packet.deferredQuestions = result.output.deferredQuestions;
-      orchestratorPasses.push({
-        round,
-        agentName: orchAgent.name,
-        output: result.output,
-      });
-      orchestratorPassMetadata = {
-        agentName: orchAgent.name,
-        directive,
-        confidence: result.output.confidence,
-        questionResolutionsCount: result.output.questionResolutions.length,
-        questionResolutionLimit: result.output.questionResolutionLimit,
-        deferredQuestionsCount: result.output.deferredQuestions.length,
-      };
-    }
-    loopState.orchestratorDirective = directive;
-
-    const directiveRecipients = selectAgentsForRound(
-      agents,
-      round + 1,
-      packet,
-      opts.schedulerPolicy ?? "all",
-    ).selected;
-    const message: MessageEnvelope = {
-      messageId: randomUUID(),
-      senderId: "orchestrator",
-      recipients: directiveRecipients,
-      kind: "broadcast",
-      payload: { directive, fromRound: round },
-      deliveryStatus: "staged",
-      createdAt: new Date().toISOString(),
-      roundNumber: round + 1,
-    };
-    inbox.stage(message);
-    let activeMessages = activeRoundMessages.get(round + 1);
-    if (!activeMessages) {
-      activeMessages = new Set();
-      activeRoundMessages.set(round + 1, activeMessages);
-    }
-    activeMessages.add(message.messageId);
-    ledger.appendEvent(
-      makeEvent("orchestrator:pass", {
-        roundNumber: round,
-        ...(orchestratorPassMetadata
-          ? { metadata: orchestratorPassMetadata }
-          : {}),
-      }),
-    );
-    checkpoint.write({
-      runId: manifest.runId,
-      lastCompletedRound: round,
-      priorPacket: packet,
-      completedRoundPackets: [...completedRoundPackets],
-      completedRoundResults: checkpointRoundResults(completedRoundResults),
-      orchestratorDirective: directive,
-      ...(orchestratorPasses.length > 0
-        ? { orchestratorPasses: [...orchestratorPasses] }
-        : {}),
-      checkpointedAt: new Date().toISOString(),
-      startedAt: startedAtIso,
-    });
-    ledger.appendEvent(makeEvent("round:completed", { roundNumber: round }));
-
-    return { directive };
-  };
+  const betweenRounds = createBetweenRounds({
+    config,
+    agents,
+    backend,
+    runId: manifest.runId,
+    startedAtIso,
+    ledger,
+    inbox,
+    checkpoint,
+    makeEvent,
+    state: loopState,
+    completedRoundPackets,
+    completedRoundResults,
+    orchestratorPasses,
+    activeRoundMessages,
+    pendingRoundWrites,
+    orchestratorAgent: opts.orchestratorAgent,
+    resolveBackend: opts.resolveBackend,
+    schedulerPolicy: opts.schedulerPolicy,
+  });
 
   const { emitter, run } = createRoundRunner({
     config,
@@ -522,125 +414,26 @@ export async function resumeSwarm(opts: ResumeSwarmOpts): Promise<number> {
     }
   }
 
-  const awaitRoundWrite = async (round: number) => {
-    const pending = pendingRoundWrites.get(round);
-    if (pending) await pending;
-  };
-
-  const betweenRounds = async ({
-    round,
-    packet,
-  }: {
-    round: number;
-    packet: RoundPacket;
-  }) => {
-    await awaitRoundWrite(round);
-
-    checkpoint.write({
-      runId: manifest.runId,
-      lastCompletedRound: round,
-      priorPacket: packet,
-      completedRoundPackets: [...completedRoundPackets],
-      completedRoundResults: checkpointRoundResults(completedRoundResults),
-      orchestratorDirective: loopState.orchestratorDirective,
-      ...(orchestratorPasses.length > 0
-        ? { orchestratorPasses: [...orchestratorPasses] }
-        : {}),
-      pendingBetweenRounds: true,
-      checkpointedAt: new Date().toISOString(),
-      startedAt,
-    });
-
-    let directive = buildOrchestratorPassDirective(packet);
-    let orchestratorPassMetadata: RunEvent["metadata"] | undefined;
-    if (
-      config.resolveMode === "orchestrator" &&
-      opts.orchestratorAgent !== undefined
-    ) {
-      const orchAgent = opts.orchestratorAgent;
-      const orchBackend = opts.resolveBackend?.(orchAgent) ?? backend;
-      const result = await dispatchOrchestratorPass({
-        backend: orchBackend,
-        agent: orchAgent,
-        packet: packetWithPriorResolutionContext(packet, orchestratorPasses),
-        goal: config.goal,
-        decision: config.decision,
-        nextRound: round + 1,
-        timeoutMs: config.timeoutMs,
-      });
-      if (!result.ok) {
-        throw new OrchestratorDispatchError(
-          `Orchestrator dispatch failed: ${result.error}`,
-        );
-      }
-      directive = result.output.directive;
-      packet.questionResolutions = result.output.questionResolutions;
-      packet.questionResolutionLimit = result.output.questionResolutionLimit;
-      packet.deferredQuestions = result.output.deferredQuestions;
-      orchestratorPasses.push({
-        round,
-        agentName: orchAgent.name,
-        output: result.output,
-      });
-      orchestratorPassMetadata = {
-        agentName: orchAgent.name,
-        directive,
-        confidence: result.output.confidence,
-        questionResolutionsCount: result.output.questionResolutions.length,
-        questionResolutionLimit: result.output.questionResolutionLimit,
-        deferredQuestionsCount: result.output.deferredQuestions.length,
-      };
-    }
-    loopState.orchestratorDirective = directive;
-
-    const directiveRecipients = selectAgentsForRound(
-      agents,
-      round + 1,
-      packet,
-      opts.schedulerPolicy ?? "all",
-    ).selected;
-    const message: MessageEnvelope = {
-      messageId: randomUUID(),
-      senderId: "orchestrator",
-      recipients: directiveRecipients,
-      kind: "broadcast",
-      payload: { directive, fromRound: round },
-      deliveryStatus: "staged",
-      createdAt: new Date().toISOString(),
-      roundNumber: round + 1,
-    };
-    inbox.stage(message);
-    let activeMessages = activeRoundMessages.get(round + 1);
-    if (!activeMessages) {
-      activeMessages = new Set();
-      activeRoundMessages.set(round + 1, activeMessages);
-    }
-    activeMessages.add(message.messageId);
-    ledger.appendEvent(
-      makeEvent("orchestrator:pass", {
-        roundNumber: round,
-        ...(orchestratorPassMetadata
-          ? { metadata: orchestratorPassMetadata }
-          : {}),
-      }),
-    );
-    checkpoint.write({
-      runId: manifest.runId,
-      lastCompletedRound: round,
-      priorPacket: packet,
-      completedRoundPackets: [...completedRoundPackets],
-      completedRoundResults: checkpointRoundResults(completedRoundResults),
-      orchestratorDirective: directive,
-      ...(orchestratorPasses.length > 0
-        ? { orchestratorPasses: [...orchestratorPasses] }
-        : {}),
-      checkpointedAt: new Date().toISOString(),
-      startedAt,
-    });
-    ledger.appendEvent(makeEvent("round:completed", { roundNumber: round }));
-
-    return { directive };
-  };
+  const betweenRounds = createBetweenRounds({
+    config,
+    agents,
+    backend,
+    runId: manifest.runId,
+    startedAtIso: startedAt,
+    ledger,
+    inbox,
+    checkpoint,
+    makeEvent,
+    state: loopState,
+    completedRoundPackets,
+    completedRoundResults,
+    orchestratorPasses,
+    activeRoundMessages,
+    pendingRoundWrites,
+    orchestratorAgent: opts.orchestratorAgent,
+    resolveBackend: opts.resolveBackend,
+    schedulerPolicy: opts.schedulerPolicy,
+  });
 
   if (savedCheckpoint.pendingBetweenRounds) {
     try {
