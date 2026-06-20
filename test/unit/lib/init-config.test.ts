@@ -152,6 +152,19 @@ describe("initProjectConfig", () => {
     // Legacy file is never mutated by init.
     expect(await readFile(legacyPath, "utf-8")).toBe(legacy);
   });
+
+  it("creates the current config when legacy config probing fails", async () => {
+    const cwd = await makeTempCwd();
+    await mkdir(path.join(cwd, ".swarm", "config.yml"), { recursive: true });
+
+    const result = await initProjectConfig({ cwd });
+
+    expect(result.status).toBe("created");
+    expect(result.legacyDetected).toBe(false);
+    expect(await readFile(result.filePath, "utf-8")).toBe(
+      DEFAULT_INIT_CONFIG_YAML,
+    );
+  });
 });
 
 describe("formatInitResult", () => {

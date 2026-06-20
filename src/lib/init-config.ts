@@ -160,7 +160,7 @@ async function fileExists(filePath: string): Promise<boolean> {
     if (isMissingFile(error)) {
       return false;
     }
-    throw error;
+    return false;
   }
 }
 
