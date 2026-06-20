@@ -227,8 +227,9 @@ Result:  all clean
 `test/unit/architecture-contract.test.ts` locks the current runtime ownership
 documented in [ARCHITECTURE.md](../ARCHITECTURE.md) before behavior-preserving
 M15 refactors move code between layers. The guardrail checks the runtime map,
-documented invariants, contributor-doc links, thin `src/cli.ts` command wiring,
-and separate `BackendId` / `HarnessId` schema boundaries.
+documented invariants, contributor-doc links, thin `src/cli.ts` bin handoff,
+`src/lib/cli-program.ts` command routing, and separate `BackendId` / `HarnessId`
+schema boundaries.
 
 ```
 Command: pnpm test -- test/unit/architecture-contract.test.ts
