@@ -62,10 +62,13 @@ question, decision, and report shape to use.
 
 ## First-Time Defaults
 
-Run `agent-swarm init` to drop a minimal `.agent-swarm/config.yml`
-(`preset: product-triad`, `resolve: off`, `timeoutMs: 300000`) into the current
-project. It never overwrites an existing config without `--force`, only ever
-touches `config.yml`, and CLI flags still override every value it writes.
+Run `npx -y @calvinnwq/agent-swarm init` to drop a minimal
+`.agent-swarm/config.yml` (`preset: product-triad`, `resolve: off`,
+`timeoutMs: 300000`) into the current project. For global/source installs on
+`PATH`, use `agent-swarm init`; for source checkouts before
+installation/linking, use `node ../dist/cli.mjs init`. It never overwrites an
+existing config without `--force`, only ever touches `config.yml`, and CLI flags
+still override every value it writes.
 
 Start with a bundled preset unless the project already has a local preset that
 matches the request.
