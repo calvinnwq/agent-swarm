@@ -194,6 +194,11 @@ src/
 │   ├── orchestrator-prompt.ts     # Orchestrator prompt construction
 │   ├── real-harness-smoke.ts      # Real harness smoke gate runner
 │   ├── round-runner.ts            # Concurrent agent dispatch with events
+│   ├── round-loop.ts              # Shared round-lifecycle emitter wiring
+│   ├── round-results.ts           # Round-result/checkpoint serialization seam
+│   ├── resolution-context.ts      # Prior-pass resolution-context fold for orchestrator
+│   ├── between-rounds.ts          # Shared between-rounds pass (deterministic + orchestrator)
+│   ├── execute-run.ts             # Shared run-execution tail (UI + round loop + synthesis)
 │   ├── synthesis.ts               # Deterministic synthesis engine
 │   ├── artifact-writer.ts         # Incremental disk persistence
 │   ├── checkpoint-writer.ts       # Atomic durable recovery checkpoints
