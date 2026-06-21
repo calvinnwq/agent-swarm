@@ -82,7 +82,7 @@ M14-04 observation target:
 
 ## Recipe 2: Linear Project Prioritization
 
-Use this when the operator asks what Agent Swarm project work should happen next and the options span docs, recipes, runtime refactor, or release housekeeping.
+Use this when the operator asks what Agent Swarm project work should happen next and the options span docs, recipes, post-M15 runtime hardening, or release housekeeping.
 
 Human prompt:
 
@@ -92,7 +92,7 @@ Run the expert panel to help answer the question "Which Agent Swarm Linear issue
 Use these options:
 - Start NGX-471: dogfood recipes are the best immediate continuation.
 - Start NGX-469: docs site should be restored to milestone order.
-- Continue M15: validate or extend the shared runtime-boundary extraction.
+- Start post-M15 runtime hardening: pursue one remaining candidate from the closeout.
 - Defer project work: demo rehearsal or release housekeeping matters more.
 
 Use docs/release-readiness.md and docs/agent-operation.md as context.
@@ -106,7 +106,7 @@ Command:
 node ../dist/cli.mjs run 1 "Which Agent Swarm Linear issue should we start next?" \
   --preset demo-expert-panel \
   --goal "Choose the next Agent Swarm project slice from current roadmap evidence." \
-  --decision "Start NGX-471 / Start NGX-469 / Continue M15 / Defer project work" \
+  --decision "Start NGX-471 / Start NGX-469 / Start post-M15 runtime hardening / Defer project work" \
   --doc ../docs/release-readiness.md \
   --doc ../docs/agent-operation.md \
   --resolve off \

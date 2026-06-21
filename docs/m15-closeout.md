@@ -74,16 +74,16 @@ The refactor preserves behavior, established by:
 
 Full local gates were run at the merged M15 state on 2026-06-21:
 
-| Gate                | Command            | Result                                              |
-| ------------------- | ------------------ | --------------------------------------------------- |
-| Format              | `pnpm format:check`| ✅ exit 0 — "All matched files use Prettier code style!" |
-| Lint                | `pnpm lint`        | ✅ exit 0 — `eslint src`, no findings               |
-| Typecheck           | `pnpm typecheck`   | ✅ exit 0 — `tsc -p tsconfig.typecheck.json --noEmit`|
-| Unit                | `pnpm test`        | ✅ exit 0 — 65 files / 1151 tests                   |
-| Build               | `pnpm build`       | ✅ exit 0 — `dist/cli.mjs` 139.40 kB + bundled agents/presets |
-| E2E smoke (golden)  | `pnpm smoke`       | ✅ exit 0 — 1 file / 99 tests                       |
-| E2E (full)          | `pnpm test:e2e`    | ✅ exit 0 — 9 files / 135 tests                     |
-| Whitespace/diff     | `git diff --check main...HEAD` | ✅ no errors                            |
+| Gate               | Command                        | Result                                                        |
+| ------------------ | ------------------------------ | ------------------------------------------------------------- |
+| Format             | `pnpm format:check`            | ✅ exit 0 — "All matched files use Prettier code style!"      |
+| Lint               | `pnpm lint`                    | ✅ exit 0 — `eslint src`, no findings                         |
+| Typecheck          | `pnpm typecheck`               | ✅ exit 0 — `tsc -p tsconfig.typecheck.json --noEmit`         |
+| Unit               | `pnpm test`                    | ✅ exit 0 — 65 files / 1151 tests                             |
+| Build              | `pnpm build`                   | ✅ exit 0 — `dist/cli.mjs` 139.40 kB + bundled agents/presets |
+| E2E smoke (golden) | `pnpm smoke`                   | ✅ exit 0 — 1 file / 99 tests                                 |
+| E2E (full)         | `pnpm test:e2e`                | ✅ exit 0 — 9 files / 135 tests                               |
+| Whitespace/diff    | `git diff --check main...HEAD` | ✅ no errors                                                  |
 
 The full e2e run prints a `[round 1] … FAILED … No canned output` line: that is
 an intentional failure-path test asserting stub-harness behavior, not a gate

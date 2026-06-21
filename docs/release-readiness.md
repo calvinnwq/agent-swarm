@@ -2,7 +2,7 @@
 
 **Version:** 0.2.0 (released before npm publication and retagged as `v0.2.0` during the `agent-swarm` rename)
 **Date:** 2026-06-16
-**Decision:** ✅ ALPHA BASELINE SHIPPED — every M9 (Release Readiness Gauntlet) and M10 (Orchestrator Resolution Runtime) gate is complete. The alpha is ready for dogfood; remaining work is productionization, tracked under M11–M15 (see [Productionization path](#productionization-path-m11m15)).
+**Decision:** ✅ ALPHA BASELINE SHIPPED — every M9 (Release Readiness Gauntlet) and M10 (Orchestrator Resolution Runtime) gate is complete. The alpha is ready for dogfood; productionization through M15 is tracked below (see [Productionization path](#productionization-path-m11m15)).
 
 > **History note:** An earlier revision of this report (v0.1.0, 2026-04-28) marked the real-harness gates (NGX-144–NGX-147, NGX-151) as ❌ BLOCKED because the autonomous environment had no harness credentials or installs. Those gates were subsequently completed once credentials/installs were available, and all M9/M10 Linear issues are now Done. That earlier "blocked" status is recorded here only as history — it is **not** current truth.
 
@@ -225,8 +225,8 @@ Result:  all clean
 **Issue:** [NGX-474](https://linear.app/ngxcalvin/issue/NGX-474)
 
 `test/unit/architecture-contract.test.ts` locks the current runtime ownership
-documented in [ARCHITECTURE.md](../ARCHITECTURE.md) before behavior-preserving
-M15 refactors move code between layers. The guardrail checks the runtime map,
+documented in [ARCHITECTURE.md](../ARCHITECTURE.md) so behavior-preserving
+M15 refactors could move code between layers safely. The guardrail checks the runtime map,
 documented invariants, contributor-doc links, thin `src/cli.ts` bin handoff,
 `src/lib/cli-program.ts` command routing, and separate `BackendId` / `HarnessId`
 schema boundaries.
@@ -284,19 +284,19 @@ they mutate GitHub repository/release state and npm publication state:
 
 The alpha runtime is feature-complete for dogfood. The next phase is productionization, tracked by these Linear milestones:
 
-| Milestone | Theme                                    | Intent                                                                                                                                                                                                                                                                  |
-| --------- | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **M11**   | Alpha Closeout and Status Reconciliation | Refresh stale readiness/status docs and establish the productionization baseline (this work).                                                                                                                                                                           |
-| **M12**   | Public Repo Shell and Release Operations | CI, issue/PR templates, community files, and release-operation docs to a public-repo standard.                                                                                                                                                                          |
-| **M13**   | Docs Site, Spec, and Install Guide       | A public docs/spec/install layer so the README can stay concise and authoritative. In progress: [SPEC.md](../SPEC.md), [ARCHITECTURE.md](../ARCHITECTURE.md), and [INSTALL.md](../INSTALL.md).                                                                          |
-| **M14**   | Agent DX and Dogfood Recipes             | Make Agent Swarm reliable for agents to operate and dogfood on real decisions. First operator contract: [agent-operation.md](agent-operation.md); first-time agent setup: [agent-usage.md](agent-usage.md); runnable recipes: [dogfood-recipes.md](dogfood-recipes.md). |
-| **M15**   | Runtime Boundary Refactor                | With the architecture contract guardrail in place (NGX-474), split the runtime into clearer, behavior-preserving boundaries; the shared run/resume core now lives in `between-rounds.ts`, `execute-run.ts`, `round-loop.ts`, `round-results.ts`, and `resolution-context.ts`. |
+| Milestone | Theme                                    | Intent                                                                                                                                                                                                                                                                                                                       |
+| --------- | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **M11**   | Alpha Closeout and Status Reconciliation | Refresh stale readiness/status docs and establish the productionization baseline (this work).                                                                                                                                                                                                                                |
+| **M12**   | Public Repo Shell and Release Operations | CI, issue/PR templates, community files, and release-operation docs to a public-repo standard.                                                                                                                                                                                                                               |
+| **M13**   | Docs Site, Spec, and Install Guide       | A public docs/spec/install layer so the README can stay concise and authoritative. In progress: [SPEC.md](../SPEC.md), [ARCHITECTURE.md](../ARCHITECTURE.md), and [INSTALL.md](../INSTALL.md).                                                                                                                               |
+| **M14**   | Agent DX and Dogfood Recipes             | Make Agent Swarm reliable for agents to operate and dogfood on real decisions. First operator contract: [agent-operation.md](agent-operation.md); first-time agent setup: [agent-usage.md](agent-usage.md); runnable recipes: [dogfood-recipes.md](dogfood-recipes.md).                                                      |
+| **M15**   | Runtime Boundary Refactor                | Complete: with the architecture contract guardrail in place (NGX-474), split the runtime into clearer, behavior-preserving boundaries; the shared run/resume core now lives in `between-rounds.ts`, `execute-run.ts`, `round-loop.ts`, `round-results.ts`, and `resolution-context.ts`. See [M15 closeout](m15-closeout.md). |
 
 ### To cut a future (non-alpha) release
 
 1. Re-run the real-harness gate for each target harness: `pnpm smoke:real --harness <claude|codex|opencode>` and a mixed run.
 2. Confirm the current verification gates (`pnpm test`, `pnpm typecheck`, `pnpm build`, `pnpm format:check`, `pnpm lint`, `pnpm smoke`).
-3. Land the corresponding M12–M15 work for the release scope.
+3. Land the corresponding post-alpha productionization work for the release scope.
 4. Let Release Please open/update the release PR from Conventional Commits on `main`, then merge it to tag and publish the GitHub Release.
 5. Follow [release operations](release-operations.md) for the manual npm publish and registry/install smoke.
 6. Update this report with the new version and re-verified gate evidence.
