@@ -92,7 +92,7 @@ Run the expert panel to help answer the question "Which Agent Swarm Linear issue
 Use these options:
 - Start NGX-471: dogfood recipes are the best immediate continuation.
 - Start NGX-469: docs site should be restored to milestone order.
-- Continue M15: the next behavior-preserving runtime boundary slice should begin now.
+- Continue M15: validate or extend the shared runtime-boundary extraction.
 - Defer project work: demo rehearsal or release housekeeping matters more.
 
 Use docs/release-readiness.md and docs/agent-operation.md as context.

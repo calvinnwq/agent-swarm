@@ -5,10 +5,7 @@ import type {
   OrchestratorPassRecord,
   ResolvedAgentRuntime,
   RunManifest,
-  RunEvent,
   RoundPacket,
-  QuestionResolution,
-  MessageEnvelope,
 } from "../schemas/index.js";
 import type { BackendAdapter } from "../backends/index.js";
 import type { SwarmRunConfig } from "./config.js";
@@ -18,21 +15,11 @@ import type {
   BackendAdapterResolver,
   RoundResult,
 } from "./round-runner.js";
-import {
-  selectAgentsForRound,
-  type SchedulerDecision,
-  type SchedulerPolicy,
-} from "./scheduler.js";
+import type { SchedulerPolicy } from "./scheduler.js";
 import { ArtifactWriter } from "./artifact-writer.js";
 import { buildRunDirName } from "./artifact-writer.js";
-import {
-  buildSeedBrief,
-  buildRoundBrief,
-  buildOrchestratorPassDirective,
-} from "./brief-generator.js";
-import { buildOrchestratorSynthesis } from "./synthesis.js";
+import { buildSeedBrief } from "./brief-generator.js";
 import { STORAGE_DIR } from "./identity.js";
-import { attachLiveRenderer, attachQuietLogger } from "../ui/index.js";
 import { OutputRouter } from "./output-router.js";
 import type { OutputTarget } from "./output-router.js";
 import { LedgerWriter } from "./ledger-writer.js";
@@ -42,16 +29,20 @@ import {
   loadCarryForwardDocSnapshots,
   materializeCarryForwardDocPackets,
 } from "./doc-inputs.js";
-import { dispatchOrchestratorPass } from "./orchestrator-dispatcher.js";
+import {
+  roundPacketsToResults,
+  restoreCheckpointRoundResults,
+} from "./round-results.js";
+import { createRunEventFactory, type RoundLoopState } from "./round-loop.js";
+import {
+  createBetweenRounds,
+  OrchestratorDispatchError,
+} from "./between-rounds.js";
+import { executeRun, type SwarmUiMode } from "./execute-run.js";
 
-export class OrchestratorDispatchError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "OrchestratorDispatchError";
-  }
-}
+export { OrchestratorDispatchError };
 
-export type SwarmUiMode = "live" | "quiet" | "silent";
+export type { SwarmUiMode };
 
 export interface ResumeSwarmOpts {
   config: SwarmRunConfig;
@@ -135,105 +126,6 @@ export interface RunSwarmOpts {
   orchestratorAgent?: AgentDefinition;
 }
 
-function didRoundSucceed(agentResults: RoundResult["agentResults"]): boolean {
-  return agentResults.filter((r) => r.ok).length >= 2;
-}
-
-function roundPacketsToResults(packets: RoundPacket[]): RoundResult[] {
-  return packets.map((packet, index) => ({
-    round: typeof packet.round === "number" ? packet.round : index + 1,
-    agentResults: [],
-    packet,
-  }));
-}
-
-function checkpointRoundResults(roundResults: RoundResult[]) {
-  return roundResults.map(({ round, agentResults, packet }) => ({
-    round,
-    packet,
-    agentResults: agentResults.map(({ agent, ok, output, error }) => ({
-      agent,
-      ok,
-      output,
-      error,
-    })),
-  }));
-}
-
-function restoreCheckpointRoundResults(
-  checkpointResults: NonNullable<
-    import("../schemas/index.js").RunCheckpoint["completedRoundResults"]
-  >,
-): RoundResult[] {
-  return checkpointResults.map(({ round, agentResults, packet }) => ({
-    round,
-    packet,
-    agentResults: agentResults.map(({ agent, ok, output, error }) => ({
-      agent,
-      ok,
-      output,
-      error,
-      raw: null,
-    })),
-  }));
-}
-
-function addUniqueStrings(target: string[], values: readonly string[]): void {
-  const seen = new Set(target);
-  for (const value of values) {
-    if (seen.has(value)) continue;
-    seen.add(value);
-    target.push(value);
-  }
-}
-
-function addUniqueQuestionResolutions(
-  target: QuestionResolution[],
-  values: readonly QuestionResolution[],
-): void {
-  const seen = new Set(target.map((resolution) => resolution.question));
-  for (const resolution of values) {
-    if (seen.has(resolution.question)) continue;
-    seen.add(resolution.question);
-    target.push(resolution);
-  }
-}
-
-function packetWithPriorResolutionContext(
-  packet: RoundPacket,
-  orchestratorPasses: readonly OrchestratorPassRecord[],
-): RoundPacket {
-  if (orchestratorPasses.length === 0) return packet;
-
-  const questionResolutions: QuestionResolution[] = [];
-  const deferredQuestions: string[] = [];
-
-  for (const pass of orchestratorPasses) {
-    addUniqueQuestionResolutions(
-      questionResolutions,
-      pass.output.questionResolutions,
-    );
-    addUniqueStrings(deferredQuestions, pass.output.deferredQuestions);
-  }
-  addUniqueQuestionResolutions(questionResolutions, packet.questionResolutions);
-  addUniqueStrings(deferredQuestions, packet.deferredQuestions);
-
-  return {
-    ...packet,
-    questionResolutions,
-    deferredQuestions,
-    questionResolutionLimit:
-      packet.questionResolutionLimit > 0
-        ? packet.questionResolutionLimit
-        : Math.max(
-            0,
-            ...orchestratorPasses.map(
-              (pass) => pass.output.questionResolutionLimit,
-            ),
-          ),
-  };
-}
-
 /**
  * Full pipeline orchestrator: runs rounds, writes artifacts, synthesizes.
  * Returns 0 on success, 1 on failure.
@@ -285,148 +177,42 @@ export async function runSwarm(opts: RunSwarmOpts): Promise<number> {
   ]);
   await router.init();
 
-  const makeEvent = (
-    kind: RunEvent["kind"],
-    extra?: Pick<RunEvent, "roundNumber" | "agentName" | "metadata">,
-  ): RunEvent => ({
-    eventId: randomUUID(),
-    kind,
-    runId: manifest.runId,
-    occurredAt: new Date().toISOString(),
-    ...extra,
-  });
+  const makeEvent = createRunEventFactory(manifest.runId);
 
   ledger.appendEvent(makeEvent("run:started"));
 
   // Track round briefs for artifact writing
   const roundBriefs = new Map<number, string>();
-  let priorPacket: RoundPacket | null = null;
-  let orchestratorDirective: string | undefined = undefined;
+  const loopState: RoundLoopState = {
+    priorPacket: null,
+    orchestratorDirective: undefined,
+  };
   const completedRoundPackets: RoundPacket[] = [];
   const completedRoundResults: RoundResult[] = [];
   const orchestratorPasses: OrchestratorPassRecord[] = [];
   const pendingRoundWrites = new Map<number, Promise<void>>();
   const activeRoundMessages = new Map<number, Set<string>>();
 
-  const awaitRoundWrite = async (round: number) => {
-    const pending = pendingRoundWrites.get(round);
-    if (pending) await pending;
-  };
-
-  const betweenRounds = async ({
-    round,
-    packet,
-  }: {
-    round: number;
-    packet: RoundPacket;
-  }) => {
-    await awaitRoundWrite(round);
-
-    checkpoint.write({
-      runId: manifest.runId,
-      lastCompletedRound: round,
-      priorPacket: packet,
-      completedRoundPackets: [...completedRoundPackets],
-      completedRoundResults: checkpointRoundResults(completedRoundResults),
-      orchestratorDirective,
-      ...(orchestratorPasses.length > 0
-        ? { orchestratorPasses: [...orchestratorPasses] }
-        : {}),
-      pendingBetweenRounds: true,
-      checkpointedAt: new Date().toISOString(),
-      startedAt: startedAtIso,
-    });
-
-    let directive = buildOrchestratorPassDirective(packet);
-    let orchestratorPassMetadata: RunEvent["metadata"] | undefined;
-    if (
-      config.resolveMode === "orchestrator" &&
-      opts.orchestratorAgent !== undefined
-    ) {
-      const orchAgent = opts.orchestratorAgent;
-      const orchBackend = opts.resolveBackend?.(orchAgent) ?? backend;
-      const result = await dispatchOrchestratorPass({
-        backend: orchBackend,
-        agent: orchAgent,
-        packet: packetWithPriorResolutionContext(packet, orchestratorPasses),
-        goal: config.goal,
-        decision: config.decision,
-        nextRound: round + 1,
-        timeoutMs: config.timeoutMs,
-      });
-      if (!result.ok) {
-        throw new OrchestratorDispatchError(
-          `Orchestrator dispatch failed: ${result.error}`,
-        );
-      }
-      directive = result.output.directive;
-      packet.questionResolutions = result.output.questionResolutions;
-      packet.questionResolutionLimit = result.output.questionResolutionLimit;
-      packet.deferredQuestions = result.output.deferredQuestions;
-      orchestratorPasses.push({
-        round,
-        agentName: orchAgent.name,
-        output: result.output,
-      });
-      orchestratorPassMetadata = {
-        agentName: orchAgent.name,
-        directive,
-        confidence: result.output.confidence,
-        questionResolutionsCount: result.output.questionResolutions.length,
-        questionResolutionLimit: result.output.questionResolutionLimit,
-        deferredQuestionsCount: result.output.deferredQuestions.length,
-      };
-    }
-    orchestratorDirective = directive;
-
-    const directiveRecipients = selectAgentsForRound(
-      agents,
-      round + 1,
-      packet,
-      opts.schedulerPolicy ?? "all",
-    ).selected;
-    const message: MessageEnvelope = {
-      messageId: randomUUID(),
-      senderId: "orchestrator",
-      recipients: directiveRecipients,
-      kind: "broadcast",
-      payload: { directive, fromRound: round },
-      deliveryStatus: "staged",
-      createdAt: new Date().toISOString(),
-      roundNumber: round + 1,
-    };
-    inbox.stage(message);
-    let activeMessages = activeRoundMessages.get(round + 1);
-    if (!activeMessages) {
-      activeMessages = new Set();
-      activeRoundMessages.set(round + 1, activeMessages);
-    }
-    activeMessages.add(message.messageId);
-    ledger.appendEvent(
-      makeEvent("orchestrator:pass", {
-        roundNumber: round,
-        ...(orchestratorPassMetadata
-          ? { metadata: orchestratorPassMetadata }
-          : {}),
-      }),
-    );
-    checkpoint.write({
-      runId: manifest.runId,
-      lastCompletedRound: round,
-      priorPacket: packet,
-      completedRoundPackets: [...completedRoundPackets],
-      completedRoundResults: checkpointRoundResults(completedRoundResults),
-      orchestratorDirective: directive,
-      ...(orchestratorPasses.length > 0
-        ? { orchestratorPasses: [...orchestratorPasses] }
-        : {}),
-      checkpointedAt: new Date().toISOString(),
-      startedAt: startedAtIso,
-    });
-    ledger.appendEvent(makeEvent("round:completed", { roundNumber: round }));
-
-    return { directive };
-  };
+  const betweenRounds = createBetweenRounds({
+    config,
+    agents,
+    backend,
+    runId: manifest.runId,
+    startedAtIso,
+    ledger,
+    inbox,
+    checkpoint,
+    makeEvent,
+    state: loopState,
+    completedRoundPackets,
+    completedRoundResults,
+    orchestratorPasses,
+    activeRoundMessages,
+    pendingRoundWrites,
+    orchestratorAgent: opts.orchestratorAgent,
+    resolveBackend: opts.resolveBackend,
+    schedulerPolicy: opts.schedulerPolicy,
+  });
 
   const { emitter, run } = createRoundRunner({
     config,
@@ -441,173 +227,30 @@ export async function runSwarm(opts: RunSwarmOpts): Promise<number> {
 
   const uiMode: SwarmUiMode =
     opts.ui ?? (process.stderr.isTTY ? "live" : "quiet");
-  let liveHandle: { destroy: () => void } | null = null;
-  if (uiMode === "live") {
-    liveHandle = attachLiveRenderer(emitter);
-  } else if (uiMode === "quiet") {
-    attachQuietLogger(emitter);
-  }
 
-  emitter.on(
-    "round:start",
-    ({
-      round,
-      agents: agentNames,
-      schedulerDecision,
-    }: {
-      round: number;
-      agents: string[];
-      schedulerDecision: SchedulerDecision;
-    }) => {
-      const brief =
-        round === 1
-          ? seedBrief
-          : buildRoundBrief({
-              config,
-              round,
-              seedBrief,
-              priorPacket,
-              orchestratorDirective,
-            });
-      roundBriefs.set(round, brief);
-      ledger.appendEvent(
-        makeEvent("scheduler:decision", {
-          roundNumber: round,
-          metadata: {
-            policy: schedulerDecision.policy,
-            selected: schedulerDecision.selected,
-            reason: schedulerDecision.reason,
-          },
-        }),
-      );
-      ledger.appendEvent(makeEvent("round:started", { roundNumber: round }));
-      for (const agentName of agentNames) {
-        const message: MessageEnvelope = {
-          messageId: randomUUID(),
-          senderId: "orchestrator",
-          recipients: [agentName],
-          kind: "task",
-          payload: { brief, round },
-          deliveryStatus: "staged",
-          createdAt: new Date().toISOString(),
-          roundNumber: round,
-        };
-        inbox.stage(message);
-        let activeMessages = activeRoundMessages.get(round);
-        if (!activeMessages) {
-          activeMessages = new Set();
-          activeRoundMessages.set(round, activeMessages);
-        }
-        activeMessages.add(message.messageId);
-      }
-    },
-  );
-
-  emitter.on(
-    "agent:start",
-    ({ round, agent }: { round: number; agent: string }) => {
-      const activeMessages = activeRoundMessages.get(round);
-      inbox.commit(
-        agent,
-        (message) => activeMessages?.has(message.messageId) ?? false,
-      );
-      ledger.appendEvent(
-        makeEvent("agent:started", { roundNumber: round, agentName: agent }),
-      );
-    },
-  );
-
-  emitter.on(
-    "agent:ok",
-    ({ round, agent }: { round: number; agent: string }) => {
-      ledger.appendEvent(
-        makeEvent("agent:completed", { roundNumber: round, agentName: agent }),
-      );
-    },
-  );
-
-  emitter.on(
-    "agent:fail",
-    ({ round, agent }: { round: number; agent: string }) => {
-      ledger.appendEvent(
-        makeEvent("agent:failed", { roundNumber: round, agentName: agent }),
-      );
-    },
-  );
-
-  emitter.on(
-    "round:done",
-    ({
-      round,
-      packet,
-      agentResults,
-    }: {
-      round: number;
-      packet: RoundPacket;
-      agentResults: RoundResult["agentResults"];
-    }) => {
-      const brief = roundBriefs.get(round) ?? "";
-      const roundResult: RoundResult = { round, agentResults, packet };
-      const pending = router.writeRound(roundResult, brief).then(() => {
-        if (!didRoundSucceed(agentResults)) return;
-
-        priorPacket = packet;
-        completedRoundPackets.push(packet);
-        completedRoundResults.push(roundResult);
-        if (round < config.rounds) return;
-
-        checkpoint.write({
-          runId: manifest.runId,
-          lastCompletedRound: round,
-          priorPacket: packet,
-          completedRoundPackets: [...completedRoundPackets],
-          completedRoundResults: checkpointRoundResults(completedRoundResults),
-          orchestratorDirective,
-          ...(orchestratorPasses.length > 0
-            ? { orchestratorPasses: [...orchestratorPasses] }
-            : {}),
-          checkpointedAt: new Date().toISOString(),
-          startedAt: startedAtIso,
-        });
-        ledger.appendEvent(
-          makeEvent("round:completed", { roundNumber: round }),
-        );
-      });
-      pendingRoundWrites.set(round, pending);
-    },
-  );
-
-  try {
-    let result: Awaited<ReturnType<typeof run>>;
-    try {
-      result = await run();
-    } catch (err) {
-      if (err instanceof OrchestratorDispatchError) {
-        await Promise.all(pendingRoundWrites.values());
-        ledger.appendEvent(
-          makeEvent("run:failed", { metadata: { error: err.message } }),
-        );
-        await router.finalize(new Date().toISOString(), "failed");
-        return 1;
-      }
-      throw err;
-    }
-    await Promise.all(pendingRoundWrites.values());
-
-    if (result.ok) {
-      const synthesis = buildOrchestratorSynthesis(manifest, result.rounds);
-      await router.writeSynthesis(synthesis);
-    }
-
-    ledger.appendEvent(makeEvent(result.ok ? "run:completed" : "run:failed"));
-    const finishedAt = new Date().toISOString();
-    const finalStatus = result.ok ? "done" : "failed";
-    await router.finalize(finishedAt, finalStatus);
-
-    return result.ok ? 0 : 1;
-  } finally {
-    liveHandle?.destroy();
-  }
+  return executeRun({
+    emitter,
+    run,
+    uiMode,
+    manifest,
+    priorRoundResults: [],
+    config,
+    runId: manifest.runId,
+    seedBrief,
+    startedAtIso,
+    ledger,
+    inbox,
+    router,
+    checkpoint,
+    makeEvent,
+    state: loopState,
+    completedRoundPackets,
+    completedRoundResults,
+    orchestratorPasses,
+    roundBriefs,
+    activeRoundMessages,
+    pendingRoundWrites,
+  });
 }
 
 /**
@@ -691,16 +334,7 @@ export async function resumeSwarm(opts: ResumeSwarmOpts): Promise<number> {
   await ledger.init();
   for (const t of opts.additionalTargets ?? []) await t.init();
 
-  const makeEvent = (
-    kind: RunEvent["kind"],
-    extra?: Pick<RunEvent, "roundNumber" | "agentName" | "metadata">,
-  ): RunEvent => ({
-    eventId: randomUUID(),
-    kind,
-    runId: manifest.runId,
-    occurredAt: new Date().toISOString(),
-    ...extra,
-  });
+  const makeEvent = createRunEventFactory(manifest.runId);
 
   ledger.appendEvent(
     makeEvent("run:resumed", {
@@ -709,8 +343,10 @@ export async function resumeSwarm(opts: ResumeSwarmOpts): Promise<number> {
   );
 
   const roundBriefs = new Map<number, string>();
-  let currentPriorPacket: RoundPacket | null = priorPacket;
-  let currentOrchestratorDirective: string | undefined = orchestratorDirective;
+  const loopState: RoundLoopState = {
+    priorPacket,
+    orchestratorDirective,
+  };
   const completedRoundPackets: RoundPacket[] = resumedRoundResults.map(
     (result) => result.packet,
   );
@@ -739,131 +375,32 @@ export async function resumeSwarm(opts: ResumeSwarmOpts): Promise<number> {
     }
   }
 
-  const awaitRoundWrite = async (round: number) => {
-    const pending = pendingRoundWrites.get(round);
-    if (pending) await pending;
-  };
-
-  const betweenRounds = async ({
-    round,
-    packet,
-  }: {
-    round: number;
-    packet: RoundPacket;
-  }) => {
-    await awaitRoundWrite(round);
-
-    checkpoint.write({
-      runId: manifest.runId,
-      lastCompletedRound: round,
-      priorPacket: packet,
-      completedRoundPackets: [...completedRoundPackets],
-      completedRoundResults: checkpointRoundResults(completedRoundResults),
-      orchestratorDirective: currentOrchestratorDirective,
-      ...(orchestratorPasses.length > 0
-        ? { orchestratorPasses: [...orchestratorPasses] }
-        : {}),
-      pendingBetweenRounds: true,
-      checkpointedAt: new Date().toISOString(),
-      startedAt,
-    });
-
-    let directive = buildOrchestratorPassDirective(packet);
-    let orchestratorPassMetadata: RunEvent["metadata"] | undefined;
-    if (
-      config.resolveMode === "orchestrator" &&
-      opts.orchestratorAgent !== undefined
-    ) {
-      const orchAgent = opts.orchestratorAgent;
-      const orchBackend = opts.resolveBackend?.(orchAgent) ?? backend;
-      const result = await dispatchOrchestratorPass({
-        backend: orchBackend,
-        agent: orchAgent,
-        packet: packetWithPriorResolutionContext(packet, orchestratorPasses),
-        goal: config.goal,
-        decision: config.decision,
-        nextRound: round + 1,
-        timeoutMs: config.timeoutMs,
-      });
-      if (!result.ok) {
-        throw new OrchestratorDispatchError(
-          `Orchestrator dispatch failed: ${result.error}`,
-        );
-      }
-      directive = result.output.directive;
-      packet.questionResolutions = result.output.questionResolutions;
-      packet.questionResolutionLimit = result.output.questionResolutionLimit;
-      packet.deferredQuestions = result.output.deferredQuestions;
-      orchestratorPasses.push({
-        round,
-        agentName: orchAgent.name,
-        output: result.output,
-      });
-      orchestratorPassMetadata = {
-        agentName: orchAgent.name,
-        directive,
-        confidence: result.output.confidence,
-        questionResolutionsCount: result.output.questionResolutions.length,
-        questionResolutionLimit: result.output.questionResolutionLimit,
-        deferredQuestionsCount: result.output.deferredQuestions.length,
-      };
-    }
-    currentOrchestratorDirective = directive;
-
-    const directiveRecipients = selectAgentsForRound(
-      agents,
-      round + 1,
-      packet,
-      opts.schedulerPolicy ?? "all",
-    ).selected;
-    const message: MessageEnvelope = {
-      messageId: randomUUID(),
-      senderId: "orchestrator",
-      recipients: directiveRecipients,
-      kind: "broadcast",
-      payload: { directive, fromRound: round },
-      deliveryStatus: "staged",
-      createdAt: new Date().toISOString(),
-      roundNumber: round + 1,
-    };
-    inbox.stage(message);
-    let activeMessages = activeRoundMessages.get(round + 1);
-    if (!activeMessages) {
-      activeMessages = new Set();
-      activeRoundMessages.set(round + 1, activeMessages);
-    }
-    activeMessages.add(message.messageId);
-    ledger.appendEvent(
-      makeEvent("orchestrator:pass", {
-        roundNumber: round,
-        ...(orchestratorPassMetadata
-          ? { metadata: orchestratorPassMetadata }
-          : {}),
-      }),
-    );
-    checkpoint.write({
-      runId: manifest.runId,
-      lastCompletedRound: round,
-      priorPacket: packet,
-      completedRoundPackets: [...completedRoundPackets],
-      completedRoundResults: checkpointRoundResults(completedRoundResults),
-      orchestratorDirective: directive,
-      ...(orchestratorPasses.length > 0
-        ? { orchestratorPasses: [...orchestratorPasses] }
-        : {}),
-      checkpointedAt: new Date().toISOString(),
-      startedAt,
-    });
-    ledger.appendEvent(makeEvent("round:completed", { roundNumber: round }));
-
-    return { directive };
-  };
+  const betweenRounds = createBetweenRounds({
+    config,
+    agents,
+    backend,
+    runId: manifest.runId,
+    startedAtIso: startedAt,
+    ledger,
+    inbox,
+    checkpoint,
+    makeEvent,
+    state: loopState,
+    completedRoundPackets,
+    completedRoundResults,
+    orchestratorPasses,
+    activeRoundMessages,
+    pendingRoundWrites,
+    orchestratorAgent: opts.orchestratorAgent,
+    resolveBackend: opts.resolveBackend,
+    schedulerPolicy: opts.schedulerPolicy,
+  });
 
   if (savedCheckpoint.pendingBetweenRounds) {
     try {
       await betweenRounds({
         round: lastCompletedRound,
-        packet: currentPriorPacket,
+        packet: priorPacket,
       });
     } catch (err) {
       if (err instanceof OrchestratorDispatchError) {
@@ -888,180 +425,34 @@ export async function resumeSwarm(opts: ResumeSwarmOpts): Promise<number> {
     resolveRuntime: opts.resolveRuntime,
     startRound,
     initialPriorPacket: priorPacket,
-    initialOrchestratorDirective: currentOrchestratorDirective,
+    initialOrchestratorDirective: loopState.orchestratorDirective,
     carryForwardDocPackets,
   });
 
   const uiMode: SwarmUiMode =
     opts.ui ?? (process.stderr.isTTY ? "live" : "quiet");
-  let liveHandle: { destroy: () => void } | null = null;
-  if (uiMode === "live") {
-    liveHandle = attachLiveRenderer(emitter);
-  } else if (uiMode === "quiet") {
-    attachQuietLogger(emitter);
-  }
 
-  emitter.on(
-    "round:start",
-    ({
-      round,
-      agents: agentNames,
-      schedulerDecision,
-    }: {
-      round: number;
-      agents: string[];
-      schedulerDecision: SchedulerDecision;
-    }) => {
-      const brief =
-        round === 1
-          ? seedBrief
-          : buildRoundBrief({
-              config,
-              round,
-              seedBrief,
-              priorPacket: currentPriorPacket,
-              orchestratorDirective: currentOrchestratorDirective,
-            });
-      roundBriefs.set(round, brief);
-      ledger.appendEvent(
-        makeEvent("scheduler:decision", {
-          roundNumber: round,
-          metadata: {
-            policy: schedulerDecision.policy,
-            selected: schedulerDecision.selected,
-            reason: schedulerDecision.reason,
-          },
-        }),
-      );
-      ledger.appendEvent(makeEvent("round:started", { roundNumber: round }));
-      for (const agentName of agentNames) {
-        const message: MessageEnvelope = {
-          messageId: randomUUID(),
-          senderId: "orchestrator",
-          recipients: [agentName],
-          kind: "task",
-          payload: { brief, round },
-          deliveryStatus: "staged",
-          createdAt: new Date().toISOString(),
-          roundNumber: round,
-        };
-        inbox.stage(message);
-        let activeMessages = activeRoundMessages.get(round);
-        if (!activeMessages) {
-          activeMessages = new Set();
-          activeRoundMessages.set(round, activeMessages);
-        }
-        activeMessages.add(message.messageId);
-      }
-    },
-  );
-
-  emitter.on(
-    "agent:start",
-    ({ round, agent }: { round: number; agent: string }) => {
-      const activeMessages = activeRoundMessages.get(round);
-      inbox.commit(
-        agent,
-        (message) => activeMessages?.has(message.messageId) ?? false,
-      );
-      ledger.appendEvent(
-        makeEvent("agent:started", { roundNumber: round, agentName: agent }),
-      );
-    },
-  );
-
-  emitter.on(
-    "agent:ok",
-    ({ round, agent }: { round: number; agent: string }) => {
-      ledger.appendEvent(
-        makeEvent("agent:completed", { roundNumber: round, agentName: agent }),
-      );
-    },
-  );
-
-  emitter.on(
-    "agent:fail",
-    ({ round, agent }: { round: number; agent: string }) => {
-      ledger.appendEvent(
-        makeEvent("agent:failed", { roundNumber: round, agentName: agent }),
-      );
-    },
-  );
-
-  emitter.on(
-    "round:done",
-    ({
-      round,
-      packet,
-      agentResults,
-    }: {
-      round: number;
-      packet: RoundPacket;
-      agentResults: RoundResult["agentResults"];
-    }) => {
-      const brief = roundBriefs.get(round) ?? "";
-      const roundResult: RoundResult = { round, agentResults, packet };
-      const pending = router.writeRound(roundResult, brief).then(() => {
-        if (!didRoundSucceed(agentResults)) return;
-
-        currentPriorPacket = packet;
-        completedRoundPackets.push(packet);
-        completedRoundResults.push(roundResult);
-        if (round < config.rounds) return;
-
-        checkpoint.write({
-          runId: manifest.runId,
-          lastCompletedRound: round,
-          priorPacket: packet,
-          completedRoundPackets: [...completedRoundPackets],
-          completedRoundResults: checkpointRoundResults(completedRoundResults),
-          orchestratorDirective: currentOrchestratorDirective,
-          ...(orchestratorPasses.length > 0
-            ? { orchestratorPasses: [...orchestratorPasses] }
-            : {}),
-          checkpointedAt: new Date().toISOString(),
-          startedAt,
-        });
-        ledger.appendEvent(
-          makeEvent("round:completed", { roundNumber: round }),
-        );
-      });
-      pendingRoundWrites.set(round, pending);
-    },
-  );
-
-  try {
-    let result: Awaited<ReturnType<typeof run>>;
-    try {
-      result = await run();
-    } catch (err) {
-      if (err instanceof OrchestratorDispatchError) {
-        await Promise.all(pendingRoundWrites.values());
-        ledger.appendEvent(
-          makeEvent("run:failed", { metadata: { error: err.message } }),
-        );
-        await router.finalize(new Date().toISOString(), "failed");
-        return 1;
-      }
-      throw err;
-    }
-    await Promise.all(pendingRoundWrites.values());
-
-    if (result.ok) {
-      const synthesis = buildOrchestratorSynthesis(manifest, [
-        ...resumedRoundResults,
-        ...result.rounds,
-      ]);
-      await router.writeSynthesis(synthesis);
-    }
-
-    ledger.appendEvent(makeEvent(result.ok ? "run:completed" : "run:failed"));
-    const finishedAt = new Date().toISOString();
-    const finalStatus = result.ok ? "done" : "failed";
-    await router.finalize(finishedAt, finalStatus);
-
-    return result.ok ? 0 : 1;
-  } finally {
-    liveHandle?.destroy();
-  }
+  return executeRun({
+    emitter,
+    run,
+    uiMode,
+    manifest,
+    priorRoundResults: resumedRoundResults,
+    config,
+    runId: manifest.runId,
+    seedBrief,
+    startedAtIso: startedAt,
+    ledger,
+    inbox,
+    router,
+    checkpoint,
+    makeEvent,
+    state: loopState,
+    completedRoundPackets,
+    completedRoundResults,
+    orchestratorPasses,
+    roundBriefs,
+    activeRoundMessages,
+    pendingRoundWrites,
+  });
 }
