@@ -383,7 +383,8 @@ Tracked under the productionization roadmap (M11–M15); not promised:
   future work.
 - UI / control-plane ideas beyond the current live/quiet renderers.
 - A public docs/spec site so the README can stay concise.
-- The M15 runtime boundary refactor (behavior-preserving).
+- Additional behavior-preserving runtime-boundary hardening after the M15 shared
+  runtime-core extraction.
 
 ---
 

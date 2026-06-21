@@ -290,7 +290,7 @@ The alpha runtime is feature-complete for dogfood. The next phase is productioni
 | **M12**   | Public Repo Shell and Release Operations | CI, issue/PR templates, community files, and release-operation docs to a public-repo standard.                                                                                                                                                                          |
 | **M13**   | Docs Site, Spec, and Install Guide       | A public docs/spec/install layer so the README can stay concise and authoritative. In progress: [SPEC.md](../SPEC.md), [ARCHITECTURE.md](../ARCHITECTURE.md), and [INSTALL.md](../INSTALL.md).                                                                          |
 | **M14**   | Agent DX and Dogfood Recipes             | Make Agent Swarm reliable for agents to operate and dogfood on real decisions. First operator contract: [agent-operation.md](agent-operation.md); first-time agent setup: [agent-usage.md](agent-usage.md); runnable recipes: [dogfood-recipes.md](dogfood-recipes.md). |
-| **M15**   | Runtime Boundary Refactor                | With the architecture contract guardrail in place (NGX-474), split the runtime into clearer, behavior-preserving boundaries.                                                                                                                                            |
+| **M15**   | Runtime Boundary Refactor                | With the architecture contract guardrail in place (NGX-474), split the runtime into clearer, behavior-preserving boundaries; the shared run/resume core now lives in `between-rounds.ts`, `execute-run.ts`, `round-loop.ts`, `round-results.ts`, and `resolution-context.ts`. |
 
 ### To cut a future (non-alpha) release
 

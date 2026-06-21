@@ -23,10 +23,15 @@ cli.ts (bin shim)             read version, hand argv to runCli
        └─ harness-resolution.ts   per-agent (harness, model) resolution
         │
         ▼
-run-swarm.ts (runSwarm/resumeSwarm)   pipeline orchestrator
+run-swarm.ts (runSwarm/resumeSwarm)   fresh-run setup / resume rehydration
+  ├─ execute-run.ts           shared UI attach → run → finalize → synthesis tail
+  ├─ round-loop.ts            shared round-lifecycle emitter wiring
+  ├─ between-rounds.ts        shared between-round callback
+  │    ├─ orchestrator-dispatcher  LLM pass (resolve=orchestrator)
+  │    └─ resolution-context.ts    prior-pass question-resolution fold
+  ├─ round-results.ts         checkpoint/live round-result serialization seam
   ├─ round-runner.ts          concurrent per-agent dispatch
   │    └─ harness adapters     claude/codex/opencode/rovo CLI shell-outs
-  ├─ orchestrator-dispatcher  between-round LLM pass (resolve=orchestrator)
   ├─ output-router.ts         fans writes to three append-only writers
   │    ├─ artifact-writer.ts   round folders + manifest
   │    ├─ ledger-writer.ts     events.jsonl + messages.jsonl
@@ -127,7 +132,7 @@ and `HarnessId` are deliberately separate schemas.
    `DEFAULT_CONCURRENCY = 3`, `config.timeoutMs` (default
    `DEFAULT_DISPATCH_TIMEOUT_MS = 120_000`), and one `MAX_FORMAT_REPAIR_ATTEMPTS`
    retry on JSON parse failure. Output is validated against `AgentOutputSchema`.
-5. **Between rounds.** `betweenRounds` builds the next directive from the prior
+5. **Between rounds.** `between-rounds.ts` builds the next directive from the prior
    packet. In `orchestrator` mode, `orchestrator-dispatcher.ts` calls the bundled
    orchestrator (same `config.timeoutMs`) for a structured `OrchestratorOutput`;
    otherwise the directive is templated. The directive is staged as a broadcast
@@ -137,7 +142,7 @@ and `HarnessId` are deliberately separate schemas.
    `resolution-context.ts` folds prior-pass question resolutions and deferred
    questions into the packet before each orchestrator pass.
 6. **Persistence.** Three append-only writers fan out from `OutputRouter`. Round
-   writes happen on `round:done` and are awaited in `betweenRounds` so checkpoint
+   writes happen on `round:done` and are awaited in `between-rounds.ts` so checkpoint
    ordering is deterministic.
 7. **Synthesis.** `buildOrchestratorSynthesis` is fully deterministic — consensus,
    stance tally, top recommendation by confidence (alphabetical tie-break),
@@ -247,6 +252,5 @@ deliberately. Candidate cleanups include:
   `orchestrator-dispatcher.ts`, so a future `--resolve agents` path can slot in
   without touching the round runner or duplicating the pass.
 
-These are candidates only; they must preserve the alpha contract and are tracked
-under the productionization roadmap (see
-[docs/release-readiness.md](docs/release-readiness.md)).
+Remaining candidates must preserve the alpha contract and are tracked under the
+productionization roadmap (see [docs/release-readiness.md](docs/release-readiness.md)).
