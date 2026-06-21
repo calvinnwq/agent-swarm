@@ -230,13 +230,14 @@ These hold across the runtime and should be preserved by any change:
 
 ---
 
-## 7. M15 runtime refactor candidates
+## 7. M15 runtime refactor closeout
 
-The M15 milestone (Runtime Boundary Refactor) builds on the architecture
+The M15 milestone (Runtime Boundary Refactor) built on the architecture
 contracts locked in by `test/unit/architecture-contract.test.ts` (NGX-474),
-which guards the boundaries documented here and in [SPEC.md](SPEC.md) so the
-following behavior-preserving boundary cleanups can move code between layers
-deliberately. Candidate cleanups include:
+which guards the boundaries documented here and in [SPEC.md](SPEC.md) so
+behavior-preserving boundary cleanups can move code between layers deliberately.
+The closeout record lives in [docs/m15-closeout.md](docs/m15-closeout.md).
+Landed boundaries and remaining candidates include:
 
 - The `runSwarm` / `resumeSwarm` split now shares its whole pipeline core rather
   than duplicating it: `round-loop.ts` (lifecycle handlers + run-event factory),
