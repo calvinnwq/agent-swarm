@@ -281,9 +281,10 @@ export function buildCliProgram(version: string): Command {
 }
 
 /**
- * Parse argv and dispatch the matching command. Mirrors the previous top-level
- * behavior in src/cli.ts: a Commander/parse failure that escapes the per-command
- * handlers is reported with the CLI name and exits with code 1.
+ * Parse argv and dispatch the matching command. A zero-argument invocation
+ * prints top-level help and exits successfully; otherwise, a Commander/parse
+ * failure that escapes the per-command handlers is reported with the CLI name
+ * and exits with code 1.
  */
 export async function runCli(version: string): Promise<void> {
   const program = buildCliProgram(version);

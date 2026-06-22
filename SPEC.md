@@ -49,9 +49,10 @@ Commands:
   help [command]                     Display help for a command
 ```
 
-`agent-swarm --version` prints the package version. The alpha surface is exactly
-three operational commands — `run`, `doctor`, and `init` — plus Commander's
-built-in `help`.
+`agent-swarm` with no arguments prints the same top-level help as
+`agent-swarm --help` and exits 0. `agent-swarm --version` prints the package
+version. The alpha surface is exactly three operational commands — `run`,
+`doctor`, and `init` — plus Commander's built-in `help`.
 
 ### 2.1 `agent-swarm run <rounds> <topic...>`
 
