@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Product decision — Agent Swarm</title>
+    <title>Product decision - Agent Swarm</title>
     <meta name="description" content="A bundled two-agent swarm where a product manager frames user value and a principal engineer grounds feasibility, converging on a decision." />
     <script>
       (function () {
@@ -42,13 +42,13 @@
       <nav id="sidebar" class="sidebar" aria-label="Documentation"></nav>
       <main id="content" class="article-col">
         <article>
-<p class="kicker"><span class="n">12 —</span>Swarm gallery</p>
+<p class="kicker"><span class="n">12 -</span>Swarm gallery</p>
 <h1>Product decision</h1>
 <p class="lede">
   A product manager frames the user problem and shapes scope; a principal
   engineer grounds it in architecture and delivery risk. An orchestrator
-  resolves their views into one call — <em>Proceed, Defer,</em> or
-  <em>Reject</em> — grounded in both user value and engineering feasibility.
+  resolves their views into one call - <em>Proceed, Defer,</em> or
+  <em>Reject</em> - grounded in both user value and engineering feasibility.
 </p>
 
 <section>
@@ -85,7 +85,7 @@
   <p>
     Resolution is set to <code>orchestrator</code>, so after each round the
     bundled orchestrator agent reads both structured outputs and produces the
-    directive for the next round — or, on the final round, folds them into
+    directive for the next round - or, on the final round, folds them into
     the synthesis.
   </p>
 </section>
@@ -93,7 +93,7 @@
 <section>
   <h2>Run it</h2>
   <p>
-    The first positional argument is the number of rounds (1–3). Pass your
+    The first positional argument is the number of rounds (1-3). Pass your
     question as the second argument, then name the preset:
   </p>
   <pre><code>agent-swarm <span class="k">run</span> 1 <span class="s">"Should we adopt server components?"</span> \
@@ -114,7 +114,7 @@
   </p>
   <div class="verdict">
     <div class="verdict-top"><span>Synthesis</span><span>product-decision · round 1 · 2 agents</span></div>
-    <p class="verdict-rec"><span class="mark">Proceed</span> — server components fit the migration if routing is staged incrementally and data-fetching boundaries are settled first.</p>
+    <p class="verdict-rec"><span class="mark">Proceed</span> - server components fit the migration if routing is staged incrementally and data-fetching boundaries are settled first.</p>
     <div class="mrow"><span class="lab">consensus</span><span class="pips"><i class="pip on"></i><i class="pip on"></i></span><span>2 of 2 agree</span></div>
     <div class="mrow"><span class="lab">confidence</span><span class="level" data-level="medium">medium</span></div>
     <div class="vopen"><span class="q">Still open</span>Does the data-fetching layer change before or after the routing migration?</div>
@@ -122,7 +122,7 @@
   <p>
     Confidence is <code>low</code>, <code>medium</code>, or <code>high</code>.
     The "Still open" row surfaces deferred questions that neither agent resolved
-    — a signal of where more information is needed before acting.
+    - a signal of where more information is needed before acting.
   </p>
 </section>
 
@@ -131,7 +131,7 @@
   <p>Three presets share the same goal and decision vocabulary as <code>product-decision</code>:</p>
   <dl>
     <dt><code>product-triad</code></dt>
-    <dd>Expands the roster to three agents — <code>product-manager</code>, <code>product-engineer</code>, and <code>product-designer</code> — adding a user-experience perspective alongside product and engineering. Same <em>Proceed / Defer / Reject</em> vocabulary, same orchestrator resolution.</dd>
+    <dd>Expands the roster to three agents - <code>product-manager</code>, <code>product-engineer</code>, and <code>product-designer</code> - adding a user-experience perspective alongside product and engineering. Same <em>Proceed / Defer / Reject</em> vocabulary, same orchestrator resolution.</dd>
     <dt><code>product-decision-codex</code></dt>
     <dd>The same two-agent product decision swarm running on the Codex harness. Identical goal and decision vocabulary; swap in when your team uses Codex instead of Claude.</dd>
     <dt><code>product-decision-opencode</code></dt>
@@ -143,10 +143,10 @@
 <section>
   <h2>Where next</h2>
   <ul>
-    <li><a href="index.html">Overview</a> — the full gallery of bundled swarms.</li>
-    <li><a href="quickstart.html">Quickstart</a> — run <code>product-decision</code> end to end in five minutes.</li>
-    <li><a href="composing-a-swarm.html">Composing a swarm</a> — write your own agents, presets, and decision vocabulary.</li>
-    <li><a href="reference.html">CLI reference</a> — every command, flag, and run artifact.</li>
+    <li><a href="index.html">Overview</a> - the full gallery of bundled swarms.</li>
+    <li><a href="quickstart.html">Quickstart</a> - run <code>product-decision</code> end to end in five minutes.</li>
+    <li><a href="composing-a-swarm.html">Composing a swarm</a> - write your own agents, presets, and decision vocabulary.</li>
+    <li><a href="reference.html">CLI reference</a> - every command, flag, and run artifact.</li>
   </ul>
 </section>
         </article>

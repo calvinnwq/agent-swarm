@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Rounds &amp; resolution — Agent Swarm</title>
-    <meta name="description" content="Rounds run 1 to 3 times; between them the swarm resolves. The three resolve modes — off, orchestrator, agents — in plain language." />
+    <title>Rounds &amp; resolution - Agent Swarm</title>
+    <meta name="description" content="Rounds run 1 to 3 times; between them the swarm resolves. The three resolve modes - off, orchestrator, agents - in plain language." />
     <script>
       (function () {
         var t = null;
@@ -42,11 +42,11 @@
       <nav id="sidebar" class="sidebar" aria-label="Documentation"></nav>
       <main id="content" class="article-col">
         <article>
-<p class="kicker"><span class="n">05 —</span>Concepts</p>
+<p class="kicker"><span class="n">05 -</span>Concepts</p>
 <h1>Rounds &amp; resolution</h1>
 <p class="lede">
-  A swarm runs 1–3 rounds. In each round every selected agent responds in
-  parallel. Between rounds the swarm <em>resolves</em> — building a directive
+  A swarm runs 1-3 rounds. In each round every selected agent responds in
+  parallel. Between rounds the swarm <em>resolves</em> - building a directive
   that carries the prior round's findings forward. The <code>--resolve</code>
   flag controls how that directive is produced.
 </p>
@@ -56,7 +56,7 @@
   <h2>What is a round?</h2>
   <p>
     A round is one full parallel sweep of the selected agents. All agents
-    receive the same brief and respond at the same time — a four-agent panel
+    receive the same brief and respond at the same time - a four-agent panel
     takes about as long as one agent, not four. Each agent returns structured
     JSON validated against the agent output schema: stance, recommendation,
     reasoning, risks, open questions, and a confidence level.
@@ -69,7 +69,7 @@
   --preset product-decision</code></pre>
   <p>
     After the final round the swarm computes a <em>deterministic</em> synthesis
-    — no model call — and writes <code>synthesis.md</code> to the run directory.
+    - no model call - and writes <code>synthesis.md</code> to the run directory.
   </p>
   <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>Agents run with up to three in parallel at once (the default concurrency). If you select five agents, rounds 1 and 2 of the concurrency window overlap; the total wall-clock time is still much shorter than running agents sequentially.</p></div>
 </section>
@@ -79,7 +79,7 @@
   <p>
     After each completed round (except the last), the swarm runs a
     <em>between-rounds pass</em>. This pass produces a <strong>directive</strong>
-    — a brief that tells agents in the next round what the prior round found and
+    - a brief that tells agents in the next round what the prior round found and
     what to focus on. The directive is broadcast as a message to every agent
     selected for the next round; it appears in that round's <code>brief.md</code>.
   </p>
@@ -113,19 +113,19 @@
       <tbody>
         <tr>
           <td><code>off</code></td>
-          <td>Deterministic only — the directive is a templated summary built from the prior round's packet. Question resolutions stay empty.</td>
+          <td>Deterministic only - the directive is a templated summary built from the prior round's packet. Question resolutions stay empty.</td>
           <td>No</td>
           <td>Fast, cost-free iteration; single-round runs; CI pipelines where predictability matters more than adaptive steering.</td>
         </tr>
         <tr>
           <td><code>orchestrator</code></td>
-          <td>Real LLM pass — the bundled <code>orchestrator</code> agent reads the prior round's packet and returns a structured directive, question resolutions, deferred questions, and a confidence level. The directive feeds the next round's brief.</td>
-          <td>Yes — one call per between-rounds pass</td>
+          <td>Real LLM pass - the bundled <code>orchestrator</code> agent reads the prior round's packet and returns a structured directive, question resolutions, deferred questions, and a confidence level. The directive feeds the next round's brief.</td>
+          <td>Yes - one call per between-rounds pass</td>
           <td>Multi-round runs where you want the swarm to actively steer the next round based on what the previous round surfaced; deeper product or architecture decisions.</td>
         </tr>
         <tr>
           <td><code>agents</code></td>
-          <td>Reserved — accepted and persisted in <code>manifest.json</code> and <code>synthesis.json</code>, but currently behaves like <code>off</code>. The flag is kept on the CLI surface so agent-driven resolution can land in a future release without renaming it.</td>
+          <td>Reserved - accepted and persisted in <code>manifest.json</code> and <code>synthesis.json</code>, but currently behaves like <code>off</code>. The flag is kept on the CLI surface so agent-driven resolution can land in a future release without renaming it.</td>
           <td>No (currently)</td>
           <td>Not yet active. Use <code>orchestrator</code> if you want an adaptive between-round pass today.</td>
         </tr>
@@ -133,7 +133,7 @@
     </table>
   </div>
 
-  <h3><code>off</code> — deterministic, no extra call</h3>
+  <h3><code>off</code> - deterministic, no extra call</h3>
   <p>
     The default when <code>--resolve</code> is not set. The between-rounds pass
     calls <code>buildOrchestratorPassDirective</code>, which assembles a
@@ -143,16 +143,16 @@
   </p>
   <p>Use <code>off</code> when:</p>
   <ul>
-    <li>You are running a single round — there is no between-rounds pass.</li>
+    <li>You are running a single round - there is no between-rounds pass.</li>
     <li>Speed or cost matters more than adaptive steering.</li>
     <li>You want the synthesis to be the only place where outputs are aggregated.</li>
   </ul>
 
-  <h3><code>orchestrator</code> — LLM-driven directive</h3>
+  <h3><code>orchestrator</code> - LLM-driven directive</h3>
   <p>
     The bundled <code>orchestrator</code> agent reads the completed round's
-    packet — including all agent stances, recommendations, risks, and open
-    questions — and returns a structured <code>OrchestratorOutput</code>:
+    packet - including all agent stances, recommendations, risks, and open
+    questions - and returns a structured <code>OrchestratorOutput</code>:
     a directive for the next round, question resolutions, deferred questions,
     and a confidence level. The directive replaces the deterministic template in
     the next round's <code>brief.md</code>.
@@ -160,11 +160,11 @@
   <p>In <code>orchestrator</code> mode each between-rounds pass also produces:</p>
   <ul>
     <li>An <code>orchestrator:pass</code> event in <code>events.jsonl</code> with <code>agentName</code>, <code>directive</code>, <code>confidence</code>, <code>questionResolutionsCount</code>, <code>questionResolutionLimit</code>, and <code>deferredQuestionsCount</code>.</li>
-    <li>An entry in the <code>orchestratorPasses</code> array in <code>checkpoint.json</code> — the full <code>OrchestratorOutput</code> snapshot, used if the run is resumed.</li>
+    <li>An entry in the <code>orchestratorPasses</code> array in <code>checkpoint.json</code> - the full <code>OrchestratorOutput</code> snapshot, used if the run is resumed.</li>
   </ul>
   <p>
-    If the orchestrator dispatch fails — timeout, malformed JSON after one
-    repair attempt, or non-zero exit — the run finalizes as <code>failed</code>,
+    If the orchestrator dispatch fails - timeout, malformed JSON after one
+    repair attempt, or non-zero exit - the run finalizes as <code>failed</code>,
     emits a <code>run:failed</code> event, and exits <code>1</code>. Successful
     passes already written to the checkpoint are preserved.
   </p>
@@ -181,7 +181,7 @@
     <li>The decision is complex enough that templated steering isn't sufficient.</li>
   </ul>
 
-  <h3><code>agents</code> — reserved</h3>
+  <h3><code>agents</code> - reserved</h3>
   <p>
     Accepted by the CLI and persisted in run metadata, but currently behaves
     identically to <code>off</code>. The flag is reserved so that when
@@ -261,10 +261,10 @@ agent-swarm <span class="k">run</span> 2 <span class="s">"Should we adopt server
 <section>
   <h2>Where next</h2>
   <ul>
-    <li><a href="quickstart.html">Quickstart</a> — run a ready-made swarm end to end.</li>
-    <li><a href="reference.html">CLI reference</a> — every command, flag, preset, and run artifact.</li>
-    <li><a href="architecture.html">Architecture</a> — how the between-rounds pass fits into the full pipeline.</li>
-    <li><a href="writing-an-agent.html">Writing an agent</a> — define agents and wire them into a preset.</li>
+    <li><a href="quickstart.html">Quickstart</a> - run a ready-made swarm end to end.</li>
+    <li><a href="reference.html">CLI reference</a> - every command, flag, preset, and run artifact.</li>
+    <li><a href="architecture.html">Architecture</a> - how the between-rounds pass fits into the full pipeline.</li>
+    <li><a href="writing-an-agent.html">Writing an agent</a> - define agents and wire them into a preset.</li>
   </ul>
 </section>
         </article>

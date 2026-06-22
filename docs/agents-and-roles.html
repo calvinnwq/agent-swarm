@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Agents &amp; roles — Agent Swarm</title>
+    <title>Agents &amp; roles - Agent Swarm</title>
     <meta name="description" content="An agent is a named role with a persona and prompt that returns structured notes. Two to five agents make a swarm." />
     <script>
       (function () {
@@ -42,13 +42,13 @@
       <nav id="sidebar" class="sidebar" aria-label="Documentation"></nav>
       <main id="content" class="article-col">
         <article>
-<p class="kicker"><span class="n">04 —</span>Concepts</p>
+<p class="kicker"><span class="n">04 -</span>Concepts</p>
 <h1>Agents &amp; roles</h1>
 <p class="lede">
   An agent is a named <em>role</em>: a persona and a prompt that together define
-  how one participant thinks about a problem. You select 2–5 agents into a swarm;
+  how one participant thinks about a problem. You select 2-5 agents into a swarm;
   each runs in parallel every round and returns the same set of structured notes.
-  The swarm's synthesis is built entirely from those notes — no model decides the
+  The swarm's synthesis is built entirely from those notes - no model decides the
   final word.
 </p>
 
@@ -56,7 +56,7 @@
   <h2>What an agent is</h2>
   <p>
     An agent is not a long-running process or a background service. It is a
-    <em>role definition</em> — a YAML or Markdown file that tells the harness who
+    <em>role definition</em> - a YAML or Markdown file that tells the harness who
     this participant is and what to think about. When a round runs, each selected
     agent receives the same brief and returns one set of structured notes. Between
     rounds, those notes inform the next directive. After all rounds, the
@@ -65,7 +65,7 @@
   <p>
     Because agents are plain files, they are version-controlled, shareable, and
     overridable at the project or user level without touching bundled defaults.
-    Same-name agents in a closer scope silently override bundled ones — project
+    Same-name agents in a closer scope silently override bundled ones - project
     scope beats user scope beats bundled.
   </p>
   <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>A swarm requires a minimum of <strong>2 agents</strong> and a maximum of <strong>5</strong>. Single-agent and six-plus-agent runs are rejected at parse time.</p></div>
@@ -95,7 +95,7 @@
         <tr>
           <td><code>description</code></td>
           <td>Yes</td>
-          <td>A short human-readable summary of the role — shown in registry listings and <code>agent-swarm doctor</code> output.</td>
+          <td>A short human-readable summary of the role - shown in registry listings and <code>agent-swarm doctor</code> output.</td>
         </tr>
         <tr>
           <td><code>persona</code></td>
@@ -136,7 +136,7 @@ prompt: |
   Focus on setup friction, unclear language, and the moment when value becomes obvious.
   Return only the shared swarm JSON contract.</code></pre>
 
-  <p>Agents can also be written as Markdown files with YAML frontmatter — any field above can appear in the frontmatter block, and the Markdown body becomes the prompt.</p>
+  <p>Agents can also be written as Markdown files with YAML frontmatter - any field above can appear in the frontmatter block, and the Markdown body becomes the prompt.</p>
 </section>
 
 <section>
@@ -144,7 +144,7 @@ prompt: |
   <p>
     Every agent must return a single JSON object that validates against
     <code>AgentOutputSchema</code>. The schema is the same for every agent in
-    every swarm — it is the contract that makes synthesis deterministic. The
+    every swarm - it is the contract that makes synthesis deterministic. The
     fields are:
   </p>
   <div class="table-wrap">
@@ -160,7 +160,7 @@ prompt: |
         <tr>
           <td><code>stance</code></td>
           <td>string</td>
-          <td>A single word or short phrase — the agent's verdict in the preset's decision vocabulary (e.g. <code>Proceed</code>, <code>Fix now</code>, <code>Reject</code>).</td>
+          <td>A single word or short phrase - the agent's verdict in the preset's decision vocabulary (e.g. <code>Proceed</code>, <code>Fix now</code>, <code>Reject</code>).</td>
         </tr>
         <tr>
           <td><code>recommendation</code></td>
@@ -175,7 +175,7 @@ prompt: |
         <tr>
           <td><code>objections</code></td>
           <td>string[]</td>
-          <td>The agent's own counter-arguments or doubts — things that argue against its own recommendation.</td>
+          <td>The agent's own counter-arguments or doubts - things that argue against its own recommendation.</td>
         </tr>
         <tr>
           <td><code>risks</code></td>
@@ -185,7 +185,7 @@ prompt: |
         <tr>
           <td><code>changesFromPriorRound</code></td>
           <td>string[]</td>
-          <td>What shifted since the last round — new evidence, updated stance, revised recommendation. Empty on round 1.</td>
+          <td>What shifted since the last round - new evidence, updated stance, revised recommendation. Empty on round 1.</td>
         </tr>
         <tr>
           <td><code>openQuestions</code></td>
@@ -200,7 +200,7 @@ prompt: |
       </tbody>
     </table>
   </div>
-  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>Confidence is always one of exactly three levels — <code>low</code>, <code>medium</code>, or <code>high</code>. It is never a fabricated percentage. A response with any other value fails schema validation and triggers one automatic repair attempt.</p></div>
+  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>Confidence is always one of exactly three levels - <code>low</code>, <code>medium</code>, or <code>high</code>. It is never a fabricated percentage. A response with any other value fails schema validation and triggers one automatic repair attempt.</p></div>
 </section>
 
 <section>
@@ -211,26 +211,26 @@ prompt: |
     with a same-name agent at project or user scope.
   </p>
 
-  <p><strong>Customer panel</strong> — react to your product from customer perspectives:</p>
+  <p><strong>Customer panel</strong> - react to your product from customer perspectives:</p>
   <ul>
-    <li><code>first-time-user</code> — onboarding clarity, setup friction, and early comprehension.</li>
-    <li><code>busy-operator</code> — day-to-day operational efficiency and workflow fit.</li>
-    <li><code>skeptical-buyer</code> — adoption risk, trust signals, and purchase hesitation.</li>
+    <li><code>first-time-user</code> - onboarding clarity, setup friction, and early comprehension.</li>
+    <li><code>busy-operator</code> - day-to-day operational efficiency and workflow fit.</li>
+    <li><code>skeptical-buyer</code> - adoption risk, trust signals, and purchase hesitation.</li>
   </ul>
 
-  <p><strong>Engineering review</strong> — attack a diff or architecture change from multiple angles:</p>
+  <p><strong>Engineering review</strong> - attack a diff or architecture change from multiple angles:</p>
   <ul>
-    <li><code>code-reviewer</code> — correctness, style, and maintainability of the change.</li>
-    <li><code>implementation-skeptic</code> — questions the approach before the implementation.</li>
-    <li><code>test-risk-reviewer</code> — test coverage gaps and regression surface.</li>
-    <li><code>principal-engineer</code> — feasibility, system-level tradeoffs, and long-term cost.</li>
+    <li><code>code-reviewer</code> - correctness, style, and maintainability of the change.</li>
+    <li><code>implementation-skeptic</code> - questions the approach before the implementation.</li>
+    <li><code>test-risk-reviewer</code> - test coverage gaps and regression surface.</li>
+    <li><code>principal-engineer</code> - feasibility, system-level tradeoffs, and long-term cost.</li>
   </ul>
 
-  <p><strong>Product decision</strong> — frame user value and ground feasibility:</p>
+  <p><strong>Product decision</strong> - frame user value and ground feasibility:</p>
   <ul>
-    <li><code>product-manager</code> — user value, scope, delivery sequencing, and decision quality.</li>
-    <li><code>product-engineer</code> — engineering effort, technical tradeoffs, and build risk.</li>
-    <li><code>product-designer</code> — usability, design coherence, and user experience impact.</li>
+    <li><code>product-manager</code> - user value, scope, delivery sequencing, and decision quality.</li>
+    <li><code>product-engineer</code> - engineering effort, technical tradeoffs, and build risk.</li>
+    <li><code>product-designer</code> - usability, design coherence, and user experience impact.</li>
   </ul>
 
   <p>
@@ -245,11 +245,11 @@ prompt: |
 <section>
   <h2>Where next</h2>
   <ul>
-    <li><a href="writing-an-agent.html">Writing an agent</a> — define your own agent from scratch with YAML or Markdown.</li>
-    <li><a href="reference.html">CLI reference</a> — every command, flag, preset, and run artifact.</li>
-    <li><a href="architecture.html">Architecture</a> — how agents flow through the pipeline at runtime.</li>
+    <li><a href="writing-an-agent.html">Writing an agent</a> - define your own agent from scratch with YAML or Markdown.</li>
+    <li><a href="reference.html">CLI reference</a> - every command, flag, preset, and run artifact.</li>
+    <li><a href="architecture.html">Architecture</a> - how agents flow through the pipeline at runtime.</li>
   </ul>
-  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>The agent definition schema is defined in <code>src/schemas/agent-definition.ts</code> and the output schema in <code>src/schemas/agent-output.ts</code>. These are the authoritative sources — this page reflects them exactly.</p></div>
+  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>The agent definition schema is defined in <code>src/schemas/agent-definition.ts</code> and the output schema in <code>src/schemas/agent-output.ts</code>. These are the authoritative sources - this page reflects them exactly.</p></div>
 </section>
         </article>
         <footer class="pager" id="pager"></footer>

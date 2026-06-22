@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Agent Swarm — Command reference</title>
+    <title>Agent Swarm - Command reference</title>
     <meta name="description" content="Agent Swarm command reference: run and doctor commands, flags, resolution modes, bundled presets, and run artifacts." />
     <script>
       (function () {
@@ -42,7 +42,7 @@
       <nav id="sidebar" class="sidebar" aria-label="Documentation"></nav>
       <main id="content" class="article-col">
         <article>
-<p class="kicker"><span class="n">13 —</span>Reference</p>
+<p class="kicker"><span class="n">13 -</span>Reference</p>
 <h1>Command reference</h1>
 <p class="lede">
   Commands, flags, resolution modes, presets, and the artifacts every
@@ -69,11 +69,11 @@ Commands:
   <pre><code>Usage: agent-swarm run [options] &lt;rounds&gt; &lt;topic...&gt;
 
 Arguments:
-  rounds             number of rounds (1–3)
+  rounds             number of rounds (1-3)
   topic              topic for the swarm
 
 Options:
-  --agents &lt;list&gt;    comma-separated agent names (2–5)
+  --agents &lt;list&gt;    comma-separated agent names (2-5)
   --backend &lt;name&gt;   runtime backend adapter (claude, codex)
   --resolve &lt;mode&gt;   between-round resolution: off | orchestrator | agents
   --goal &lt;text&gt;      primary goal for the swarm
@@ -100,14 +100,14 @@ Options:
         <tr>
           <td><code>off</code></td>
           <td>
-            Deterministic only — the next-round brief gets a templated
+            Deterministic only - the next-round brief gets a templated
             summary built from the prior packet. No extra LLM call.
           </td>
         </tr>
         <tr>
           <td><code>orchestrator</code></td>
           <td>
-            Real LLM pass — the bundled <code>orchestrator</code> agent reads
+            Real LLM pass - the bundled <code>orchestrator</code> agent reads
             the prior packet and returns a structured
             <code>OrchestratorOutput</code> that feeds the next round. Each
             pass is captured in <code>checkpoint.json</code> as inspectable
@@ -117,7 +117,7 @@ Options:
         <tr>
           <td><code>agents</code></td>
           <td>
-            Reserved — accepted and persisted but currently behaves like
+            Reserved - accepted and persisted but currently behaves like
             <code>off</code>.
           </td>
         </tr>
@@ -134,13 +134,13 @@ Options:
   </p>
   <ul>
     <li>
-      <strong>Configuration</strong> — config parses cleanly, carry-forward
+      <strong>Configuration</strong> - config parses cleanly, carry-forward
       docs are readable, the agent and preset registries load, referenced
       agents and presets resolve, and the configured
       <code>--backend</code> is supported.
     </li>
     <li>
-      <strong>Harness inventory</strong> — all four harnesses (Claude,
+      <strong>Harness inventory</strong> - all four harnesses (Claude,
       Codex, OpenCode, Rovo) are probed for availability and auth, even
       with no project config. A harness that fails but is not required by
       your configured agents is reported as <strong>WARN</strong>
@@ -151,7 +151,7 @@ Options:
       harness works.
     </li>
     <li>
-      <strong>Agent summary</strong> — each configured agent mapped to its
+      <strong>Agent summary</strong> - each configured agent mapped to its
       resolved harness. With no project config, the default
       <code>product-triad</code> preset's agents are shown.
     </li>
@@ -267,21 +267,21 @@ Options:
     <code>.agent-swarm/runs/&lt;timestamp&gt;-&lt;slug&gt;/</code>:
   </p>
   <ul>
-    <li><code>manifest.json</code> — run inputs and resolved runtimes.</li>
+    <li><code>manifest.json</code> - run inputs and resolved runtimes.</li>
     <li>
-      <code>checkpoint.json</code> — append-only, inspectable recovery state for
+      <code>checkpoint.json</code> - append-only, inspectable recovery state for
       run progress.
     </li>
     <li>
-      <code>events.jsonl</code> / <code>messages.jsonl</code> — the run
+      <code>events.jsonl</code> / <code>messages.jsonl</code> - the run
       ledger.
     </li>
     <li>
-      <code>round-NN/</code> — per-round brief and each agent's markdown
+      <code>round-NN/</code> - per-round brief and each agent's markdown
       output.
     </li>
     <li>
-      <code>synthesis.json</code> / <code>synthesis.md</code> — the
+      <code>synthesis.json</code> / <code>synthesis.md</code> - the
       deterministic final report.
     </li>
   </ul>

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Agent Swarm — Architecture</title>
+    <title>Agent Swarm - Architecture</title>
     <meta name="description" content="The Agent Swarm runtime map: pipeline lifecycle, backend and harness layering, registries, schemas, and run artifacts." />
     <script>
       (function () {
@@ -42,7 +42,7 @@
       <nav id="sidebar" class="sidebar" aria-label="Documentation"></nav>
       <main id="content" class="article-col">
         <article>
-<p class="kicker"><span class="n">14 —</span>Reference</p>
+<p class="kicker"><span class="n">14 -</span>Reference</p>
 <h1>Runtime map</h1>
 <p class="lede">
   How a run flows from CLI flags to a deterministic synthesis, and the
@@ -79,7 +79,7 @@
       (<code>off</code>) or produced by the orchestrator agent.
     </li>
     <li>
-      <strong>Synthesis.</strong> Fully deterministic — no LLM call —
+      <strong>Synthesis.</strong> Fully deterministic - no LLM call -
       consensus, top recommendation, shared risks, deferred questions.
     </li>
   </ol>
@@ -102,8 +102,8 @@
 <section>
   <h2>Registries</h2>
   <p>
-    Agents and presets load from three scopes — project, user, then bundled
-    — with first match winning and the current
+    Agents and presets load from three scopes - project, user, then bundled
+    - with first match winning and the current
     <code>.agent-swarm/</code> root searched before the legacy
     <code>.swarm/</code> root. Markdown agents use YAML frontmatter validated
     against the same schema as <code>.yml</code> agents.
@@ -113,7 +113,7 @@
 <section>
   <h2>Schemas</h2>
   <p>
-    Every cross-boundary contract is a Zod schema — no hand-rolled types for
+    Every cross-boundary contract is a Zod schema - no hand-rolled types for
     anything that crosses the disk or wire boundary. Key schemas include
     <code>AgentOutputSchema</code>, <code>OrchestratorOutputSchema</code>,
     <code>RunManifest</code>, <code>RunCheckpoint</code>, and

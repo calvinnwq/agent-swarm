@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Agent Swarm — Agent usage</title>
+    <title>Agent Swarm - Agent usage</title>
     <meta name="description" content="How autonomous agents configure and operate an Agent Swarm: presets, project config, the bundled skill, and the operation contract." />
     <script>
       (function () {
@@ -42,11 +42,11 @@
       <nav id="sidebar" class="sidebar" aria-label="Documentation"></nav>
       <main id="content" class="article-col">
         <article>
-<p class="kicker"><span class="n">15 —</span>Reference</p>
+<p class="kicker"><span class="n">15 -</span>Reference</p>
 <h1>Driving a swarm as an agent</h1>
 <p class="lede">
   Agent Swarm is built to be operated by other agents. This is the
-  short version of the operation contract — what to configure, how to
+  short version of the operation contract - what to configure, how to
   run, and how to report.
 </p>
 
@@ -58,18 +58,18 @@
   </p>
   <ul>
     <li>
-      <code>product-decision</code> — the supported alpha flow for a single
+      <code>product-decision</code> - the supported alpha flow for a single
       decision.
     </li>
     <li>
-      <code>product-triad</code> — product, engineering, and design
+      <code>product-triad</code> - product, engineering, and design
       perspectives on one question.
     </li>
     <li>
-      <code>adversarial-code-review</code> — a trio that argues for and
+      <code>adversarial-code-review</code> - a trio that argues for and
       against a change.
     </li>
-    <li><code>customer-panel</code> — simulated customer perspectives.</li>
+    <li><code>customer-panel</code> - simulated customer perspectives.</li>
   </ul>
   <p>
     See the <a href="reference.html">command reference</a> for the full
@@ -92,7 +92,7 @@ timeoutMs: 300000</code></pre>
     Custom agents and presets are discovered from
     <code>.agent-swarm/agents/**/*.yml</code> and
     <code>.agent-swarm/presets/**/*.yml</code>. Folder names are for
-    organization only — they are not namespaces.
+    organization only - they are not namespaces.
   </p>
 </section>
 
@@ -101,7 +101,7 @@ timeoutMs: 300000</code></pre>
   <p>
     Pass <code>--goal</code> and <code>--decision</code> for decision work,
     and <code>--doc</code> to carry forward source material. Report in the
-    shape requested by the prompt, preset, or agent instructions — there is
+    shape requested by the prompt, preset, or agent instructions - there is
     no saved-run database and no speculative control plane to manage.
   </p>
   <pre><code>agent-swarm run 2 "Prioritize the Q3 roadmap" \

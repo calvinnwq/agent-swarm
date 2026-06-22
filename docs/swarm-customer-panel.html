@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Customer panel — Agent Swarm</title>
+    <title>Customer panel - Agent Swarm</title>
     <meta name="description" content="A bundled three-persona swarm of stand-in customers that react to your product's first-run value, friction, and adoption risk." />
     <script>
       (function () {
@@ -42,27 +42,27 @@
       <nav id="sidebar" class="sidebar" aria-label="Documentation"></nav>
       <main id="content" class="article-col">
         <article>
-<p class="kicker"><span class="n">11 —</span>Swarm gallery</p>
+<p class="kicker"><span class="n">11 -</span>Swarm gallery</p>
 <h1>Customer panel</h1>
 <p class="lede">
-  Three stand-in customers — a first-timer, a daily operator, and a skeptical
-  buyer — react to your product's first-run value, friction, and adoption risk
+  Three stand-in customers - a first-timer, a daily operator, and a skeptical
+  buyer - react to your product's first-run value, friction, and adoption risk
   in parallel. The orchestrator folds their takes into one call: <em>Fix now</em>,
   <em>Defer</em>, or <em>Reject</em>.
 </p>
 
 <section>
   <h2>The roster</h2>
-  <p>The preset runs three bundled agents at once. Each holds a distinct customer perspective so the panel covers the full adoption arc — discovery, repeated use, and long-term commitment.</p>
+  <p>The preset runs three bundled agents at once. Each holds a distinct customer perspective so the panel covers the full adoption arc - discovery, repeated use, and long-term commitment.</p>
   <ul>
     <li>
-      <strong>first-time-user</strong> — Evaluates onboarding clarity, setup friction, and the moment early value becomes obvious, from the perspective of someone encountering the product for the first time without insider context.
+      <strong>first-time-user</strong> - Evaluates onboarding clarity, setup friction, and the moment early value becomes obvious, from the perspective of someone encountering the product for the first time without insider context.
     </li>
     <li>
-      <strong>busy-operator</strong> — Pushes on workflow fit, defaults, copy/paste burden, and time-to-result, from the perspective of a technical operator who needs the tool to save time immediately.
+      <strong>busy-operator</strong> - Pushes on workflow fit, defaults, copy/paste burden, and time-to-result, from the perspective of a technical operator who needs the tool to save time immediately.
     </li>
     <li>
-      <strong>skeptical-buyer</strong> — Probes adoption barriers, unclear value, weak differentiation, and missing proof, from the perspective of a technical buyer who needs a clear reason to try and keep using the tool.
+      <strong>skeptical-buyer</strong> - Probes adoption barriers, unclear value, weak differentiation, and missing proof, from the perspective of a technical buyer who needs a clear reason to try and keep using the tool.
     </li>
   </ul>
 </section>
@@ -90,7 +90,7 @@
 
 <section>
   <h2>Run it</h2>
-  <p>Pass the number of rounds as the first positional argument (1–3), then your question. No config needed — the preset wires up the roster and decision vocabulary:</p>
+  <p>Pass the number of rounds as the first positional argument (1-3), then your question. No config needed - the preset wires up the roster and decision vocabulary:</p>
   <pre><code>agent-swarm <span class="k">run</span> 2 <span class="s">"Does the onboarding flow make the first successful run obvious enough to earn a second?"</span> \
   --preset customer-panel</code></pre>
   <p>All three agents run in parallel. A two-round run lets the orchestrator refocus the panel on contested points before the final synthesis. For a quicker read, one round is often enough:</p>
@@ -104,14 +104,14 @@
   <p>When the run finishes you'll find a self-contained directory under <code>.agent-swarm/runs/&lt;timestamp&gt;-&lt;slug&gt;/</code>. The synthesis folds all three agents into one call:</p>
   <div class="verdict">
     <div class="verdict-top"><span>Synthesis</span><span>customer-panel · round 2 · 3 agents</span></div>
-    <p class="verdict-rec"><span class="mark">Fix now</span> — onboarding hides the one action that shows value.</p>
+    <p class="verdict-rec"><span class="mark">Fix now</span> - onboarding hides the one action that shows value.</p>
     <div class="mrow"><span class="lab">consensus</span><span class="pips"><i class="pip on"></i><i class="pip on"></i><i class="pip dim"></i></span><span>2 of 3 agree</span></div>
     <div class="mrow"><span class="lab">confidence</span><span class="level" data-level="high">high</span></div>
     <div class="vopen"><span class="q">Still open</span>Does the empty state need a sample project, or just a clearer first step?</div>
   </div>
   <p>
-    Confidence is reported as a level — <code>low</code>, <code>medium</code>, or
-    <code>high</code> — not a fabricated percentage. The verdict word comes straight
+    Confidence is reported as a level - <code>low</code>, <code>medium</code>, or
+    <code>high</code> - not a fabricated percentage. The verdict word comes straight
     from the preset's decision vocabulary. "Still open" surfaces questions that at
     least two agents deferred across all rounds.
   </p>
@@ -120,11 +120,11 @@
 <section>
   <h2>Where next</h2>
   <ul>
-    <li><a href="index.html#ready-made-swarms">Swarm gallery</a> — browse the other bundled presets.</li>
-    <li><a href="swarm-adversarial-code-review.html">Adversarial code review</a> — three reviewers attack a diff from different angles.</li>
-    <li><a href="swarm-product-decision.html">Product decision</a> — a PM and a principal engineer converge on a call.</li>
-    <li><a href="composing-a-swarm.html">Composing a swarm</a> — define your own agents and wire them into a preset.</li>
-    <li><a href="writing-an-agent.html">Writing an agent</a> — author an agent file in YAML or Markdown.</li>
+    <li><a href="index.html#ready-made-swarms">Swarm gallery</a> - browse the other bundled presets.</li>
+    <li><a href="swarm-adversarial-code-review.html">Adversarial code review</a> - three reviewers attack a diff from different angles.</li>
+    <li><a href="swarm-product-decision.html">Product decision</a> - a PM and a principal engineer converge on a call.</li>
+    <li><a href="composing-a-swarm.html">Composing a swarm</a> - define your own agents and wire them into a preset.</li>
+    <li><a href="writing-an-agent.html">Writing an agent</a> - author an agent file in YAML or Markdown.</li>
   </ul>
 </section>
         </article>

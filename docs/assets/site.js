@@ -1,4 +1,4 @@
-/* Agent Swarm docs — chrome rendered from one manifest. */
+/* Agent Swarm docs - chrome rendered from one manifest. */
 (function () {
   "use strict";
 
@@ -328,7 +328,7 @@
       if (!hits.length) {
         var empty = document.createElement("p");
         empty.className = "empty";
-        empty.textContent = "No matches — try a command name or page title.";
+        empty.textContent = "No matches - try a command name or page title.";
         paletteResults.appendChild(empty);
         return;
       }

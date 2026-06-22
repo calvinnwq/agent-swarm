@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Writing an agent — Agent Swarm</title>
-    <meta name="description" content="Author an agent as a YAML or Markdown file with a name, persona, and prompt — and how the registry resolves project, user, and bundled agents." />
+    <title>Writing an agent - Agent Swarm</title>
+    <meta name="description" content="Author an agent as a YAML or Markdown file with a name, persona, and prompt - and how the registry resolves project, user, and bundled agents." />
     <script>
       (function () {
         var t = null;
@@ -42,12 +42,12 @@
       <nav id="sidebar" class="sidebar" aria-label="Documentation"></nav>
       <main id="content" class="article-col">
         <article>
-<p class="kicker"><span class="n">07 —</span>Build your own</p>
+<p class="kicker"><span class="n">07 -</span>Build your own</p>
 <h1>Writing an agent</h1>
 <p class="lede">
   An agent is a single YAML or Markdown file with a name, a persona, and a
   prompt. Drop it into <code>.agent-swarm/agents/</code> and the registry picks
-  it up automatically — no code wiring required.
+  it up automatically - no code wiring required.
 </p>
 
 <section>
@@ -55,7 +55,7 @@
   <p>
     You can author agents as plain <code>.yml</code> files or as
     <code>.md</code> files with YAML frontmatter. Both are validated against
-    the same Zod schema at load time. Choose whichever fits your workflow —
+    the same Zod schema at load time. Choose whichever fits your workflow -
     Markdown is handy when you want the prompt to read naturally in a text
     editor or code review.
   </p>
@@ -120,7 +120,7 @@ changesFromPriorRound, confidence, openQuestions</code></pre>
           <td><code>name</code></td>
           <td>Yes</td>
           <td><code>string</code></td>
-          <td>Unique identifier for the agent. Must match <code>^[a-z0-9][a-z0-9_-]*$</code> — lowercase letters, digits, hyphens, and underscores; must start with a letter or digit. Used as the key in presets and run artifacts.</td>
+          <td>Unique identifier for the agent. Must match <code>^[a-z0-9][a-z0-9_-]*$</code> - lowercase letters, digits, hyphens, and underscores; must start with a letter or digit. Used as the key in presets and run artifacts.</td>
         </tr>
         <tr>
           <td><code>description</code></td>
@@ -138,7 +138,7 @@ changesFromPriorRound, confidence, openQuestions</code></pre>
           <td><code>prompt</code></td>
           <td>Yes</td>
           <td><code>string</code> or <code>{ file: string }</code></td>
-          <td>The task instructions sent to the harness. Either an inline string (including YAML block scalars with <code>|</code>) or a file reference — <code>{ file: "path/to/prompt.txt" }</code> — resolved relative to the agent file's location.</td>
+          <td>The task instructions sent to the harness. Either an inline string (including YAML block scalars with <code>|</code>) or a file reference - <code>{ file: "path/to/prompt.txt" }</code> - resolved relative to the agent file's location.</td>
         </tr>
         <tr>
           <td><code>backend</code></td>
@@ -170,7 +170,7 @@ changesFromPriorRound, confidence, openQuestions</code></pre>
   <p>
     When the runtime loads agents it searches six roots in order and stops at the
     first match for a given name. This means a project-level agent silently
-    overrides a bundled one of the same name — a deliberate affordance for
+    overrides a bundled one of the same name - a deliberate affordance for
     customisation.
   </p>
 
@@ -186,22 +186,22 @@ changesFromPriorRound, confidence, openQuestions</code></pre>
       <tbody>
         <tr>
           <td>1 (highest)</td>
-          <td>Project — current</td>
+          <td>Project - current</td>
           <td><code>.agent-swarm/agents/</code></td>
         </tr>
         <tr>
           <td>2</td>
-          <td>Project — legacy</td>
+          <td>Project - legacy</td>
           <td><code>.swarm/agents/</code></td>
         </tr>
         <tr>
           <td>3</td>
-          <td>User — current</td>
+          <td>User - current</td>
           <td><code>~/.agent-swarm/agents/</code></td>
         </tr>
         <tr>
           <td>4</td>
-          <td>User — legacy</td>
+          <td>User - legacy</td>
           <td><code>~/.swarm/agents/</code></td>
         </tr>
         <tr>
@@ -221,7 +221,7 @@ changesFromPriorRound, confidence, openQuestions</code></pre>
     <li><strong>Legacy roots are read-only fallbacks.</strong> The <code>.swarm/</code> paths are searched after their <code>.agent-swarm/</code> counterparts during the migration window; new agents should always be written to the <code>.agent-swarm/</code> root.</li>
   </ul>
 
-  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>Agents in subdirectories (e.g. <code>.agent-swarm/agents/product/product-manager.yml</code>) are discovered recursively. The agent's <code>name</code> field — not its filename — is the registry key.</p></div>
+  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>Agents in subdirectories (e.g. <code>.agent-swarm/agents/product/product-manager.yml</code>) are discovered recursively. The agent's <code>name</code> field - not its filename - is the registry key.</p></div>
 </section>
 
 <section>
@@ -249,23 +249,23 @@ changesFromPriorRound, confidence, openQuestions</code></pre>
   <p>
     Bundled agents like <code>product-manager</code> and <code>code-reviewer</code>
     are starting points, not constraints. To customise one, copy its YAML to your
-    project root and edit it — the project-scope copy takes over automatically:
+    project root and edit it - the project-scope copy takes over automatically:
   </p>
   <pre><code><span class="c"># Copy the bundled agent into your project</span>
 mkdir -p .agent-swarm/agents
 cp <span class="s">"$(npm root -g)/@calvinnwq/agent-swarm/dist/agents/bundled/product/product-manager.yml"</span> \
    .agent-swarm/agents/product-manager.yml
 
-<span class="c"># Edit persona, prompt, harness, model — the project copy wins</span></code></pre>
+<span class="c"># Edit persona, prompt, harness, model - the project copy wins</span></code></pre>
   <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>The override is keyed on the <code>name</code> field, not the filename. Your file can be named anything as long as the <code>name:</code> value matches the bundled agent you want to replace.</p></div>
 </section>
 
 <section>
   <h2>Where next</h2>
   <ul>
-    <li><a href="composing-a-swarm.html">Composing a swarm</a> — wire your agents into a preset and choose rounds, decision vocabulary, and resolution mode.</li>
-    <li><a href="harnesses-and-backends.html">Harnesses and backends</a> — understand the <code>backend</code> vs. <code>harness</code> distinction and how the runtime resolves which CLI each agent runs on.</li>
-    <li><a href="reference.html">CLI reference</a> — every flag, including per-run backend overrides.</li>
+    <li><a href="composing-a-swarm.html">Composing a swarm</a> - wire your agents into a preset and choose rounds, decision vocabulary, and resolution mode.</li>
+    <li><a href="harnesses-and-backends.html">Harnesses and backends</a> - understand the <code>backend</code> vs. <code>harness</code> distinction and how the runtime resolves which CLI each agent runs on.</li>
+    <li><a href="reference.html">CLI reference</a> - every flag, including per-run backend overrides.</li>
   </ul>
 </section>
         </article>
