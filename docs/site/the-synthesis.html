@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The synthesis — Agent Swarm</title>
+    <meta name="description" content="The deterministic synthesis in depth: consensus, top recommendation, shared risks, open questions, and average confidence — with no LLM in the loop." />
+    <script>
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem("agent-swarm-docs-theme"); } catch (e) {}
+        document.documentElement.dataset.theme = t === "light" ? "light" : "dark";
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/styles.css" />
+    <script src="assets/site.js" defer></script>
+  </head>
+  <body data-page="the-synthesis.html">
+    <a class="skip" href="#content">Skip to content</a>
+    <header class="masthead">
+      <div class="masthead-inner">
+        <button class="menu-btn" type="button" data-menu aria-label="Toggle navigation" aria-expanded="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 3.5h14M1 8h14M1 12.5h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+        <a class="brand" href="index.html">Agent&nbsp;Swarm<span class="brand-tag">docs</span></a>
+        <button class="search-btn" type="button" data-search-open><span>Search docs</span><kbd>/</kbd></button>
+        <div class="masthead-tools">
+          <a class="gh" href="https://github.com/calvinnwq/agent-swarm">GitHub</a>
+          <button class="theme-btn" type="button" data-theme-toggle aria-label="Toggle color theme" aria-pressed="false">
+            <svg class="icon-moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M14.6 12.1A6.5 6.5 0 0 1 7.4 2.7a6.5 6.5 0 1 0 7.2 9.4z" fill="currentColor"/></svg>
+            <svg class="icon-sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3.4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="10" y1="2" x2="10" y2="4"/><line x1="10" y1="16" x2="10" y2="18"/><line x1="2" y1="10" x2="4" y2="10"/><line x1="16" y1="10" x2="18" y2="10"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="14.4" y1="14.4" x2="15.8" y2="15.8"/><line x1="4.2" y1="15.8" x2="5.6" y2="14.4"/><line x1="14.4" y1="5.6" x2="15.8" y2="4.2"/></g></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="frame">
+      <nav id="sidebar" class="sidebar" aria-label="Documentation"></nav>
+      <main id="content" class="article-col">
+        <article>
+<p class="kicker"><span class="n">06 —</span>Concepts</p>
+<h1>The synthesis</h1>
+<p class="lede">
+  After every round, Agent Swarm folds the panel's work into a single
+  <em>deterministic</em> synthesis — one recommendation, one confidence level,
+  one list of shared risks. No model decides the final word. The same agent
+  notes always produce the same synthesis.
+</p>
+
+<section>
+  <h2>What the synthesis computes</h2>
+  <p>
+    The synthesis is built by <code>buildOrchestratorSynthesis</code> in
+    <code>src/lib/synthesis.ts</code>. It reads the structured JSON output each
+    agent returns and runs six deterministic computations — no LLM call, no
+    sampling, no randomness:
+  </p>
+  <ol>
+    <li>
+      <strong>Consensus.</strong> Whether all agents in the final round landed
+      on the same stance. Computed as <code>stanceTally.length === 1</code> —
+      true only when every agent emits an identical stance string.
+    </li>
+    <li>
+      <strong>Stance tally.</strong> A breakdown of how many agents held each
+      stance, sorted by count descending. Stances come from each agent's
+      <code>stance</code> field in the last round's output; the tally groups
+      agents by the exact string they reported.
+    </li>
+    <li>
+      <strong>Top recommendation.</strong> The recommendation text from the
+      highest-confidence agent in the final round. On ties in confidence, the
+      alphabetically first agent name wins — so the result is always
+      deterministic.
+    </li>
+    <li>
+      <strong>Shared risks.</strong> Risks raised across all rounds, deduplicated
+      in appearance order. A risk counts as shared when it appears in more than
+      one agent's output across any round.
+    </li>
+    <li>
+      <strong>Open and deferred questions.</strong> Open questions are
+      deduplicated from the final round's packet. Deferred questions are
+      collected and deduplicated across all rounds — questions the panel
+      flagged but did not resolve.
+    </li>
+    <li>
+      <strong>Overall confidence.</strong> Each agent reports <code>low</code>,
+      <code>medium</code>, or <code>high</code>. These are mapped to numeric
+      ranks (1, 2, 3), averaged across all agents in the final round, then
+      rounded back to a level: average ≥ 2.5 → <code>high</code>; ≥ 1.5 →
+      <code>medium</code>; below that → <code>low</code>.
+    </li>
+  </ol>
+  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>Key objections are also collected and deduplicated across all rounds, and the reasoning behind the top recommendation is gathered from every successful agent in the final round.</p></div>
+</section>
+
+<section>
+  <h2>Reading the synthesis card</h2>
+  <p>
+    Every synthesis surfaces as a card — in the terminal at the end of a run,
+    in <code>synthesis.md</code> in the run directory, and in the machine-readable
+    <code>synthesis.json</code>. Here is what each row means:
+  </p>
+  <div class="verdict">
+    <div class="verdict-top"><span>Synthesis</span><span>customer-panel · round 2 · 3 agents</span></div>
+    <p class="verdict-rec"><span class="mark">Fix now</span> — onboarding hides the one action that shows value.</p>
+    <div class="mrow"><span class="lab">consensus</span><span class="pips"><i class="pip on"></i><i class="pip on"></i><i class="pip dim"></i></span><span>2 of 3 agree</span></div>
+    <div class="mrow"><span class="lab">confidence</span><span class="level" data-level="high">high</span></div>
+    <div class="vopen"><span class="q">Still open</span>Does the empty state need a sample project, or just a clearer first step?</div>
+  </div>
+  <p>
+    The verdict word — <strong>Fix now</strong> above — comes from the preset's
+    <code>--decision</code> vocabulary, not from the model. An agent outputs a
+    stance string, and that string must match one of the words the preset
+    defines. The model never invents a verdict word of its own.
+  </p>
+  <p>
+    Confidence is reported as a level: <code>low</code>, <code>medium</code>,
+    or <code>high</code>. It is a rounded average of what the agents reported
+    — never a fabricated decimal like 0.78.
+  </p>
+  <p>
+    The consensus row shows how many agents agreed on the same stance in the
+    final round. When all agents converge, consensus is true; when they split,
+    the tally shows each stance and who held it.
+  </p>
+  <p>
+    The "Still open" row lists questions that were raised but not resolved by
+    any round. These are the deferred questions you may want to answer before
+    acting on the recommendation.
+  </p>
+</section>
+
+<section>
+  <h2>Determinism in depth</h2>
+  <p>
+    The synthesis has no LLM step. Given identical agent outputs, it will
+    always produce identical synthesis fields. The properties that make it
+    deterministic are:
+  </p>
+  <ul>
+    <li>
+      <strong>No sampling.</strong> All computations are arithmetic or string
+      operations on the agent JSON. There is no temperature, no token
+      generation, no model call.
+    </li>
+    <li>
+      <strong>Alphabetical tie-breaking.</strong> When two agents report the
+      same highest confidence, the recommendation is taken from the agent
+      whose name sorts first alphabetically. The output is stable across
+      re-runs.
+    </li>
+    <li>
+      <strong>Deduplication by first appearance.</strong> Risks, objections,
+      open questions, and deferred questions are deduplicated in the order
+      they first appear — identical strings are dropped, order is preserved.
+    </li>
+    <li>
+      <strong>Preset-controlled vocabulary.</strong> The stance string each
+      agent reports must come from the preset's decision vocabulary. The
+      synthesis surfaces that string as-is; it never renames or reinterprets it.
+    </li>
+  </ul>
+  <div class="callout" data-kind="tip"><span class="callout-label">Tip</span><p>Because the synthesis is deterministic, you can check <code>synthesis.json</code> into version control and diff it across runs to see exactly what changed in the panel's output.</p></div>
+</section>
+
+<section>
+  <h2>The synthesis fields</h2>
+  <p>
+    <code>synthesis.json</code> in the run directory contains the full machine-readable
+    output. The top-level fields map directly to what was computed:
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>Type</th>
+          <th>What it holds</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>consensus</code></td>
+          <td>boolean</td>
+          <td>True when all agents in the final round share the same stance.</td>
+        </tr>
+        <tr>
+          <td><code>stanceTally</code></td>
+          <td>array</td>
+          <td>Each distinct stance, the agents who held it, and their count — sorted by count descending.</td>
+        </tr>
+        <tr>
+          <td><code>topRecommendation</code></td>
+          <td>string</td>
+          <td>Recommendation text from the highest-confidence agent (alphabetical tie-break).</td>
+        </tr>
+        <tr>
+          <td><code>topRecommendationBasis</code></td>
+          <td>string[]</td>
+          <td>Reasoning collected from all successful agents in the final round.</td>
+        </tr>
+        <tr>
+          <td><code>sharedRisks</code></td>
+          <td>string[]</td>
+          <td>Risks raised across all rounds, deduplicated in appearance order.</td>
+        </tr>
+        <tr>
+          <td><code>keyObjections</code></td>
+          <td>string[]</td>
+          <td>Objections raised across all rounds, deduplicated in appearance order.</td>
+        </tr>
+        <tr>
+          <td><code>openQuestions</code></td>
+          <td>string[]</td>
+          <td>Questions still open at the end of the final round.</td>
+        </tr>
+        <tr>
+          <td><code>deferredQuestions</code></td>
+          <td>string[]</td>
+          <td>Questions flagged as deferred across all rounds, deduplicated.</td>
+        </tr>
+        <tr>
+          <td><code>overallConfidence</code></td>
+          <td><code>low</code> | <code>medium</code> | <code>high</code></td>
+          <td>Rounded average of each agent's confidence level from the final round.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Where next</h2>
+  <ul>
+    <li><a href="quickstart.html">Quickstart</a> — run a ready-made swarm and read your first synthesis end to end.</li>
+    <li><a href="reference.html">CLI reference</a> — every command, flag, preset, and run artifact.</li>
+    <li><a href="architecture.html">Architecture</a> — how the pipeline flows from agents to synthesis.</li>
+  </ul>
+</section>
+        </article>
+        <footer class="pager" id="pager"></footer>
+      </main>
+      <aside class="toc-col"><p class="toc-title">On this page</p><nav id="toc" aria-label="On this page"></nav></aside>
+    </div>
+
+    <footer class="colophon"><div class="colophon-inner"><span>Agent Swarm docs</span><span>MIT</span><a href="https://github.com/calvinnwq/agent-swarm">GitHub</a></div></footer>
+  </body>
+</html>
