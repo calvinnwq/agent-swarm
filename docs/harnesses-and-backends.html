@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Harnesses &amp; backends — Agent Swarm</title>
+    <title>Harnesses &amp; backends - Agent Swarm</title>
     <meta name="description" content="Backend vs harness: the run-level dial and the per-agent dispatch surface, how they resolve, the per-harness model flags, and what doctor checks." />
     <script>
       (function () {
@@ -42,7 +42,7 @@
       <nav id="sidebar" class="sidebar" aria-label="Documentation"></nav>
       <main id="content" class="article-col">
         <article>
-<p class="kicker"><span class="n">09 —</span>Build your own</p>
+<p class="kicker"><span class="n">09 -</span>Build your own</p>
 <h1>Harnesses &amp; backends</h1>
 <p class="lede">
   Agent Swarm separates the <em>run-level backend dial</em> from the
@@ -75,7 +75,7 @@
         <tr>
           <td><code>HarnessId</code></td>
           <td><code>claude</code> | <code>codex</code> | <code>opencode</code> | <code>rovo</code></td>
-          <td>The <strong>per-agent dispatch surface</strong> — the CLI that actually shells out for a given agent. Set by <code>agent.harness</code> in the agent definition.</td>
+          <td>The <strong>per-agent dispatch surface</strong> - the CLI that actually shells out for a given agent. Set by <code>agent.harness</code> in the agent definition.</td>
         </tr>
       </tbody>
     </table>
@@ -88,19 +88,19 @@
     does not prevent an individual agent from dispatching via the
     <code>opencode</code> harness.
   </p>
-  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p><code>BackendId</code> is defined in <code>src/schemas/backend-id.ts</code>; <code>HarnessId</code> is defined in <code>src/schemas/harness-id.ts</code>. Both are Zod <code>z.enum</code> schemas — the source of truth for valid values.</p></div>
+  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p><code>BackendId</code> is defined in <code>src/schemas/backend-id.ts</code>; <code>HarnessId</code> is defined in <code>src/schemas/harness-id.ts</code>. Both are Zod <code>z.enum</code> schemas - the source of truth for valid values.</p></div>
 </section>
 
 <section>
   <h2>How a harness is resolved for each agent</h2>
   <p>
     When a round runs, every agent gets its own harness resolved independently.
-    The resolver walks this priority order — first that is set wins:
+    The resolver walks this priority order - first that is set wins:
   </p>
   <ol>
-    <li><strong><code>agent.harness</code></strong> — a <code>HarnessId</code> set directly in the agent definition file. This is the strongest override and bypasses the run-level backend entirely.</li>
-    <li><strong>Run-level <code>--backend</code> / <code>config.backend</code></strong> — the <code>BackendId</code> from the CLI flag or project config, mapped to the matching harness.</li>
-    <li><strong><code>agent.backend</code></strong> — a <code>BackendId</code> set in the agent definition. Weaker than a run-level override; mapped to the matching harness when neither of the above is set.</li>
+    <li><strong><code>agent.harness</code></strong> - a <code>HarnessId</code> set directly in the agent definition file. This is the strongest override and bypasses the run-level backend entirely.</li>
+    <li><strong>Run-level <code>--backend</code> / <code>config.backend</code></strong> - the <code>BackendId</code> from the CLI flag or project config, mapped to the matching harness.</li>
+    <li><strong><code>agent.backend</code></strong> - a <code>BackendId</code> set in the agent definition. Weaker than a run-level override; mapped to the matching harness when neither of the above is set.</li>
   </ol>
   <p>
     If none of the three is set, the agent dispatches via the <code>claude</code>
@@ -158,7 +158,7 @@
   </div>
   <p>
     When <code>model</code> is omitted from the agent definition, the harness
-    uses its own default model. The model string is harness-specific — check the
+    uses its own default model. The model string is harness-specific - check the
     documentation for each CLI to see valid model identifiers.
   </p>
 </section>
@@ -190,8 +190,8 @@ prompt: |
     valid <code>BackendId</code> values.
   </p>
   <p>
-    To run a mixed-harness swarm — for example, two Claude agents and one OpenCode
-    agent — select all three agents in your preset or config. Each dispatches
+    To run a mixed-harness swarm - for example, two Claude agents and one OpenCode
+    agent - select all three agents in your preset or config. Each dispatches
     independently via its own harness:
   </p>
   <pre><code><span class="c"># agent-swarm run against a mixed preset</span>
@@ -202,9 +202,9 @@ agent-swarm <span class="k">run</span> 2 <span class="s">"Should we adopt the ne
 <section>
   <h2>What doctor checks</h2>
   <p>
-    <code>agent-swarm doctor</code> always probes all four harnesses —
+    <code>agent-swarm doctor</code> always probes all four harnesses -
     <strong>Claude</strong>, <strong>Codex</strong>, <strong>OpenCode</strong>,
-    and <strong>Rovo</strong> — for availability and authentication, even when no
+    and <strong>Rovo</strong> - for availability and authentication, even when no
     project config exists. This is the <strong>Harness inventory</strong> section
     of the doctor report.
   </p>
@@ -237,7 +237,7 @@ agent-swarm <span class="k">run</span> 2 <span class="s">"Should we adopt the ne
   </div>
   <p>
     Agent Swarm does not globally require any harness. A single-harness setup
-    passes doctor as long as the one harness its agents use is working — the
+    passes doctor as long as the one harness its agents use is working - the
     other three will show as <code>WARN</code>, not <code>FAIL</code>.
   </p>
   <pre><code><span class="c"># probe all four harnesses and check your config</span>
@@ -253,16 +253,16 @@ Harness inventory
     Doctor exits <code>0</code> when all checks pass (warnings are non-fatal),
     <code>1</code> when any check fails, and <code>2</code> on an internal error.
   </p>
-  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>Run <code>agent-swarm doctor</code> after adding a new agent that pins a different harness — it will tell you immediately whether that harness is installed and authenticated, and which agents depend on it.</p></div>
+  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>Run <code>agent-swarm doctor</code> after adding a new agent that pins a different harness - it will tell you immediately whether that harness is installed and authenticated, and which agents depend on it.</p></div>
 </section>
 
 <section>
   <h2>Where next</h2>
   <ul>
-    <li><a href="agents-and-roles.html">Agents &amp; roles</a> — the full agent definition schema, including the <code>harness</code>, <code>backend</code>, and <code>model</code> fields.</li>
-    <li><a href="quickstart.html">Quickstart</a> — install a harness CLI and verify it with doctor before your first run.</li>
-    <li><a href="reference.html">CLI reference</a> — the <code>--backend</code> flag and all other run options.</li>
-    <li><a href="architecture.html">Architecture</a> — the harness adapter layer and how dispatch is wired through the pipeline.</li>
+    <li><a href="agents-and-roles.html">Agents &amp; roles</a> - the full agent definition schema, including the <code>harness</code>, <code>backend</code>, and <code>model</code> fields.</li>
+    <li><a href="quickstart.html">Quickstart</a> - install a harness CLI and verify it with doctor before your first run.</li>
+    <li><a href="reference.html">CLI reference</a> - the <code>--backend</code> flag and all other run options.</li>
+    <li><a href="architecture.html">Architecture</a> - the harness adapter layer and how dispatch is wired through the pipeline.</li>
   </ul>
 </section>
         </article>

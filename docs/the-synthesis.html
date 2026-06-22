@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>The synthesis — Agent Swarm</title>
-    <meta name="description" content="The deterministic synthesis in depth: consensus, top recommendation, shared risks, open questions, and average confidence — with no LLM in the loop." />
+    <title>The synthesis - Agent Swarm</title>
+    <meta name="description" content="The deterministic synthesis in depth: consensus, top recommendation, shared risks, open questions, and average confidence - with no LLM in the loop." />
     <script>
       (function () {
         var t = null;
@@ -42,11 +42,11 @@
       <nav id="sidebar" class="sidebar" aria-label="Documentation"></nav>
       <main id="content" class="article-col">
         <article>
-<p class="kicker"><span class="n">06 —</span>Concepts</p>
+<p class="kicker"><span class="n">06 -</span>Concepts</p>
 <h1>The synthesis</h1>
 <p class="lede">
   After every round, Agent Swarm folds the panel's work into a single
-  <em>deterministic</em> synthesis — one recommendation, one confidence level,
+  <em>deterministic</em> synthesis - one recommendation, one confidence level,
   one list of shared risks. No model decides the final word. The same agent
   notes always produce the same synthesis.
 </p>
@@ -56,13 +56,13 @@
   <p>
     The synthesis is built by <code>buildOrchestratorSynthesis</code> in
     <code>src/lib/synthesis.ts</code>. It reads the structured JSON output each
-    agent returns and runs six deterministic computations — no LLM call, no
+    agent returns and runs six deterministic computations - no LLM call, no
     sampling, no randomness:
   </p>
   <ol>
     <li>
       <strong>Consensus.</strong> Whether all agents in the final round landed
-      on the same stance. Computed as <code>stanceTally.length === 1</code> —
+      on the same stance. Computed as <code>stanceTally.length === 1</code> -
       true only when every agent emits an identical stance string.
     </li>
     <li>
@@ -74,7 +74,7 @@
     <li>
       <strong>Top recommendation.</strong> The recommendation text from the
       highest-confidence agent in the final round. On ties in confidence, the
-      alphabetically first agent name wins — so the result is always
+      alphabetically first agent name wins - so the result is always
       deterministic.
     </li>
     <li>
@@ -85,7 +85,7 @@
     <li>
       <strong>Open and deferred questions.</strong> Open questions are
       deduplicated from the final round's packet. Deferred questions are
-      collected and deduplicated across all rounds — questions the panel
+      collected and deduplicated across all rounds - questions the panel
       flagged but did not resolve.
     </li>
     <li>
@@ -102,19 +102,19 @@
 <section>
   <h2>Reading the synthesis card</h2>
   <p>
-    Every synthesis surfaces as a card — in the terminal at the end of a run,
+    Every synthesis surfaces as a card - in the terminal at the end of a run,
     in <code>synthesis.md</code> in the run directory, and in the machine-readable
     <code>synthesis.json</code>. Here is what each row means:
   </p>
   <div class="verdict">
     <div class="verdict-top"><span>Synthesis</span><span>customer-panel · round 2 · 3 agents</span></div>
-    <p class="verdict-rec"><span class="mark">Fix now</span> — onboarding hides the one action that shows value.</p>
+    <p class="verdict-rec"><span class="mark">Fix now</span> - onboarding hides the one action that shows value.</p>
     <div class="mrow"><span class="lab">consensus</span><span class="pips"><i class="pip on"></i><i class="pip on"></i><i class="pip dim"></i></span><span>2 of 3 agree</span></div>
     <div class="mrow"><span class="lab">confidence</span><span class="level" data-level="high">high</span></div>
     <div class="vopen"><span class="q">Still open</span>Does the empty state need a sample project, or just a clearer first step?</div>
   </div>
   <p>
-    The verdict word — <strong>Fix now</strong> above — comes from the preset's
+    The verdict word - <strong>Fix now</strong> above - comes from the preset's
     <code>--decision</code> vocabulary, not from the model. An agent outputs a
     stance string, and that string must match one of the words the preset
     defines. The model never invents a verdict word of its own.
@@ -122,7 +122,7 @@
   <p>
     Confidence is reported as a level: <code>low</code>, <code>medium</code>,
     or <code>high</code>. It is a rounded average of what the agents reported
-    — never a fabricated decimal like 0.78.
+    - never a fabricated decimal like 0.78.
   </p>
   <p>
     The consensus row shows how many agents agreed on the same stance in the
@@ -158,7 +158,7 @@
     <li>
       <strong>Deduplication by first appearance.</strong> Risks, objections,
       open questions, and deferred questions are deduplicated in the order
-      they first appear — identical strings are dropped, order is preserved.
+      they first appear - identical strings are dropped, order is preserved.
     </li>
     <li>
       <strong>Preset-controlled vocabulary.</strong> The stance string each
@@ -193,7 +193,7 @@
         <tr>
           <td><code>stanceTally</code></td>
           <td>array</td>
-          <td>Each distinct stance, the agents who held it, and their count — sorted by count descending.</td>
+          <td>Each distinct stance, the agents who held it, and their count - sorted by count descending.</td>
         </tr>
         <tr>
           <td><code>topRecommendation</code></td>
@@ -238,9 +238,9 @@
 <section>
   <h2>Where next</h2>
   <ul>
-    <li><a href="quickstart.html">Quickstart</a> — run a ready-made swarm and read your first synthesis end to end.</li>
-    <li><a href="reference.html">CLI reference</a> — every command, flag, preset, and run artifact.</li>
-    <li><a href="architecture.html">Architecture</a> — how the pipeline flows from agents to synthesis.</li>
+    <li><a href="quickstart.html">Quickstart</a> - run a ready-made swarm and read your first synthesis end to end.</li>
+    <li><a href="reference.html">CLI reference</a> - every command, flag, preset, and run artifact.</li>
+    <li><a href="architecture.html">Architecture</a> - how the pipeline flows from agents to synthesis.</li>
   </ul>
 </section>
         </article>

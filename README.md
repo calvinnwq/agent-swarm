@@ -1,89 +1,162 @@
+<div align="center">
+
 # Agent Swarm
 
-Run a panel of AI agents in parallel rounds, then synthesize their answers into a deterministic report.
+**Many AI agents on the problem. One answer back.**
 
-`agent-swarm` is a TypeScript CLI that fans out 2–5 agents over 1–3 rounds, validates their structured JSON output, and produces a single synthesis you can review or check in.
+[![npm version](https://img.shields.io/npm/v/@calvinnwq/agent-swarm.svg)](https://www.npmjs.com/package/@calvinnwq/agent-swarm) [![npm downloads](https://img.shields.io/npm/dm/@calvinnwq/agent-swarm.svg)](https://www.npmjs.com/package/@calvinnwq/agent-swarm) [![CI](https://github.com/calvinnwq/agent-swarm/actions/workflows/ci.yml/badge.svg)](https://github.com/calvinnwq/agent-swarm/actions/workflows/ci.yml) [![docs](https://img.shields.io/badge/docs-site-blue.svg)](https://calvinnwq.github.io/agent-swarm/) [![license](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE) [![X @calvinnwq](https://img.shields.io/badge/X-%40calvinnwq-black?logo=x)](https://x.com/calvinnwq)
 
-> **Alpha — v0.2 baseline.** The alpha runtime is feature-complete and ready for dogfooding. This README is the authoritative user-facing contract: anything not documented here — and anything flagged _reserved_ — isn't part of it. For the durable, versioned contract see [SPEC.md](SPEC.md); for a step-by-step setup guide see [INSTALL.md](INSTALL.md); for the runtime internals see [ARCHITECTURE.md](ARCHITECTURE.md); for a browsable version of these docs see the [docs site](https://calvinnwq.github.io/agent-swarm/). Also see [Status & roadmap](#status--roadmap).
+[**Docs**](https://calvinnwq.github.io/agent-swarm/) · [Quickstart](#quickstart) · [Spec](SPEC.md) · [Agent setup](INSTALL.md)
 
-## Install
+</div>
 
-For agent-operated setup, start with the skill-first guide in [INSTALL.md](INSTALL.md):
+Ask one model a question and you get one answer, shaped by a single point of
+view. Agent Swarm puts several agents on the same question instead - 2 to 5 of
+them, each in a different role, all running at once - and merges what they send
+back into one report: the recommendation, where they agreed, the risks more than
+one of them flagged, and the questions still open. That report is put together by
+code rather than another model, so the same answers always produce the same
+result.
 
-```bash
-npx skills add calvinnwq/agent-swarm --skill agent-swarm
-```
-
-That installs the public `agent-swarm` skill into agents that support local
-skills; the skill runs the CLI on demand with `npx -y @calvinnwq/agent-swarm`,
-so a global CLI install is optional.
-
-For direct CLI use, you'll need:
-
-- Node ≥ 20 (Node 24 LTS recommended — `.nvmrc` pins it; run `nvm use`)
-- pnpm 10 for source installs and development
-- A harness CLI on `PATH`, authenticated. The bundled `product-decision` preset uses Claude (`claude auth login`); other presets use Codex (`codex login`) or OpenCode (`opencode auth login`).
-
-```bash
-npx -y @calvinnwq/agent-swarm --version
-```
-
-For repeat use or if `npx` cannot resolve the scoped-package bin, install the
-optional global CLI:
-
-```bash
-npm install --global @calvinnwq/agent-swarm
-```
-
-This exposes the `agent-swarm` command on your `PATH`.
-
-For source installs:
-
-```bash
-pnpm install
-pnpm build
-pnpm link --global
-```
-
-<details>
-<summary>First-time <code>pnpm link --global</code> setup</summary>
-
-You'll need pnpm's global bin directory configured once. Run `pnpm setup`, then open a new shell (or `source ~/.zshrc` / `source ~/.bashrc`) before re-running `pnpm link --global`. This is a one-time pnpm setup, not an `agent-swarm`-specific step — see the [pnpm docs](https://pnpm.io/cli/setup).
-
-If you'd rather skip global pnpm config, `npm link` works fine — it uses npm's prefix (typically already on PATH via nvm/Homebrew) against the pnpm-installed dep tree.
-
-</details>
+The bundled presets cover a few common cases, like reviewing a diff or getting
+customer-style feedback on a launch, but each one is really just a list of agents
+and a set of decision words. Run a preset as it ships, or define your own agents
+and wire them into a new one.
 
 ## Quickstart
 
-The supported alpha flow uses the bundled `product-decision` preset, which pairs a `product-manager` and `principal-engineer` agent. No config required.
+Install the CLI globally - every method ends with the same `agent-swarm` command.
+You'll need **Node ≥ 20** (Node 24 LTS recommended) and at least one harness CLI
+on your `PATH`, authenticated - the default `product-decision` preset uses Claude
+(`claude auth login`).
 
 ```bash
-# 1. Verify your setup
-npx -y @calvinnwq/agent-swarm doctor
+# npm
+npm install -g @calvinnwq/agent-swarm
 
-# 2. Run a one-round swarm
-npx -y @calvinnwq/agent-swarm run 1 "Should we adopt server components?" \
+# pnpm
+pnpm add -g @calvinnwq/agent-swarm
+
+# verify your setup
+agent-swarm --version
+agent-swarm doctor
+```
+
+Then run a one-round swarm - no config required:
+
+```bash
+agent-swarm run 1 "Should we adopt server components?" \
   --preset product-decision \
   --goal "Decide on migration strategy" \
   --decision "Adopt / Defer / Reject" \
   --timeout-ms 300000
 ```
 
-When it finishes, you'll find a self-contained run directory under `.agent-swarm/runs/<timestamp>-<slug>/` with a deterministic `synthesis.md`. Real harnesses can take longer than the default 120s timeout — bump `--timeout-ms` for deeper runs. Use `--quiet` for one-line-per-event output (useful in CI).
+When it finishes you'll find a self-contained run directory under
+`.agent-swarm/runs/<timestamp>-<slug>/` with a deterministic `synthesis.md`.
+Real harnesses can take longer than the default 120s timeout - bump
+`--timeout-ms` for deeper runs. Use `--quiet` for one-line-per-event output in CI.
+
+<details>
+<summary>Run without installing (npx)</summary>
+
+Prefer not to install a global CLI? Run any command through `npx` - swap
+`agent-swarm` for `npx -y @calvinnwq/agent-swarm`:
+
+```bash
+npx -y @calvinnwq/agent-swarm doctor
+npx -y @calvinnwq/agent-swarm run 1 "Should we adopt server components?" \
+  --preset product-decision \
+  --timeout-ms 300000
+```
+
+If `npx` can't resolve the scoped-package bin, install globally instead (above).
+
+</details>
+
+<details>
+<summary>Install from source</summary>
+
+```bash
+pnpm install
+pnpm build
+pnpm link --global
+agent-swarm --version
+```
+
+**First-time `pnpm link --global` setup.** You'll need pnpm's global bin
+directory configured once. Run `pnpm setup`, then open a new shell (or
+`source ~/.zshrc` / `source ~/.bashrc`) before re-running `pnpm link --global`.
+This is a one-time pnpm setup, not an `agent-swarm`-specific step - see the
+[pnpm docs](https://pnpm.io/cli/setup). If you'd rather skip global pnpm config,
+`npm link` works fine - it uses npm's prefix (typically already on PATH via
+nvm/Homebrew) against the pnpm-installed dep tree.
+
+</details>
+
+### Recommended agent setup
+
+Agent Swarm is agent-operated, so let your coding agent finish the job. Install
+the public skill and the CLI runs on demand via `npx`:
+
+```bash
+npx skills add calvinnwq/agent-swarm --skill agent-swarm
+```
+
+That installs the public `skills/agent-swarm` mirror into agents that support
+local skills; the
+skill invokes the CLI on demand with `npx -y @calvinnwq/agent-swarm`, so the
+agent path needs no separate install. The skill knows how to pick a preset, handle a decision matrix,
+inspect run artifacts, and report the synthesis - see [INSTALL.md](INSTALL.md)
+for the full agent-operated setup and first run, and the
+[Agent usage guide](https://calvinnwq.github.io/agent-swarm/agent-usage.html) for
+the operator workflow.
 
 ## How it works
 
 Each `agent-swarm run` follows the same lifecycle:
 
-1. **Plan** — flags, project config, and preset are merged. Each selected agent picks a runtime harness.
-2. **Round** — agents run in parallel (concurrency 3 by default) and return JSON validated against the agent output schema.
-3. **Between rounds** — depending on `--resolve`, the swarm builds the next directive deterministically or runs an LLM orchestrator pass.
-4. **Synthesize** — once the last round finishes, the swarm produces a deterministic synthesis (no LLM call): consensus, top recommendation, shared risks, deferred questions, average confidence.
+| Step | What happens |
+| --- | --- |
+| **1. Plan** | CLI flags, project config, and the chosen preset merge into a run. Each selected agent resolves to a harness (Claude, Codex, OpenCode, or Rovo). |
+| **2. Round** | Agents run in parallel (concurrency 3 by default) and each returns JSON validated against the agent output schema. One repair retry on a parse miss. |
+| **3. Resolve** | Between rounds, `--resolve` decides the next directive: a deterministic template (`off`) or a real LLM orchestrator pass (`orchestrator`). |
+| **4. Synthesize** | After the final round, a deterministic synthesis (no LLM call) computes consensus, the top recommendation, shared risks, and deferred questions. |
 
-Everything is durable: events, messages, and a checkpoint are written incrementally so a failed run can be inspected (and, with future tooling, resumed).
+Everything is durable: events, messages, and a checkpoint are written
+incrementally, so a failed run can be inspected (and, with future tooling,
+resumed).
 
-## Commands
+## Presets
+
+Agent Swarm ships seven bundled presets, each with its own set of agents and
+decision words. Run one by name (no `--agents` required), or copy it as the
+starting point for your own:
+
+| Preset                      | Agents                                                          | Resolve        | Best for                                                                         |
+| --------------------------- | --------------------------------------------------------------- | -------------- | -------------------------------------------------------------------------------- |
+| `product-decision`          | `product-manager`, `principal-engineer`                         | `orchestrator` | Framing a product decision through user-value and engineering-feasibility lenses |
+| `product-decision-codex`    | `product-manager-codex`, `principal-engineer-codex`             | `orchestrator` | The same flow, dispatched through Codex                                          |
+| `product-decision-opencode` | `product-manager-opencode`, `principal-engineer-opencode`       | `orchestrator` | The same flow, dispatched through OpenCode                                       |
+| `triad`                     | `product-manager`, `principal-engineer`, `product-designer`     | `orchestrator` | Full product triad: value, feasibility, and UX together                          |
+| `product-triad`             | `product-manager`, `product-engineer`, `product-designer`       | `orchestrator` | First-time default for product, design, and build tradeoffs                      |
+| `adversarial-code-review`   | `code-reviewer`, `implementation-skeptic`, `test-risk-reviewer` | `orchestrator` | Proposed code changes, PR plans, and architecture diffs                          |
+| `customer-panel`            | `first-time-user`, `busy-operator`, `skeptical-buyer`           | `orchestrator` | First-run value, adoption blockers, and outside-in product feedback              |
+
+```bash
+agent-swarm run 1 "Should we adopt server components?" \
+  --preset product-decision \
+  --timeout-ms 300000
+```
+
+CLI flags still win over preset defaults, so you can override `--resolve`,
+`--goal`, or `--decision` per run. Codex/OpenCode presets and custom presets are
+covered in the [Reference](#reference).
+
+## Reference
+
+<details>
+<summary>Commands &amp; flags</summary>
 
 ```
 Usage: agent-swarm [options] [command]
@@ -98,13 +171,13 @@ Commands:
 Running `agent-swarm` with no arguments prints this top-level help and exits 0,
 the same as `agent-swarm --help`.
 
-### `agent-swarm run`
+#### `agent-swarm run`
 
 ```
 Usage: agent-swarm run [options] <rounds> <topic...>
 
 Arguments:
-  rounds             number of rounds (1–3)
+  rounds             number of rounds (1-3)
   topic              topic for the swarm
 
 Options:
@@ -119,17 +192,22 @@ Options:
   --quiet            force quiet output; default auto by TTY
 ```
 
-Carry-forward docs from `--doc` are deduplicated by path and must be readable files. The first 4,000 characters of each doc are packed into the seed brief with provenance, so agents see source content rather than just paths.
+Carry-forward docs from `--doc` are deduplicated by path and must be readable
+files. The first 4,000 characters of each doc are packed into the seed brief
+with provenance, so agents see source content rather than just paths.
 
-#### Resolution modes
+</details>
+
+<details>
+<summary>Resolution modes (between rounds)</summary>
 
 `--resolve` controls what happens **between rounds** while the run is in flight:
 
 | Mode           | Between-round behavior                                                                                                                                                                                                                                                                      |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `off`          | Deterministic only — the next-round brief gets a templated summary built from the prior packet. No extra LLM call. Question resolutions stay empty.                                                                                                                                         |
-| `orchestrator` | Real LLM pass — the bundled `orchestrator` agent reads the prior packet and returns a structured `OrchestratorOutput` (directive, question resolutions, deferred questions, confidence). The directive feeds the next round, and each pass is captured in `checkpoint.json` for resume use. |
-| `agents`       | Reserved — accepted and persisted in `manifest.json`/`synthesis.json` but currently behaves like `off`. Kept on the CLI surface so future agent-driven resolution can land without a flag rename.                                                                                           |
+| `off`          | Deterministic only - the next-round brief gets a templated summary built from the prior packet. No extra LLM call. Question resolutions stay empty.                                                                                                                                         |
+| `orchestrator` | Real LLM pass - the bundled `orchestrator` agent reads the prior packet and returns a structured `OrchestratorOutput` (directive, question resolutions, deferred questions, confidence). The directive feeds the next round, and each pass is captured in `checkpoint.json` for resume use. |
+| `agents`       | Reserved - accepted and persisted in `manifest.json`/`synthesis.json` but currently behaves like `off`. Kept on the CLI surface so future agent-driven resolution can land without a flag rename.                                                                                           |
 
 In `orchestrator` mode you also get:
 
@@ -137,7 +215,10 @@ In `orchestrator` mode you also get:
 - An `orchestratorPasses` array in `checkpoint.json`, one entry per pass with the full `OrchestratorOutput` snapshot for resume.
 - The next round's `brief.md` embeds the LLM-derived directive instead of the deterministic template.
 
-If an orchestrator dispatch fails (timeout, malformed JSON after the single repair attempt, non-zero exit), the run finalizes as `failed`, emits a `run:failed` event, and exits `1`. Earlier successful passes stay in the checkpoint so a resume is clean.
+If an orchestrator dispatch fails (timeout, malformed JSON after the single
+repair attempt, non-zero exit), the run finalizes as `failed`, emits a
+`run:failed` event, and exits `1`. Earlier successful passes stay in the
+checkpoint so a resume is clean.
 
 ```bash
 # Two-round run with orchestrator-driven resolution
@@ -147,55 +228,43 @@ agent-swarm run 2 "Should we adopt server components?" \
   --timeout-ms 300000
 ```
 
-### `agent-swarm doctor`
+</details>
 
-`agent-swarm doctor` validates your setup before a run. Output is grouped into three sections:
+<details>
+<summary><code>agent-swarm doctor</code></summary>
 
-- **Configuration** — `.agent-swarm/config.yml` parses cleanly; configured carry-forward docs exist and are readable (truncated docs are flagged); the agent and preset registries load; any agents or preset referenced in the project config resolve; the configured backend is supported.
-- **Harness inventory** — all four harnesses (Claude, Codex, OpenCode, Rovo) are probed for availability and auth, even when there is no project config. A harness that is missing or unauthenticated but not required by your configured agents is reported as **WARN** (non-fatal). If a failing harness is required by one or more configured agents it is reported as **FAIL** with `required by: <agent...>` attribution and install/auth guidance. agent-swarm does not globally require any harness — a single-harness setup passes doctor when its required harness works.
-- **Agent summary** — each configured agent is mapped to its resolved harness. When there is no project config, the default `product-triad` preset's agents are shown.
+`agent-swarm doctor` validates your setup before a run. Output is grouped into
+three sections:
 
-When config is read from the legacy `.swarm/config.yml` path, doctor reports it explicitly and points you to `.agent-swarm/config.yml`. Exit codes:
+- **Configuration** - `.agent-swarm/config.yml` parses cleanly; configured carry-forward docs exist and are readable (truncated docs are flagged); the agent and preset registries load; any agents or preset referenced in the project config resolve; the configured backend is supported.
+- **Harness inventory** - all four harnesses (Claude, Codex, OpenCode, Rovo) are probed for availability and auth, even when there is no project config. A harness that is missing or unauthenticated but not required by your configured agents is reported as **WARN** (non-fatal). If a failing harness is required by one or more configured agents it is reported as **FAIL** with `required by: <agent...>` attribution and install/auth guidance. agent-swarm does not globally require any harness - a single-harness setup passes doctor when its required harness works.
+- **Agent summary** - each configured agent is mapped to its resolved harness. When there is no project config, the default `product-triad` preset's agents are shown.
 
-- `0` — everything is ready.
-- `1` — at least one check failed (with actionable per-check messages).
-- `2` — internal command error.
+When config is read from the legacy `.swarm/config.yml` path, doctor reports it
+explicitly and points you to `.agent-swarm/config.yml`. Exit codes:
+
+- `0` - everything is ready.
+- `1` - at least one check failed (with actionable per-check messages).
+- `2` - internal command error.
 
 ```bash
 agent-swarm doctor
 ```
 
-## Presets
+</details>
 
-Agent Swarm ships with seven bundled presets:
+<details>
+<summary>Presets - Codex/OpenCode &amp; custom</summary>
 
-| Preset                      | Agents                                                          | Resolve        | Best for                                                                         |
-| --------------------------- | --------------------------------------------------------------- | -------------- | -------------------------------------------------------------------------------- |
-| `product-decision`          | `product-manager`, `principal-engineer`                         | `orchestrator` | Framing a product decision through user-value and engineering-feasibility lenses |
-| `product-decision-codex`    | `product-manager-codex`, `principal-engineer-codex`             | `orchestrator` | The same flow, dispatched through Codex                                          |
-| `product-decision-opencode` | `product-manager-opencode`, `principal-engineer-opencode`       | `orchestrator` | The same flow, dispatched through OpenCode                                       |
-| `triad`                     | `product-manager`, `principal-engineer`, `product-designer`     | `orchestrator` | Full product triad: value, feasibility, and UX together                          |
-| `product-triad`             | `product-manager`, `product-engineer`, `product-designer`       | `orchestrator` | First-time default for product, design, and build tradeoffs                      |
-| `adversarial-code-review`   | `code-reviewer`, `implementation-skeptic`, `test-risk-reviewer` | `orchestrator` | Proposed code changes, PR plans, and architecture diffs                          |
-| `customer-panel`            | `first-time-user`, `busy-operator`, `skeptical-buyer`           | `orchestrator` | First-run value, adoption blockers, and outside-in product feedback              |
+#### Codex and OpenCode presets
 
-Invoke by name — no `--agents` required:
+The Codex and OpenCode presets pin agents to their respective harnesses. When
+`--resolve orchestrator` is active and every selected agent resolves to the same
+harness, the orchestrator follows along.
 
-```bash
-agent-swarm run 1 "Should we adopt server components?" \
-  --preset product-decision \
-  --timeout-ms 300000
-```
-
-CLI flags still win over preset defaults, so you can override `--resolve`, `--goal`, or `--decision` per run.
-
-### Codex and OpenCode presets
-
-The Codex and OpenCode presets pin agents to their respective harnesses. When `--resolve orchestrator` is active and every selected agent resolves to the same harness, the orchestrator follows along.
-
-- **Claude** (default) — requires `claude` on `PATH` with an existing `claude auth login` session.
-- **Codex** — requires `codex` on `PATH`, authenticated with `codex login`, and new enough to support `codex exec`. Use `--backend codex` only when you want to override unpinned agents at the run level.
-- **OpenCode** — requires `opencode` on `PATH`, authenticated with `opencode auth login`.
+- **Claude** (default) - requires `claude` on `PATH` with an existing `claude auth login` session.
+- **Codex** - requires `codex` on `PATH`, authenticated with `codex login`, and new enough to support `codex exec`. Use `--backend codex` only when you want to override unpinned agents at the run level.
+- **OpenCode** - requires `opencode` on `PATH`, authenticated with `opencode auth login`.
 
 ```bash
 # Codex
@@ -209,7 +278,7 @@ agent-swarm run 1 "Should we adopt server components?" \
   --timeout-ms 300000
 ```
 
-### Custom presets
+#### Custom presets
 
 Presets resolve from three roots, first match wins:
 
@@ -219,11 +288,16 @@ Presets resolve from three roots, first match wins:
 | User-global   | `~/.agent-swarm/presets/**/*.yml` / `**/*.yaml` | Your machine   |
 | Bundled       | _(ships with agent-swarm)_                      | Always present |
 
-Preset files may be grouped in subdirectories for readability; folder names are organization only, not namespaces. A project-local preset with the same `name` as a bundled preset fully replaces it for that project. A user-global preset overrides bundled machine-wide but yields to project-local. Duplicate `name` values within a single root are an error.
+Preset files may be grouped in subdirectories for readability; folder names are
+organization only, not namespaces. A project-local preset with the same `name`
+as a bundled preset fully replaces it for that project. A user-global preset
+overrides bundled machine-wide but yields to project-local. Duplicate `name`
+values within a single root are an error.
 
 > **Legacy paths.** The previous `.swarm/presets/` (and `~/.swarm/presets/`) locations are still read as a fallback for one release. When both exist, the `.agent-swarm/` path wins. Move your presets to `.agent-swarm/presets/` when convenient.
 
-A preset is a YAML object with required `name` and `agents`, plus optional `description`, `resolve`, `goal`, and `decision`:
+A preset is a YAML object with required `name` and `agents`, plus optional
+`description`, `resolve`, `goal`, and `decision`:
 
 ```yaml
 name: product-decision
@@ -236,9 +310,13 @@ goal: Decide on migration strategy
 decision: Adopt / Defer / Reject
 ```
 
-Preset names use lowercase letters, numbers, `-`, or `_`; `agents` lists 2–5 agent names.
+Preset names use lowercase letters, numbers, `-`, or `_`; `agents` lists 2-5
+agent names.
 
-## Project config (`.agent-swarm/config.yml`)
+</details>
+
+<details>
+<summary>Project config (<code>.agent-swarm/config.yml</code>)</summary>
 
 Optional. Set defaults so teammates don't have to remember the flags.
 
@@ -255,19 +333,36 @@ docs:
   - docs/architecture.md
 ```
 
-**Precedence: CLI flags > config values > preset defaults.** Everything is optional — when there's no config file, CLI flags fully describe the run. Validation errors (unknown keys, wrong types) are reported by `agent-swarm doctor` and at run start.
+**Precedence: CLI flags > config values > preset defaults.** Everything is
+optional - when there's no config file, CLI flags fully describe the run.
+Validation errors (unknown keys, wrong types) are reported by `agent-swarm
+doctor` and at run start.
 
-Run `agent-swarm init` to create this file with safe defaults (`preset: product-triad`, `resolve: off`, `timeoutMs: 300000`). It only ever touches `.agent-swarm/config.yml`, never overwrites an existing config without `--force`, and the values it writes are still overridden by CLI flags.
+Run `agent-swarm init` to create this file with safe defaults (`preset:
+product-triad`, `resolve: off`, `timeoutMs: 300000`). It only ever touches
+`.agent-swarm/config.yml`, never overwrites an existing config without `--force`,
+and the values it writes are still overridden by CLI flags.
 
-A legacy `.swarm/config.yml` is still read when `.agent-swarm/config.yml` is absent (the `.agent-swarm/` path wins if both exist); `agent-swarm doctor` flags the legacy path so you can migrate.
+A legacy `.swarm/config.yml` is still read when `.agent-swarm/config.yml` is
+absent (the `.agent-swarm/` path wins if both exist); `agent-swarm doctor` flags
+the legacy path so you can migrate.
 
-Configured `docs` use the same carry-forward behavior as repeated `--doc` flags: paths are normalized, readable files are required, and each doc contributes at most 4,000 characters. `timeoutMs` accepts a positive integer and matches `--timeout-ms`.
+Configured `docs` use the same carry-forward behavior as repeated `--doc` flags:
+paths are normalized, readable files are required, and each doc contributes at
+most 4,000 characters. `timeoutMs` accepts a positive integer and matches
+`--timeout-ms`.
 
-Supported keys: `preset`, `agents` (2–5 names), `backend`, `resolve`, `timeoutMs`, `goal`, `decision`, `docs`. The `rounds` key is reserved but not yet applied — pass `<rounds>` on the CLI.
+Supported keys: `preset`, `agents` (2-5 names), `backend`, `resolve`,
+`timeoutMs`, `goal`, `decision`, `docs`. The `rounds` key is reserved but not yet
+applied - pass `<rounds>` on the CLI.
 
-## Agents
+</details>
 
-Agent definitions are YAML or Markdown files resolved from three roots (first wins):
+<details>
+<summary>Agents - bundled, formats, pinning &amp; output schema</summary>
+
+Agent definitions are YAML or Markdown files resolved from three roots (first
+wins):
 
 | Path                                                       | Scope                                   |
 | ---------------------------------------------------------- | --------------------------------------- |
@@ -275,11 +370,15 @@ Agent definitions are YAML or Markdown files resolved from three roots (first wi
 | `~/.agent-swarm/agents/**/*.yml` / `**/*.yaml` / `**/*.md` | User-global                             |
 | _(bundled)_                                                | Ships with agent-swarm; see table below |
 
-Agent files may be grouped in subdirectories for readability; folder names are organization only, not namespaces. A project-local agent with the same `name` as a bundled agent fully replaces it. A user-global agent overrides bundled machine-wide but yields to project-local. Duplicate `name` values within the same root are an error.
+Agent files may be grouped in subdirectories for readability; folder names are
+organization only, not namespaces. A project-local agent with the same `name` as
+a bundled agent fully replaces it. A user-global agent overrides bundled
+machine-wide but yields to project-local. Duplicate `name` values within the
+same root are an error.
 
 > **Legacy paths.** The previous `.swarm/agents/` (and `~/.swarm/agents/`) locations are still read as a fallback for one release, after their `.agent-swarm/` equivalents. When the same agent name exists in both, the `.agent-swarm/` definition wins.
 
-### Bundled agents
+#### Bundled agents
 
 | Agent                         | Role                                                               |
 | ----------------------------- | ------------------------------------------------------------------ |
@@ -299,7 +398,7 @@ Agent files may be grouped in subdirectories for readability; folder names are o
 | `principal-engineer-opencode` | OpenCode-backed engineering feasibility                            |
 | `orchestrator`                | Coordinator persona for between-round context and resolve modes    |
 
-### YAML format
+#### YAML format
 
 ```yaml
 name: product-manager
@@ -313,9 +412,10 @@ prompt: >
 backend: claude # or codex
 ```
 
-### Markdown format
+#### Markdown format
 
-Markdown agents use YAML frontmatter (validated against the same schema) with the body as the prompt:
+Markdown agents use YAML frontmatter (validated against the same schema) with the
+body as the prompt:
 
 ```markdown
 ---
@@ -331,21 +431,31 @@ Evaluate the topic from a technical architecture lens. Consider
 system complexity, operational burden, and migration risk.
 ```
 
-### Pinning harness and model
+#### Pinning harness and model
 
-Each agent can pin its runtime harness and model independent of the run-level `--backend`:
+Each agent can pin its runtime harness and model independent of the run-level
+`--backend`:
 
 | Field     | Values                                | Default                                                         |
 | --------- | ------------------------------------- | --------------------------------------------------------------- |
 | `harness` | `claude`, `codex`, `opencode`, `rovo` | Falls back to the run-level backend, then the agent's `backend` |
 | `model`   | Any non-empty string                  | Harness default (the harness chooses)                           |
 
-**Resolution order per agent (first wins):** `agent.harness` → run-level `--backend` or project `backend` → `agent.backend`. When `--resolve orchestrator` is active without a run-level backend override, the bundled orchestrator inherits the selected agents' harness if all agents resolve to the same harness; mixed swarms keep the orchestrator on its default. The resolved `(harness, model)` pair is captured in `manifest.json` under `agentRuntimes` and surfaced in each agent's per-round markdown header (`Harness:` / `Model:`).
+**Resolution order per agent (first wins):** `agent.harness` → run-level
+`--backend` or project `backend` → `agent.backend`. When `--resolve orchestrator`
+is active without a run-level backend override, the bundled orchestrator inherits
+the selected agents' harness if all agents resolve to the same harness; mixed
+swarms keep the orchestrator on its default. The resolved `(harness, model)` pair
+is captured in `manifest.json` under `agentRuntimes` and surfaced in each agent's
+per-round markdown header (`Harness:` / `Model:`).
 
-This unlocks **mixed-harness swarms**: route one agent through Claude and another through Codex, OpenCode, or Rovo Dev in the same run, as long as each harness's CLI is installed and probes successfully. Claude, Codex, and OpenCode must be authenticated; Rovo requires `acli` with the `rovodev` plugin to be runnable.
+This unlocks **mixed-harness swarms**: route one agent through Claude and another
+through Codex, OpenCode, or Rovo Dev in the same run, as long as each harness's
+CLI is installed and probes successfully. Claude, Codex, and OpenCode must be
+authenticated; Rovo requires `acli` with the `rovodev` plugin to be runnable.
 
 ```yaml
-# .agent-swarm/agents/pm-mixed.yml — Claude with a pinned model
+# .agent-swarm/agents/pm-mixed.yml - Claude with a pinned model
 name: pm-mixed
 description: Product manager dispatched via Claude
 persona: You are a rigorous product manager.
@@ -355,7 +465,7 @@ model: claude-sonnet-4-5
 ```
 
 ```yaml
-# .agent-swarm/agents/pe-mixed.yml — Codex, harness-default model
+# .agent-swarm/agents/pe-mixed.yml - Codex, harness-default model
 name: pe-mixed
 description: Principal engineer dispatched via Codex
 persona: You are a principal engineer.
@@ -369,9 +479,12 @@ agent-swarm run 1 "Should we adopt mixed-harness swarms" \
   --resolve off
 ```
 
-When `agent.model` is set, every harness adapter forwards it to its CLI: `claude --model`, `codex -m`, `opencode --model`, `acli rovodev run --model`. Omit `agent.model` to let the harness pick a default. At run start, the CLI fails fast if any agent requests an unimplemented harness.
+When `agent.model` is set, every harness adapter forwards it to its CLI: `claude
+--model`, `codex -m`, `opencode --model`, `acli rovodev run --model`. Omit
+`agent.model` to let the harness pick a default. At run start, the CLI fails fast
+if any agent requests an unimplemented harness.
 
-### Agent output schema
+#### Agent output schema
 
 Each agent must return JSON of the following shape:
 
@@ -390,7 +503,10 @@ Each agent must return JSON of the following shape:
 }
 ```
 
-## Run artifacts
+</details>
+
+<details>
+<summary>Run artifacts &amp; synthesis</summary>
 
 Every run produces a self-contained directory under `.agent-swarm/runs/`:
 
@@ -416,47 +532,63 @@ Every run produces a self-contained directory under `.agent-swarm/runs/`:
 └── synthesis.md           # Human-readable synthesis report
 ```
 
-When agent runtimes are resolved, `manifest.json` includes `agentRuntimes` and per-agent markdown files include `Harness:` and `Model:` header fields.
+When agent runtimes are resolved, `manifest.json` includes `agentRuntimes` and
+per-agent markdown files include `Harness:` and `Model:` header fields.
 
-### Synthesis
+**Synthesis** is deterministic - no LLM call. It aggregates every agent output to
+produce:
 
-Synthesis is deterministic — no LLM call. It aggregates every agent output to produce:
+- **Consensus** - unanimous stance across the final round
+- **Stance tally** - count of each unique stance
+- **Top recommendation** - picked by highest confidence with alphabetical tie-break
+- **Shared risks** - risks flagged by 2+ agents, deduplicated across rounds
+- **Deferred questions** - deduplicated across all rounds, rendered in `synthesis.md`
+- **Overall confidence** - rounded average of all agent confidence levels
 
-- **Consensus** — unanimous stance across the final round
-- **Stance tally** — count of each unique stance
-- **Top recommendation** — picked by highest confidence with alphabetical tie-break
-- **Shared risks** — risks flagged by 2+ agents, deduplicated across rounds
-- **Deferred questions** — deduplicated across all rounds, rendered in `synthesis.md`
-- **Overall confidence** — rounded average of all agent confidence levels
+</details>
 
-## Terminal UX
+<details>
+<summary>Terminal UX</summary>
 
 Two rendering modes:
 
-- **Live** (default, TTY) — phase banner, per-agent status rows with elapsed timers, flicker-free cell-based diff rendering.
-- **Quiet** (`--quiet` or non-TTY) — structured one-line-per-event log output for CI.
+- **Live** (default, TTY) - phase banner, per-agent status rows with elapsed timers, flicker-free cell-based diff rendering.
+- **Quiet** (`--quiet` or non-TTY) - structured one-line-per-event log output for CI.
 
-## Status & roadmap
+</details>
 
-**Supported (the v0.2 alpha contract).** Everything documented above is shipped and verified: `agent-swarm run` and `agent-swarm doctor`, the bundled presets and agents, project config, carry-forward docs, per-agent harness/model pinning (Claude, Codex, OpenCode, Rovo) and mixed-harness swarms, `--resolve off` and `--resolve orchestrator`, durable run artifacts, deterministic synthesis, and the static docs site that mirrors these docs. This is feature-complete enough to dogfood on real decisions.
+<details>
+<summary>Migration from <code>.swarm</code></summary>
 
-**Reserved (accepted, but not part of the contract yet).** These are exposed so a future flag/rename isn't needed, but they don't add behavior today:
+This CLI was previously published as `swarm` and stored data under `.swarm/`. It
+is now `agent-swarm`, storing project/user data under `.agent-swarm/`. For at
+least one release, the legacy `.swarm/` locations - project config, agents,
+presets - are still read as a fallback, with the new `.agent-swarm/` path winning
+when both exist; new run artifacts are written under `.agent-swarm/runs/`.
+Migrate by moving `.swarm/` to `.agent-swarm/` when convenient.
 
-- `--resolve agents` — accepted and persisted, but currently behaves like `off`.
-- The `rounds` key in `.agent-swarm/config.yml` — reserved but not applied; pass `<rounds>` on the CLI.
+It also remains contract-compatible with the Python swarm prototype: agent
+definitions, output schemas, and artifact layout follow the same contracts, so
+automation that consumes run artifacts keeps working.
 
-**Agent operation.** Agents can operate Agent Swarm from natural prompts by following the repeatable workflow built into the installable `skills/agent-swarm` mirror, added with `npx skills add calvinnwq/agent-swarm --skill agent-swarm`. For agent-operated setup — installing the skill into a coding agent and the first run — see [INSTALL.md](INSTALL.md); the public docs site also summarizes the workflow in [Agent usage](https://calvinnwq.github.io/agent-swarm/agent-usage.html). That contract covers preset selection, decision-matrix handling, artifact inspection, and synthesis reporting without adding a new runtime control plane.
+</details>
 
-**Future (v0.3+ productionization candidates).** Not promised, not part of the alpha contract — tracked in Linear, not repo docs: a user-facing `agent-swarm resume` command (resume is implemented and tested internally but not yet a subcommand), agent-driven `--resolve agents`, additional release hardening, runtime-boundary hardening, and deeper agent DX/recipes beyond the current operator contract. Current release mechanics are summarized on the [Release readiness](https://calvinnwq.github.io/agent-swarm/release-readiness.html) docs page.
+## Contributing
 
-## Migration note
+Working on `agent-swarm` itself? See [CONTRIBUTING.md](CONTRIBUTING.md) for the
+dev loop, the real-harness smoke gate, the release process, and an architecture
+map. [ARCHITECTURE.md](ARCHITECTURE.md) goes deeper on runtime internals and
+[SPEC.md](SPEC.md) is the durable runtime contract. The browsable docs site lives
+in [docs/](docs/) and is published at
+<https://calvinnwq.github.io/agent-swarm/>. Release history lives in
+[CHANGELOG.md](CHANGELOG.md).
 
-This CLI was previously published as `swarm` and stored data under `.swarm/`. It is now `agent-swarm`, storing project/user data under `.agent-swarm/`. For at least one release, the legacy `.swarm/` locations — project config, agents, presets — are still read as a fallback, with the new `.agent-swarm/` path winning when both exist; new run artifacts are written under `.agent-swarm/runs/`. Migrate by moving `.swarm/` to `.agent-swarm/` when convenient.
+## Support and security
 
-It also remains contract-compatible with the Python swarm prototype: agent definitions, output schemas, and artifact layout follow the same contracts, so automation that consumes run artifacts keeps working.
+Use [GitHub issues](https://github.com/calvinnwq/agent-swarm/issues) for bugs and
+feature ideas. See [SUPPORT.md](SUPPORT.md), [SECURITY.md](SECURITY.md), and the
+[code of conduct](CODE_OF_CONDUCT.md).
 
-## Contributing & development
+## License
 
-Working on `agent-swarm` itself? See [CONTRIBUTING.md](CONTRIBUTING.md) for the dev loop, the real-harness smoke gate, the release process, and an architecture map; [ARCHITECTURE.md](ARCHITECTURE.md) goes deeper on runtime internals and [SPEC.md](SPEC.md) is the durable runtime contract. The browsable docs site lives in [docs/](docs/) and is published at <https://calvinnwq.github.io/agent-swarm/>. Release history lives in [CHANGELOG.md](CHANGELOG.md).
-
-Community and trust docs: [support](SUPPORT.md), [security](SECURITY.md), [code of conduct](CODE_OF_CONDUCT.md), and [license](LICENSE).
+MIT. See [LICENSE](LICENSE).

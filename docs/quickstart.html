@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Quickstart — Agent Swarm</title>
+    <title>Quickstart - Agent Swarm</title>
     <meta name="description" content="Install Agent Swarm, verify your setup, and run your first swarm in five minutes." />
     <script>
       (function () {
@@ -42,18 +42,18 @@
       <nav id="sidebar" class="sidebar" aria-label="Documentation"></nav>
       <main id="content" class="article-col">
         <article>
-<p class="kicker"><span class="n">02 —</span>Start</p>
+<p class="kicker"><span class="n">02 -</span>Start</p>
 <h1>From zero to a synthesized decision</h1>
 <p class="lede">
   Install the CLI, verify your harness setup, and run a one-round swarm with the
-  bundled <code>product-decision</code> preset — <em>no config required</em>.
+  bundled <code>product-decision</code> preset - <em>no config required</em>.
 </p>
 <div class="anat"><b>This page:</b> <span class="step">install</span> <span class="ar">→</span> <span class="step">doctor</span> <span class="ar">→</span> <span class="step">run</span> <span class="ar">→</span> <span class="step">read the synthesis</span></div>
 
 <section>
   <h2>Prerequisites</h2>
   <ul>
-    <li>Node ≥ 20 (Node 24 LTS recommended — <code>.nvmrc</code> pins it).</li>
+    <li>Node ≥ 20 (Node 24 LTS recommended - <code>.nvmrc</code> pins it).</li>
     <li>pnpm 10 for source installs and development.</li>
     <li>A harness CLI on <code>PATH</code>, authenticated. The bundled <code>product-decision</code> preset uses Claude (<code>claude auth login</code>); other presets use Codex (<code>codex login</code>) or OpenCode (<code>opencode auth login</code>).</li>
   </ul>
@@ -61,12 +61,15 @@
 
 <section>
   <h2>Install</h2>
-  <p>For agent-operated setup, install the public skill:</p>
+  <p>Install the CLI globally - every method gives you the same <code>agent-swarm</code> command:</p>
+  <pre><code><span class="c"># npm</span>
+npm install -g @calvinnwq/agent-swarm
+
+<span class="c"># pnpm</span>
+pnpm add -g @calvinnwq/agent-swarm</code></pre>
+  <p>Prefer not to install a global CLI? Run any command on demand with <code>npx -y @calvinnwq/agent-swarm</code> in place of <code>agent-swarm</code>.</p>
+  <p>For agent-operated setup, install the public skill instead - it runs the CLI for you:</p>
   <pre><code>npx skills add calvinnwq/agent-swarm --skill agent-swarm</code></pre>
-  <p>For direct CLI use, run it on demand with <code>npx</code>:</p>
-  <pre><code>npx -y @calvinnwq/agent-swarm --version</code></pre>
-  <p>Or install the optional global CLI for repeat use:</p>
-  <pre><code>npm install --global @calvinnwq/agent-swarm</code></pre>
   <p>For source installs and development:</p>
   <pre><code>pnpm install
 pnpm build
@@ -88,40 +91,40 @@ pnpm link --global</code></pre>
     <strong>FAIL</strong>. agent-swarm does not globally require any harness;
     a single-harness setup passes doctor when its required harness works.
   </p>
-  <pre><code>npx -y @calvinnwq/agent-swarm doctor</code></pre>
+  <pre><code>agent-swarm doctor</code></pre>
   <p>Doctor exits <code>0</code> when everything is ready, <code>1</code> when a check fails, and <code>2</code> on an internal error.</p>
 </section>
 
 <section>
   <h2>Run your first swarm</h2>
-  <p>The first positional argument is the number of rounds (1–3); the rest is your question:</p>
-  <pre><code>npx -y @calvinnwq/agent-swarm <span class="k">run</span> 1 <span class="s">"Should we adopt server components?"</span> \
+  <p>The first positional argument is the number of rounds (1-3); the rest is your question:</p>
+  <pre><code>agent-swarm <span class="k">run</span> 1 <span class="s">"Should we adopt server components?"</span> \
   --preset product-decision \
   --goal <span class="s">"Decide on migration strategy"</span> \
   --decision <span class="s">"Adopt / Defer / Reject"</span> \
   --timeout-ms 300000</code></pre>
-  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>Real harnesses can take longer than the default 120s dispatch timeout — bump <code>--timeout-ms</code> for deeper runs. Use <code>--quiet</code> for one-line-per-event output in CI.</p></div>
+  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>Real harnesses can take longer than the default 120s dispatch timeout - bump <code>--timeout-ms</code> for deeper runs. Use <code>--quiet</code> for one-line-per-event output in CI.</p></div>
 </section>
 
 <section>
   <h2>Read the result</h2>
-  <p>When it finishes, you'll find a self-contained run directory under <code>.agent-swarm/runs/&lt;timestamp&gt;-&lt;slug&gt;/</code> with a deterministic <code>synthesis.md</code>. The synthesis folds the panel into one call in the preset's own decision vocabulary:</p>
+  <p>When it finishes, you'll find a self-contained run directory under <code>.agent-swarm/runs/&lt;timestamp&gt;-&lt;slug&gt;/</code> with a deterministic <code>synthesis.md</code>. The synthesis combines the agents' answers into one call in the preset's own decision vocabulary:</p>
   <div class="verdict">
     <div class="verdict-top"><span>Synthesis</span><span>product-decision · round 1 · 2 agents</span></div>
-    <p class="verdict-rec"><span class="mark">Proceed</span> — server components fit the migration if routing is staged first.</p>
+    <p class="verdict-rec"><span class="mark">Proceed</span> - server components fit the migration if routing is staged first.</p>
     <div class="mrow"><span class="lab">consensus</span><span class="pips"><i class="pip on"></i><i class="pip on"></i></span><span>2 of 2 agree</span></div>
     <div class="mrow"><span class="lab">confidence</span><span class="level" data-level="medium">medium</span></div>
     <div class="vopen"><span class="q">Still open</span>Does the data-fetching layer change before or after the routing migration?</div>
   </div>
-  <p>Confidence is reported as a level — <code>low</code>, <code>medium</code>, or <code>high</code> — not a fabricated percentage, and the verdict word comes straight from the preset's <code>--decision</code> vocabulary.</p>
+  <p>Confidence is reported as a level - <code>low</code>, <code>medium</code>, or <code>high</code> - not a fabricated percentage, and the verdict word comes straight from the preset's <code>--decision</code> vocabulary.</p>
 </section>
 
 <section>
   <h2>Where next</h2>
   <ul>
-    <li><a href="reference.html">CLI reference</a> — every command, flag, preset, and run artifact.</li>
-    <li><a href="architecture.html">Architecture</a> — how a run flows through the pipeline.</li>
-    <li><a href="agent-usage.html">Agent usage</a> — how agents drive a swarm.</li>
+    <li><a href="reference.html">CLI reference</a> - every command, flag, preset, and run artifact.</li>
+    <li><a href="architecture.html">Architecture</a> - how a run flows through the pipeline.</li>
+    <li><a href="agent-usage.html">Agent usage</a> - how agents drive a swarm.</li>
   </ul>
 </section>
         </article>

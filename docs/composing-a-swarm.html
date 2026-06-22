@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Composing a swarm — Agent Swarm</title>
+    <title>Composing a swarm - Agent Swarm</title>
     <meta name="description" content="Author a preset: a name, two to five agents, a resolve mode, a goal, and the decision vocabulary that becomes the synthesis verdict." />
     <script>
       (function () {
@@ -42,7 +42,7 @@
       <nav id="sidebar" class="sidebar" aria-label="Documentation"></nav>
       <main id="content" class="article-col">
         <article>
-<p class="kicker"><span class="n">08 —</span>Build your own</p>
+<p class="kicker"><span class="n">08 -</span>Build your own</p>
 <h1>Composing a swarm</h1>
 <p class="lede">
   A preset is six fields in a YAML file: a name, two to five agents, and
@@ -55,7 +55,7 @@
   <h2>The preset file</h2>
   <p>
     Drop a <code>.yml</code> file into <code>.agent-swarm/presets/</code> in your
-    project — or <code>~/.agent-swarm/presets/</code> for user-wide presets. The
+    project - or <code>~/.agent-swarm/presets/</code> for user-wide presets. The
     filename does not matter; the <code>name</code> field inside is what you
     pass to <code>--preset</code>. Project presets override user presets, which
     override bundled ones.
@@ -69,7 +69,7 @@ agents:
 resolve: orchestrator
 goal: Reach a decision-ready recommendation.
 decision: Approve / Revise / Reject</code></pre>
-  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>The preset schema is strict — no extra keys are allowed. The only valid fields are those documented below.</p></div>
+  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>The preset schema is strict - no extra keys are allowed. The only valid fields are those documented below.</p></div>
 
   <table class="opts">
     <thead>
@@ -80,7 +80,7 @@ decision: Approve / Revise / Reject</code></pre>
         <td><code>name</code></td>
         <td>Yes</td>
         <td>
-          Lowercase kebab or snake case. Must match <code>/^[a-z0-9][a-z0-9_-]*$/</code> —
+          Lowercase kebab or snake case. Must match <code>/^[a-z0-9][a-z0-9_-]*$/</code> -
           start with a letter or digit, then any mix of lowercase letters,
           digits, hyphens, and underscores. This is the value you pass to
           <code>--preset</code>.
@@ -98,7 +98,7 @@ decision: Approve / Revise / Reject</code></pre>
         <td><code>agents</code></td>
         <td>Yes</td>
         <td>
-          An array of 2–5 agent names. Each name must resolve to an agent
+          An array of 2-5 agent names. Each name must resolve to an agent
           definition in the registry (project, user, or bundled). The agents
           run in parallel every round.
         </td>
@@ -110,7 +110,7 @@ decision: Approve / Revise / Reject</code></pre>
           How the swarm resolves between rounds. One of <code>off</code>,
           <code>orchestrator</code>, or <code>agents</code>. Defaults to
           <code>off</code> when omitted. Use <code>orchestrator</code> for
-          most presets — it calls a bundled orchestrator agent to build the
+          most presets - it calls a bundled orchestrator agent to build the
           next-round directive from the prior round's output.
         </td>
       </tr>
@@ -120,7 +120,7 @@ decision: Approve / Revise / Reject</code></pre>
         <td>
           A sentence that anchors what the swarm is trying to achieve. Included
           in each agent's brief as context. Useful when your question alone
-          doesn't carry enough framing — for example, "Reach a ship/no-ship
+          doesn't carry enough framing - for example, "Reach a ship/no-ship
           recommendation before Friday's planning meeting."
         </td>
       </tr>
@@ -142,32 +142,32 @@ decision: Approve / Revise / Reject</code></pre>
   <h2>Decision vocabulary and the synthesis verdict</h2>
   <p>
     The <code>decision</code> field is the most distinctive part of a preset. It
-    defines the exact words the synthesis can use as its recommendation — nothing
+    defines the exact words the synthesis can use as its recommendation - nothing
     more, nothing less. When you write:
   </p>
   <pre><code>decision: Proceed / Defer / Reject</code></pre>
   <p>
     …the synthesis will pick exactly one of <code>Proceed</code>,
     <code>Defer</code>, or <code>Reject</code> as its verdict word. That word
-    comes from the agents' own stance fields in their structured output — the
+    comes from the agents' own stance fields in their structured output - the
     synthesis tallies the stances, applies a confidence-weighted majority, and
     surfaces the winning token as the recommendation.
   </p>
   <p>
-    Confidence is always reported as a level — <code>low</code>,
-    <code>medium</code>, or <code>high</code> — not a number. The verdict word
+    Confidence is always reported as a level - <code>low</code>,
+    <code>medium</code>, or <code>high</code> - not a number. The verdict word
     and the confidence level are independent: a <code>Proceed</code> at
     <code>low</code> confidence means the panel leaned one way but wasn't sure.
   </p>
   <div class="verdict">
     <div class="verdict-top"><span>Synthesis</span><span>my-preset · round 2 · 2 agents</span></div>
-    <p class="verdict-rec"><span class="mark">Approve</span> — both reviewers agreed the plan is sound given the scope constraint.</p>
+    <p class="verdict-rec"><span class="mark">Approve</span> - both reviewers agreed the plan is sound given the scope constraint.</p>
     <div class="mrow"><span class="lab">consensus</span><span class="pips"><i class="pip on"></i><i class="pip on"></i></span><span>2 of 2 agree</span></div>
     <div class="mrow"><span class="lab">confidence</span><span class="level" data-level="medium">medium</span></div>
     <div class="vopen"><span class="q">Still open</span>Does the rollback path need a separate sign-off, or is the current approval sufficient?</div>
   </div>
   <p>
-    The synthesis is computed deterministically — no model decides the final
+    The synthesis is computed deterministically - no model decides the final
     word. The same agent notes always produce the same verdict. If
     <code>decision</code> is omitted, agents can return any stance string they
     like, and the synthesis picks the most common one.
@@ -178,8 +178,8 @@ decision: Approve / Revise / Reject</code></pre>
 <section>
   <h2>A full example end to end</h2>
   <p>
-    Say you want a two-agent "launch gate" swarm — a growth analyst who looks at
-    market timing and a security reviewer who checks for risk exposure — and you
+    Say you want a two-agent "launch gate" swarm - a growth analyst who looks at
+    market timing and a security reviewer who checks for risk exposure - and you
     want a three-word call at the end. Here's what that looks like from file to
     run to synthesis.
   </p>
@@ -219,7 +219,7 @@ your stance, confidence, and the specific blockers you see.</code></pre>
   <pre><code><span class="c"># .agent-swarm/presets/launch-gate.yml</span>
 name: launch-gate
 description: >
-  Two-agent launch gate — a growth analyst checks market timing,
+  Two-agent launch gate - a growth analyst checks market timing,
   a security reviewer checks risk exposure.
 agents:
   - growth-analyst
@@ -230,7 +230,7 @@ decision: Ship / Fix first / Hold</code></pre>
 
   <h3>3. Run the swarm</h3>
   <p>
-    Pass the number of rounds as the first positional argument (1–3), then your
+    Pass the number of rounds as the first positional argument (1-3), then your
     question, then <code>--preset</code>:
   </p>
   <pre><code>agent-swarm <span class="k">run</span> 2 <span class="s">"Is the payments feature ready to launch next Tuesday?"</span> \
@@ -250,13 +250,13 @@ decision: Ship / Fix first / Hold</code></pre>
   </p>
   <div class="verdict">
     <div class="verdict-top"><span>Synthesis</span><span>launch-gate · round 2 · 2 agents</span></div>
-    <p class="verdict-rec"><span class="mark">Fix first</span> — payments flow is market-ready but the token refresh path has an unauthenticated edge case that must be resolved before launch.</p>
+    <p class="verdict-rec"><span class="mark">Fix first</span> - payments flow is market-ready but the token refresh path has an unauthenticated edge case that must be resolved before launch.</p>
     <div class="mrow"><span class="lab">consensus</span><span class="pips"><i class="pip on"></i><i class="pip on"></i></span><span>2 of 2 agree</span></div>
     <div class="mrow"><span class="lab">confidence</span><span class="level" data-level="high">high</span></div>
     <div class="vopen"><span class="q">Still open</span>Can the token refresh fix be shipped as a hotfix in the same release window, or does it require a separate track?</div>
   </div>
   <p>
-    The verdict word — <code>Fix first</code> — is one of the three words you
+    The verdict word - <code>Fix first</code> - is one of the three words you
     declared in <code>decision: Ship / Fix first / Hold</code>. The synthesis
     never invents a word outside that vocabulary.
   </p>
@@ -282,11 +282,11 @@ decision: Ship / Fix first / Hold</code></pre>
 <section>
   <h2>Where next</h2>
   <ul>
-    <li><a href="writing-an-agent.html">Writing an agent</a> — the full agent field reference, harness selection, and prompt authoring guide.</li>
-    <li><a href="agents-and-roles.html">Agents and roles</a> — how bundled agents are structured and when to copy vs. extend them.</li>
-    <li><a href="rounds-and-resolution.html">Rounds and resolution</a> — how <code>resolve</code> modes shape multi-round runs.</li>
-    <li><a href="the-synthesis.html">The synthesis</a> — how verdict, consensus, confidence, and open questions are computed.</li>
-    <li><a href="reference.html">CLI reference</a> — every flag accepted by <code>agent-swarm run</code>.</li>
+    <li><a href="writing-an-agent.html">Writing an agent</a> - the full agent field reference, harness selection, and prompt authoring guide.</li>
+    <li><a href="agents-and-roles.html">Agents and roles</a> - how bundled agents are structured and when to copy vs. extend them.</li>
+    <li><a href="rounds-and-resolution.html">Rounds and resolution</a> - how <code>resolve</code> modes shape multi-round runs.</li>
+    <li><a href="the-synthesis.html">The synthesis</a> - how verdict, consensus, confidence, and open questions are computed.</li>
+    <li><a href="reference.html">CLI reference</a> - every flag accepted by <code>agent-swarm run</code>.</li>
   </ul>
 </section>
         </article>

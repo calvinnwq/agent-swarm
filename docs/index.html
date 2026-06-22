@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Agent Swarm — Compose AI agent swarms, get one answer</title>
-    <meta name="description" content="Agent Swarm runs a panel of AI agents in parallel and folds their work into one deterministic synthesis. Start with a ready-made swarm or compose your own." />
+    <title>Agent Swarm - Compose AI agent swarms, get one answer</title>
+    <meta name="description" content="Agent Swarm runs several agents on the same question in parallel and merges their answers into one deterministic synthesis. Start with a bundled swarm or build your own." />
     <script>
       (function () {
         var t = null;
@@ -42,19 +42,19 @@
       <nav id="sidebar" class="sidebar" aria-label="Documentation"></nav>
       <main id="content" class="article-col">
         <article>
-<p class="kicker"><span class="n">01 —</span>Overview</p>
+<p class="kicker"><span class="n">01 -</span>Overview</p>
 <h1>Many AI agents on the problem. One answer back.</h1>
 <p class="lede">
-  Agent Swarm runs a panel of AI agents in parallel — each with its own role —
-  and folds their work into a single <em>deterministic</em> synthesis. Review a
-  diff, pressure-test a launch, channel your customers. Start with a ready-made
-  swarm, or <em>compose your own</em>: your agents, your rounds, your rules.
+  Agent Swarm runs several agents on the same question in parallel, each in a
+  different role, and merges their answers into one <em>deterministic</em>
+  synthesis. Start with a bundled swarm - say, for reviewing a diff or getting
+  customer-style feedback on a launch - or build your own.
 </p>
 <div class="anat"><b>Every swarm:</b> <span class="step">pick agents</span> <span class="ar">→</span> <span class="step">run rounds</span> <span class="ar">→</span> <span class="step">resolve</span> <span class="ar">→</span> <span class="step">one synthesis</span></div>
 
 <section>
   <h2>Run one in a line</h2>
-  <p>Start with a bundled swarm — no configuration required:</p>
+  <p>Start with a bundled swarm - no configuration required:</p>
   <pre><code><span class="c"># install</span>
 npm install -g @calvinnwq/agent-swarm
 
@@ -66,7 +66,7 @@ agent-swarm <span class="k">run</span> 2 <span class="s">"Should we ship the fre
 
 <section>
   <h2>Ready-made swarms</h2>
-  <p>Each bundled preset is a different panel with its own roster and its own decision vocabulary. Pick one, or use them as a starting point for your own.</p>
+  <p>Each bundled preset has its own roster of agents and its own decision vocabulary. Pick one, or use it as a starting point for your own.</p>
   <div class="gallery">
     <a class="swarm" href="swarm-adversarial-code-review.html">
       <p class="nm">Adversarial code review</p>
@@ -97,10 +97,10 @@ agent-swarm <span class="k">run</span> 2 <span class="s">"Should we ship the fre
 
 <section>
   <h2>What you get back</h2>
-  <p>The synthesis is the whole point: one recommendation in the swarm's own decision vocabulary, how much the panel agreed, the risks they share, and what's still open. It's computed deterministically — no model decides the final word — so the same agent notes always produce the same synthesis.</p>
+  <p>The synthesis collects one recommendation in the swarm's own decision vocabulary, how much the panel agreed, the risks they share, and what's still open. No model decides the final word, so the same agent notes always produce the same synthesis.</p>
   <div class="verdict">
     <div class="verdict-top"><span>Synthesis</span><span>customer-panel · round 2 · 3 agents</span></div>
-    <p class="verdict-rec"><span class="mark">Fix now</span> — onboarding hides the one action that shows value.</p>
+    <p class="verdict-rec"><span class="mark">Fix now</span> - onboarding hides the one action that shows value.</p>
     <div class="mrow"><span class="lab">consensus</span><span class="pips"><i class="pip on"></i><i class="pip on"></i><i class="pip dim"></i></span><span>2 of 3 agree</span></div>
     <div class="mrow"><span class="lab">confidence</span><span class="level" data-level="high">high</span></div>
     <div class="vopen"><span class="q">Still open</span>Does the empty state need a sample project, or just a clearer first step?</div>
@@ -110,9 +110,9 @@ agent-swarm <span class="k">run</span> 2 <span class="s">"Should we ship the fre
 <section>
   <h2>Where next</h2>
   <ul>
-    <li><a href="quickstart.html">Quickstart</a> — run a ready-made swarm end to end.</li>
-    <li><a href="reference.html">CLI reference</a> — every command, flag, preset, and run artifact.</li>
-    <li><a href="architecture.html">Architecture</a> — the runtime map for contributors.</li>
+    <li><a href="quickstart.html">Quickstart</a> - run a ready-made swarm end to end.</li>
+    <li><a href="reference.html">CLI reference</a> - every command, flag, preset, and run artifact.</li>
+    <li><a href="architecture.html">Architecture</a> - the runtime map for contributors.</li>
   </ul>
   <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>The <a href="https://github.com/calvinnwq/agent-swarm#readme">README</a> is the authoritative user-facing contract; this site mirrors it. For the durable spec, see <a href="https://github.com/calvinnwq/agent-swarm/blob/main/SPEC.md">SPEC.md</a>.</p></div>
 </section>

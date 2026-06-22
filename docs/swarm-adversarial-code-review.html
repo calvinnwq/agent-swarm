@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Adversarial code review — Agent Swarm</title>
+    <title>Adversarial code review - Agent Swarm</title>
     <meta name="description" content="A bundled three-reviewer swarm that stress-tests a diff, PR plan, or architecture change for correctness, implementation risk, and proof quality." />
     <script>
       (function () {
@@ -42,11 +42,11 @@
       <nav id="sidebar" class="sidebar" aria-label="Documentation"></nav>
       <main id="content" class="article-col">
         <article>
-<p class="kicker"><span class="n">10 —</span>Swarm gallery</p>
+<p class="kicker"><span class="n">10 -</span>Swarm gallery</p>
 <h1>Adversarial code review</h1>
 <p class="lede">
-  Three reviewers attack a diff, PR plan, or architecture change from different angles —
-  correctness, implementation risk, and proof quality — then an orchestrator folds their
+  Three reviewers attack a diff, PR plan, or architecture change from different angles -
+  correctness, implementation risk, and proof quality - then an orchestrator folds their
   findings into a single <em>Ready / Revise / Reject</em> verdict.
 </p>
 
@@ -55,13 +55,13 @@
   <p>The preset wires up three agents, each covering a distinct attack surface:</p>
   <ul>
     <li>
-      <strong>code-reviewer</strong> — Reviews proposed changes for correctness, regressions, contract drift, and maintainability; prefers specific failure modes and concrete fixes over style commentary.
+      <strong>code-reviewer</strong> - Reviews proposed changes for correctness, regressions, contract drift, and maintainability; prefers specific failure modes and concrete fixes over style commentary.
     </li>
     <li>
-      <strong>implementation-skeptic</strong> — Protects the project from fragile, overbuilt, or poorly sequenced changes by surfacing scope creep, hidden coupling, and brittle assumptions.
+      <strong>implementation-skeptic</strong> - Protects the project from fragile, overbuilt, or poorly sequenced changes by surfacing scope creep, hidden coupling, and brittle assumptions.
     </li>
     <li>
-      <strong>test-risk-reviewer</strong> — Evaluates whether the change has enough proof: missing tests, weak verification, release risk, and rollback gaps.
+      <strong>test-risk-reviewer</strong> - Evaluates whether the change has enough proof: missing tests, weak verification, release risk, and rollback gaps.
     </li>
   </ul>
 </section>
@@ -75,9 +75,9 @@
   <p>The decision vocabulary is:</p>
   <div class="vtokens"><span class="tok go">Ready</span><span class="tok">Revise</span><span class="tok">Reject</span></div>
   <ul>
-    <li><strong>Ready</strong> — the change is correct, well-tested, and safe to merge.</li>
-    <li><strong>Revise</strong> — the approach is sound but specific issues must be addressed first.</li>
-    <li><strong>Reject</strong> — the change has a fundamental problem; a different approach is needed.</li>
+    <li><strong>Ready</strong> - the change is correct, well-tested, and safe to merge.</li>
+    <li><strong>Revise</strong> - the approach is sound but specific issues must be addressed first.</li>
+    <li><strong>Reject</strong> - the change has a fundamental problem; a different approach is needed.</li>
   </ul>
   <div class="callout" data-kind="note"><span class="callout-label">Note</span><p><code>resolve: orchestrator</code> means the synthesis verdict is produced by the orchestrator agent, not the deterministic template. The three reviewer stances still feed the same shared JSON contract and appear in <code>synthesis.json</code>.</p></div>
 </section>
@@ -90,7 +90,7 @@
   <p>For a single-pass review of a small diff, one round is enough:</p>
   <pre><code>agent-swarm <span class="k">run</span> 1 <span class="s">"Review the auth middleware refactor in auth/middleware.ts"</span> \
   --preset adversarial-code-review</code></pre>
-  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>Real harnesses can take time on long diffs — bump <code>--timeout-ms</code> if agents time out. Use <code>--quiet</code> for one-line-per-event CI output.</p></div>
+  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>Real harnesses can take time on long diffs - bump <code>--timeout-ms</code> if agents time out. Use <code>--quiet</code> for one-line-per-event CI output.</p></div>
 </section>
 
 <section>
@@ -98,20 +98,20 @@
   <p>When the run completes, <code>synthesis.md</code> inside the run directory holds the orchestrator's verdict in the preset's own decision vocabulary:</p>
   <div class="verdict">
     <div class="verdict-top"><span>Synthesis</span><span>adversarial-code-review · round 2 · 3 agents</span></div>
-    <p class="verdict-rec"><span class="mark">Revise</span> — cache invalidation logic is correct under the happy path but misses concurrent write races on distributed nodes.</p>
+    <p class="verdict-rec"><span class="mark">Revise</span> - cache invalidation logic is correct under the happy path but misses concurrent write races on distributed nodes.</p>
     <div class="mrow"><span class="lab">consensus</span><span class="pips"><i class="pip on"></i><i class="pip dim"></i><i class="pip dim"></i></span><span>1 of 3 agree</span></div>
     <div class="mrow"><span class="lab">confidence</span><span class="level" data-level="high">high</span></div>
     <div class="vopen"><span class="q">Still open</span>Should the fix add a distributed lock, or is a version-vector approach the right scope here?</div>
   </div>
-  <p>Confidence is always a level — <code>low</code>, <code>medium</code>, or <code>high</code> — not a fabricated percentage. The verdict word comes directly from the preset's <code>decision</code> vocabulary.</p>
+  <p>Confidence is always a level - <code>low</code>, <code>medium</code>, or <code>high</code> - not a fabricated percentage. The verdict word comes directly from the preset's <code>decision</code> vocabulary.</p>
 </section>
 
 <section>
   <h2>Where next</h2>
   <ul>
-    <li><a href="swarm-customer-panel.html">Customer panel</a> — stand-in customers react to product friction, first-run value, and adoption risk.</li>
-    <li><a href="swarm-product-decision.html">Product decision</a> — a PM and a principal engineer converge on a build-vs-defer call.</li>
-    <li><a href="composing-a-swarm.html">Composing a swarm</a> — define your own agents, preset, and decision vocabulary.</li>
+    <li><a href="swarm-customer-panel.html">Customer panel</a> - stand-in customers react to product friction, first-run value, and adoption risk.</li>
+    <li><a href="swarm-product-decision.html">Product decision</a> - a PM and a principal engineer converge on a build-vs-defer call.</li>
+    <li><a href="composing-a-swarm.html">Composing a swarm</a> - define your own agents, preset, and decision vocabulary.</li>
   </ul>
 </section>
         </article>
