@@ -8,6 +8,7 @@ import { checkHarnessCapability } from "./harness-capability.js";
 import { listHarnessDescriptors } from "./harness-registry.js";
 import {
   backendToHarness,
+  resolveAgentRuntime,
   resolveAgentRuntimes,
 } from "./harness-resolution.js";
 import {
@@ -26,6 +27,7 @@ import {
   type LoadProjectConfigOptions,
 } from "./load-project-config.js";
 import { CLI_NAME } from "./identity.js";
+import { DEFAULT_INIT_PRESET } from "./init-config.js";
 import type { AgentDefinition } from "../schemas/index.js";
 import type { BackendId } from "../schemas/backend-id.js";
 import type { HarnessId } from "../schemas/harness-id.js";
@@ -48,6 +50,7 @@ export interface DoctorReport {
 
 const SECTION_CONFIG = "Configuration";
 const SECTION_HARNESS = "Harness inventory";
+const SECTION_AGENTS = "Agent summary";
 
 export interface RunDoctorOptions {
   cwd?: string;
@@ -134,6 +137,10 @@ export async function runDoctor(
     options.env,
   );
   checks.push(...harnessChecks);
+
+  checks.push(
+    buildAgentSummary(loadedConfig, agentRegistry, presetRegistry),
+  );
 
   const ok = checks.every((c) => c.status !== "fail");
   return { ok, checks };
@@ -552,6 +559,114 @@ function resolveAgents(
     }
   }
   return agents;
+}
+
+function buildAgentSummary(
+  loadedConfig: LoadedProjectConfig | null,
+  agentRegistry: AgentRegistry | null,
+  presetRegistry: PresetRegistry | null,
+): DoctorCheck {
+  if (!agentRegistry) {
+    return {
+      name: "agent summary",
+      status: "warn",
+      message: "agent registry unavailable; cannot map agents to harnesses",
+      section: SECTION_AGENTS,
+    };
+  }
+
+  const resolved = resolveSummaryAgents(
+    loadedConfig,
+    agentRegistry,
+    presetRegistry,
+  );
+  if ("error" in resolved) {
+    return {
+      name: "agent summary",
+      status: "warn",
+      message: resolved.error,
+      section: SECTION_AGENTS,
+    };
+  }
+
+  const runBackend = loadedConfig?.config.backend;
+  const lines = resolved.agents.map((agent) => {
+    const runtime = resolveAgentRuntime(agent, runBackend);
+    return `${agent.name} → ${runtime.harness}`;
+  });
+
+  return {
+    name: "agent summary",
+    status: "ok",
+    message: `${resolved.agents.length} agent(s) mapped (${resolved.sourceLabel})`,
+    detail: lines.join("\n"),
+    section: SECTION_AGENTS,
+  };
+}
+
+function resolveSummaryAgents(
+  loadedConfig: LoadedProjectConfig | null,
+  agentRegistry: AgentRegistry,
+  presetRegistry: PresetRegistry | null,
+):
+  | { agents: AgentDefinition[]; sourceLabel: string }
+  | { error: string } {
+  if (loadedConfig?.config.agents) {
+    const agents = resolveAgents(loadedConfig.config.agents, agentRegistry);
+    if (!agents) {
+      return { error: "config agents could not be resolved" };
+    }
+    return { agents, sourceLabel: "config agents" };
+  }
+
+  if (loadedConfig?.config.preset) {
+    const result = resolvePresetAgents(
+      loadedConfig.config.preset,
+      agentRegistry,
+      presetRegistry,
+    );
+    return "error" in result
+      ? result
+      : {
+          agents: result.agents,
+          sourceLabel: `preset "${loadedConfig.config.preset}"`,
+        };
+  }
+
+  const result = resolvePresetAgents(
+    DEFAULT_INIT_PRESET,
+    agentRegistry,
+    presetRegistry,
+  );
+  return "error" in result
+    ? {
+        error: `default preset "${DEFAULT_INIT_PRESET}" not found; run \`${CLI_NAME} init\``,
+      }
+    : {
+        agents: result.agents,
+        sourceLabel: `default preset "${DEFAULT_INIT_PRESET}"`,
+      };
+}
+
+function resolvePresetAgents(
+  presetName: string,
+  agentRegistry: AgentRegistry,
+  presetRegistry: PresetRegistry | null,
+): { agents: AgentDefinition[] } | { error: string } {
+  if (!presetRegistry) {
+    return { error: "preset registry unavailable" };
+  }
+  let preset;
+  try {
+    preset = presetRegistry.getPreset(presetName);
+  } catch {
+    return { error: `preset "${presetName}" not found` };
+  }
+  const agents = resolveAgents(preset.agents, agentRegistry);
+  if (!agents) {
+    return { error: `preset "${presetName}" references unknown agent(s)` };
+  }
+  return { agents };
 }
 
 function formatBackendMismatches(

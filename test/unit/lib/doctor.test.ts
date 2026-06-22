@@ -396,6 +396,41 @@ describe("runDoctor", () => {
     expect(report.ok).toBe(false);
   });
 
+  it("summarizes default-preset agents and harnesses when there is no config", async () => {
+    const roots = await makeIsolatedRoots();
+    await installLoggedInClaudeStub(roots.binDir);
+    await writeFileUnder(roots.bundledAgentsDir, "product-manager.yml", agentYaml("product-manager"));
+    await writeFileUnder(roots.bundledAgentsDir, "product-engineer.yml", agentYaml("product-engineer"));
+    await writeFileUnder(roots.bundledPresetsDir, "product-triad.yml",
+      ["name: product-triad", "agents:", "  - product-manager", "  - product-engineer"].join("\n"));
+
+    const report = await runDoctor(roots);
+
+    const summary = report.checks.find((c) => c.name === "agent summary");
+    expect(summary?.section).toBe("Agent summary");
+    expect(summary?.status).toBe("ok");
+    expect(summary?.message).toContain('default preset "product-triad"');
+    expect(summary?.detail).toContain("product-manager → claude");
+    expect(summary?.detail).toContain("product-engineer → claude");
+    expect(report.ok).toBe(true);
+  });
+
+  it("warns in the agent summary when no config and the default preset is absent", async () => {
+    const roots = await makeIsolatedRoots();
+    await installLoggedInClaudeStub(roots.binDir);
+    await writeFileUnder(roots.bundledAgentsDir, "product-manager.yml", agentYaml("product-manager"));
+    await writeFileUnder(roots.bundledAgentsDir, "principal-engineer.yml", agentYaml("principal-engineer"));
+    await writeFileUnder(roots.bundledPresetsDir, "product-decision.yml",
+      ["name: product-decision", "agents:", "  - product-manager", "  - principal-engineer"].join("\n"));
+
+    const report = await runDoctor(roots);
+
+    const summary = report.checks.find((c) => c.name === "agent summary");
+    expect(summary?.status).toBe("warn");
+    expect(summary?.message).toContain("product-triad");
+    expect(report.ok).toBe(true);
+  });
+
   it("skips preset validation when explicit config agents are present", async () => {
     const roots = await makeIsolatedRoots();
     await installLoggedInClaudeStub(roots.binDir);
