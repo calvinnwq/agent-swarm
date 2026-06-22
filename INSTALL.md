@@ -172,16 +172,21 @@ npx -y @calvinnwq/agent-swarm doctor
 ```
 
 `agent-swarm doctor` validates project config, configured docs, the agent/preset
-registries, backend compatibility, and (when a project config is present) probes
-the resolved harness CLIs for auth. Exit codes:
+registries, and backend compatibility. It also probes all four harnesses (Claude,
+Codex, OpenCode, Rovo) for availability and auth — even with no project config.
+Output is grouped into three sections: **Configuration**, **Harness inventory**,
+and **Agent summary**.
+
+A harness that fails but is not required by your configured agents is flagged as
+**WARN** (non-fatal). A failing harness that is required by one or more configured
+agents is flagged as **FAIL** with `required by:` attribution and guidance.
+agent-swarm does not globally require any harness — a Claude-only setup passes
+doctor. The Agent summary maps each configured agent to its resolved harness; with
+no project config it shows the default `product-triad` preset's agents. Exit codes:
 
 - `0` — everything is ready.
 - `1` — at least one check failed (with actionable per-check messages).
 - `2` — internal command error.
-
-Without a project config, doctor skips harness-capability checks — so a clean
-`doctor` with no config does not by itself prove your harness is authenticated.
-Run a first panel (below) to confirm end-to-end.
 
 ---
 

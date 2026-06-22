@@ -78,8 +78,15 @@ pnpm link --global</code></pre>
       <h2>Verify your setup</h2>
       <p>
         Run <code>agent-swarm doctor</code> before your first swarm. It checks
-        project config, configured docs, the agent and preset registries,
-        backend compatibility, and probes your harness CLIs for auth.
+        project config, configured docs, the agent and preset registries, and
+        backend compatibility (<strong>Configuration</strong> section). It also
+        probes all four harnesses for availability and auth regardless of whether
+        a project config exists (<strong>Harness inventory</strong> section), and
+        maps each configured agent to its resolved harness
+        (<strong>Agent summary</strong> section). A harness that is missing or
+        unauthenticated but not required by your config is a non-fatal
+        <strong>WARN</strong>; one required by an agent is a
+        <strong>FAIL</strong>. agent-swarm does not globally require any harness.
       </p>
       <pre><code>npx -y @calvinnwq/agent-swarm doctor</code></pre>
       <p>

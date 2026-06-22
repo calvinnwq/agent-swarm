@@ -178,13 +178,16 @@ subcommand in the alpha (see [SPEC.md](SPEC.md) §10).
 
 ## 4. Doctor (`src/lib/doctor.ts`)
 
-`agent-swarm doctor` is the canonical diagnostic surface. It validates project
-config parsing, configured docs, the agent/preset registries, backend
-compatibility (`backend-selection.ts`), and — when a project config is present —
-probes resolved harness CLIs for auth via `harness-capability.ts`. It reports
-explicitly when config is read from the legacy `.swarm/config.yml` path. Exit
-codes: `0` ok, `1` checks failed, `2` internal error. New diagnostics should
-match this convention.
+`agent-swarm doctor` is the canonical diagnostic surface. Output is grouped into
+three sections: **Configuration** (config parsing, docs, registries, backend
+compatibility via `backend-selection.ts`), **Harness inventory** (all four
+harnesses probed unconditionally via `harness-capability.ts` — a failing harness
+not required by config is WARN; one required by an agent is FAIL with
+`required by:` attribution), and **Agent summary** (each agent mapped to its
+resolved harness; defaults to `product-triad` agents when there is no project
+config). It reports explicitly when config is read from the legacy `.swarm/config.yml`
+path. Exit codes: `0` ok, `1` checks failed, `2` internal error. New diagnostics
+should match this convention.
 
 ---
 

@@ -149,16 +149,13 @@ agent-swarm run 2 "Should we adopt server components?" \
 
 ### `agent-swarm doctor`
 
-`agent-swarm doctor` validates your setup before a run. It checks:
+`agent-swarm doctor` validates your setup before a run. Output is grouped into three sections:
 
-- `.agent-swarm/config.yml` parses cleanly.
-- Configured carry-forward docs exist and are readable. Truncated docs are flagged.
-- The agent and preset registries load.
-- Any agents or preset referenced in the project config actually resolve.
-- The configured backend is supported and matches config agents that don't pin `harness`.
-- When a project config is loaded, configured agents' resolved harness CLIs are runnable. Claude, Codex, and OpenCode probes verify auth; Codex also verifies `codex exec` support; Rovo verifies `acli rovodev`.
+- **Configuration** — `.agent-swarm/config.yml` parses cleanly; configured carry-forward docs exist and are readable (truncated docs are flagged); the agent and preset registries load; any agents or preset referenced in the project config resolve; the configured backend is supported.
+- **Harness inventory** — all four harnesses (Claude, Codex, OpenCode, Rovo) are probed for availability and auth, even when there is no project config. A harness that is missing or unauthenticated but not required by your configured agents is reported as **WARN** (non-fatal). If a failing harness is required by one or more configured agents it is reported as **FAIL** with `required by: <agent...>` attribution and install/auth guidance. agent-swarm does not globally require any harness — a Claude-only or Codex-only setup passes doctor.
+- **Agent summary** — each configured agent is mapped to its resolved harness. When there is no project config, the default `product-triad` preset's agents are shown.
 
-Without a project config, doctor skips harness capability checks. When config is read from the legacy `.swarm/config.yml` path, doctor reports it explicitly and points you to `.agent-swarm/config.yml`. Exit codes:
+When config is read from the legacy `.swarm/config.yml` path, doctor reports it explicitly and points you to `.agent-swarm/config.yml`. Exit codes:
 
 - `0` — everything is ready.
 - `1` — at least one check failed (with actionable per-check messages).
