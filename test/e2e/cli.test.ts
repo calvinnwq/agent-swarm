@@ -24,6 +24,18 @@ describe("swarm cli", () => {
     expect(stdout).toContain("agent-swarm");
   });
 
+  it("prints top-level help and exits 0 when run without args (NGX-501)", () => {
+    const help = runCli(["--help"]);
+    const bare = runCli([]);
+    expect(bare.status).toBe(0);
+    expect(bare.stdout).toContain("agent-swarm");
+    expect(bare.stdout).toContain("Commands:");
+    // Same top-level help shape as the explicit --help invocation.
+    expect(bare.stdout).toBe(help.stdout);
+    // Must not fall through to the default run command's missing-arg error.
+    expect(bare.stderr).not.toMatch(/missing required argument/);
+  });
+
   it("prints version", () => {
     const { status, stdout } = runCli(["--version"]);
     expect(status).toBe(0);

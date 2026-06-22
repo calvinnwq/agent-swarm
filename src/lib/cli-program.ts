@@ -281,13 +281,25 @@ export function buildCliProgram(version: string): Command {
 }
 
 /**
- * Parse argv and dispatch the matching command. Mirrors the previous top-level
- * behavior in src/cli.ts: a Commander/parse failure that escapes the per-command
- * handlers is reported with the CLI name and exits with code 1.
+ * Parse argv and dispatch the matching command. A zero-argument invocation
+ * prints top-level help and exits successfully; otherwise, a Commander/parse
+ * failure that escapes the per-command handlers is reported with the CLI name
+ * and exits with code 1.
  */
 export async function runCli(version: string): Promise<void> {
+  const program = buildCliProgram(version);
+
+  // NGX-501: a true zero-argument invocation shows top-level help and exits 0
+  // instead of falling through to the default run command, which would fail
+  // with "missing required argument 'rounds'". Any non-empty argv (including
+  // the `run` shorthand) still dispatches through Commander as before.
+  if (process.argv.slice(2).length === 0) {
+    program.outputHelp();
+    process.exit(0);
+  }
+
   try {
-    await buildCliProgram(version).parseAsync();
+    await program.parseAsync();
   } catch (err) {
     process.stderr.write(
       `\n  ${CLI_NAME}: ${err instanceof Error ? err.message : String(err)}\n\n`,

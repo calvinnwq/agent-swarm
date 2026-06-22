@@ -91,8 +91,12 @@ Usage: agent-swarm [options] [command]
 Commands:
   run [options] <rounds> <topic...>  Run a swarm
   doctor                             Diagnose swarm setup
+  init [options]                     Create .agent-swarm/config.yml defaults
   help [command]                     Display help for a command
 ```
+
+Running `agent-swarm` with no arguments prints this top-level help and exits 0,
+the same as `agent-swarm --help`.
 
 ### `agent-swarm run`
 
