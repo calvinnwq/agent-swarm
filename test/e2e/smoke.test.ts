@@ -184,7 +184,7 @@ describe("smoke: README golden path", () => {
     );
     expect(result.stdout).toContain("[OK] agent registry");
     expect(result.stdout).toContain("[OK] preset registry");
-    expect(result.stdout).not.toContain("harness capability");
+    expect(result.stdout).toContain("[OK] harness capability");
     expect(result.stdout).not.toContain("config agents");
     expect(result.stdout).not.toContain("config preset");
     expect(result.stderr).toBe("");
@@ -299,7 +299,7 @@ describe("smoke: README golden path", () => {
     expect(result.stdout).toContain("rounds");
     expect(result.stdout).toContain("[OK] agent registry");
     expect(result.stdout).toContain("[OK] preset registry");
-    expect(result.stdout).not.toContain("harness capability");
+    expect(result.stdout).toContain("[OK] harness capability");
     expect(result.stderr).toBe("");
   });
 
