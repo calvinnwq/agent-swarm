@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>What is a swarm? — Agent Swarm</title>
+    <meta name="description" content="The mental model: a panel of AI agents work a problem in parallel, then hand you one deterministic answer." />
+    <script>
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem("agent-swarm-docs-theme"); } catch (e) {}
+        document.documentElement.dataset.theme = t === "light" ? "light" : "dark";
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/styles.css" />
+    <script src="assets/site.js" defer></script>
+  </head>
+  <body data-page="what-is-a-swarm.html">
+    <a class="skip" href="#content">Skip to content</a>
+    <header class="masthead">
+      <div class="masthead-inner">
+        <button class="menu-btn" type="button" data-menu aria-label="Toggle navigation" aria-expanded="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 3.5h14M1 8h14M1 12.5h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+        <a class="brand" href="index.html">Agent&nbsp;Swarm<span class="brand-tag">docs</span></a>
+        <button class="search-btn" type="button" data-search-open><span>Search docs</span><kbd>/</kbd></button>
+        <div class="masthead-tools">
+          <a class="gh" href="https://github.com/calvinnwq/agent-swarm">GitHub</a>
+          <button class="theme-btn" type="button" data-theme-toggle aria-label="Toggle color theme" aria-pressed="false">
+            <svg class="icon-moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M14.6 12.1A6.5 6.5 0 0 1 7.4 2.7a6.5 6.5 0 1 0 7.2 9.4z" fill="currentColor"/></svg>
+            <svg class="icon-sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3.4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="10" y1="2" x2="10" y2="4"/><line x1="10" y1="16" x2="10" y2="18"/><line x1="2" y1="10" x2="4" y2="10"/><line x1="16" y1="10" x2="18" y2="10"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="14.4" y1="14.4" x2="15.8" y2="15.8"/><line x1="4.2" y1="15.8" x2="5.6" y2="14.4"/><line x1="14.4" y1="5.6" x2="15.8" y2="4.2"/></g></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="frame">
+      <nav id="sidebar" class="sidebar" aria-label="Documentation"></nav>
+      <main id="content" class="article-col">
+        <article>
+<p class="kicker"><span class="n">03 —</span>Concepts</p>
+<h1>What is a swarm?</h1>
+<p class="lede">
+  A swarm is a panel of AI agents — each playing a different role — that work
+  the same problem at the same time and hand you back a single, deterministic
+  answer. No deliberation, no coin-flip. The synthesis is computed from what
+  the agents said, not decided by another model.
+</p>
+
+<section>
+  <h2>The shape of every run</h2>
+  <p>Every swarm follows the same four steps, regardless of the preset or the question you ask:</p>
+  <div class="anat"><b>Every swarm:</b> <span class="step">pick agents</span> <span class="ar">→</span> <span class="step">run rounds</span> <span class="ar">→</span> <span class="step">resolve</span> <span class="ar">→</span> <span class="step">one synthesis</span></div>
+  <p><strong>Pick agents.</strong> A swarm has between 2 and 5 agents. Each agent has a name, a persona, and a prompt that shapes how it reads the question. You can use a bundled preset — a curated roster with a decision vocabulary already chosen — or assemble your own agents from YAML or Markdown files.</p>
+  <p><strong>Run rounds.</strong> Every agent in the panel runs in <em>parallel</em>. A four-agent panel takes about as long as a single agent because they all run at the same time. You can run 1 to 3 rounds; each additional round gives agents a chance to react to what the prior round surfaced.</p>
+  <p><strong>Resolve.</strong> Between rounds, the swarm decides what to carry into the next brief. With <code>--resolve off</code>, a deterministic template summarises the prior packet — no extra model call. With <code>--resolve orchestrator</code>, a bundled orchestrator agent reads the prior packet and produces a structured directive for the next round.</p>
+  <p><strong>One synthesis.</strong> Once all rounds are done, the swarm computes a synthesis. This step is fully deterministic — no model decides the final word. The same agent notes will always produce the same synthesis: consensus stance, top recommendation by confidence, shared risks, deferred questions, and an overall confidence level.</p>
+</section>
+
+<section>
+  <h2>What you get back</h2>
+  <p>The synthesis is the whole point. It folds the panel into one recommendation in the preset's own decision vocabulary — words you chose, not words a model invented. Here is what a customer-panel synthesis looks like after two rounds:</p>
+  <div class="verdict">
+    <div class="verdict-top"><span>Synthesis</span><span>customer-panel · round 2 · 3 agents</span></div>
+    <p class="verdict-rec"><span class="mark">Fix now</span> — onboarding hides the one action that shows value.</p>
+    <div class="mrow"><span class="lab">consensus</span><span class="pips"><i class="pip on"></i><i class="pip on"></i><i class="pip dim"></i></span><span>2 of 3 agree</span></div>
+    <div class="mrow"><span class="lab">confidence</span><span class="level" data-level="high">high</span></div>
+    <div class="vopen"><span class="q">Still open</span>Does the empty state need a sample project, or just a clearer first step?</div>
+  </div>
+  <p>A few things to notice:</p>
+  <ul>
+    <li><strong>Verdict word.</strong> <em>Fix now</em> is a word from the <code>customer-panel</code> preset's decision vocabulary — it always comes from the preset, never from a model making up language at synthesis time.</li>
+    <li><strong>Consensus.</strong> 2 of 3 agents agreed on the same stance. The third held a different view; that is surfaced, not hidden.</li>
+    <li><strong>Confidence as a level.</strong> Confidence is reported as <code>low</code>, <code>medium</code>, or <code>high</code> — never a fabricated percentage. It is the rounded average of every agent's self-reported confidence across all rounds.</li>
+    <li><strong>Still open.</strong> Questions the panel could not resolve are carried through so you know exactly where the uncertainty lives.</li>
+  </ul>
+  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>The synthesis file lands at <code>.agent-swarm/runs/&lt;timestamp&gt;-&lt;slug&gt;/synthesis.md</code>. The full run directory also contains per-agent round outputs, the event ledger, and a durable checkpoint.</p></div>
+</section>
+
+<section>
+  <h2>Run one in a line</h2>
+  <p>No project config required. Pass the number of rounds as the first positional argument (1–3), then your question, then an optional preset:</p>
+  <pre><code><span class="c"># install once</span>
+npm install -g @calvinnwq/agent-swarm
+
+<span class="c"># run a two-round customer panel (2 = rounds)</span>
+agent-swarm <span class="k">run</span> 2 <span class="s">"Should we ship the freemium tier this quarter?"</span> \
+  --preset customer-panel</code></pre>
+  <p>The <code>2</code> before the question is a required positional argument — the number of rounds — not a flag. Round count is always explicit on the command line, from 1 to 3.</p>
+  <p>While the swarm runs you will see a live panel in your terminal: one row per agent, elapsed timers, and a phase banner that moves through rounds. When it finishes, the synthesis prints and the full run directory is written to <code>.agent-swarm/runs/</code>.</p>
+  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>Real harnesses can take longer than the default 120 s per-agent timeout. Add <code>--timeout-ms 300000</code> for deeper questions. Use <code>--quiet</code> for one-line-per-event output in CI.</p></div>
+</section>
+
+<section>
+  <h2>Where next</h2>
+  <ul>
+    <li><a href="quickstart.html">Quickstart</a> — install, run <code>doctor</code>, and get a real synthesis in five minutes.</li>
+    <li><a href="index.html">Overview</a> — the ready-made presets and what each one is for.</li>
+    <li><a href="reference.html">CLI reference</a> — every command, flag, preset, and run artifact.</li>
+    <li><a href="architecture.html">Architecture</a> — the runtime internals for contributors.</li>
+  </ul>
+</section>
+        </article>
+        <footer class="pager" id="pager"></footer>
+      </main>
+      <aside class="toc-col"><p class="toc-title">On this page</p><nav id="toc" aria-label="On this page"></nav></aside>
+    </div>
+
+    <footer class="colophon"><div class="colophon-inner"><span>Agent Swarm docs</span><span>MIT</span><a href="https://github.com/calvinnwq/agent-swarm">GitHub</a></div></footer>
+  </body>
+</html>
