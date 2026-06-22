@@ -27,7 +27,7 @@ no sectioning.
 - **D1 — Status model:** A missing harness is `WARN` by default. It escalates to `FAIL` **only**
   when this project's own config (selected agents or preset) dispatches an agent to it — i.e. the
   configured run literally cannot execute. With **no config, nothing is required, so no harness
-  miss is ever fatal**. "Required" is never global: a Claude-only or Codex-only user passes doctor.
+  miss is ever fatal**. "Required" is never global: a single-harness setup passes doctor when its required harness works.
 - **D2 — Output:** Add a `section` field to `DoctorCheck`; `formatDoctorReport` prints grouped
   section headers (Configuration, Harness inventory, Agent summary).
 - **D3 — No-config agent summary scope:** When there is no config, the agent summary lists the

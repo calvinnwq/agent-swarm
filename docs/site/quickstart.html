@@ -86,7 +86,8 @@ pnpm link --global</code></pre>
         (<strong>Agent summary</strong> section). A harness that is missing or
         unauthenticated but not required by your config is a non-fatal
         <strong>WARN</strong>; one required by an agent is a
-        <strong>FAIL</strong>. agent-swarm does not globally require any harness.
+        <strong>FAIL</strong>. agent-swarm does not globally require any harness;
+        a single-harness setup passes doctor when its required harness works.
       </p>
       <pre><code>npx -y @calvinnwq/agent-swarm doctor</code></pre>
       <p>

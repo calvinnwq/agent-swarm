@@ -109,7 +109,7 @@ verify auth; Codex also verifies `codex exec` support; Rovo verifies
 reported as **WARN** (non-fatal). A harness that fails and is required by one or
 more configured agents is reported as **FAIL** with `required by: <agent...>`
 attribution and install/auth guidance. agent-swarm does not globally require any
-harness — a Claude-only or Codex-only user passes doctor.
+harness — a single-harness setup passes doctor when its required harness works.
 
 **Agent summary** — each configured agent mapped to its resolved harness. When
 there is no project config the default `product-triad` preset's agents are shown.

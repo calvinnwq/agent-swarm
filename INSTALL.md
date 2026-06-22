@@ -180,9 +180,10 @@ and **Agent summary**.
 A harness that fails but is not required by your configured agents is flagged as
 **WARN** (non-fatal). A failing harness that is required by one or more configured
 agents is flagged as **FAIL** with `required by:` attribution and guidance.
-agent-swarm does not globally require any harness — a Claude-only setup passes
-doctor. The Agent summary maps each configured agent to its resolved harness; with
-no project config it shows the default `product-triad` preset's agents. Exit codes:
+agent-swarm does not globally require any harness — a single-harness setup passes
+doctor when its required harness works. The Agent summary maps each configured
+agent to its resolved harness; with no project config it shows the default
+`product-triad` preset's agents. Exit codes:
 
 - `0` — everything is ready.
 - `1` — at least one check failed (with actionable per-check messages).
@@ -223,7 +224,7 @@ Notes:
 | `npx skills add` does nothing / wrong source | Use the GitHub `owner/repo` form `calvinnwq/agent-swarm`, not the npm name `@calvinnwq/agent-swarm` — `skills add` resolves a repo, not an npm package.                    |
 | `agent-swarm: command not found`             | No global/source install on `PATH`. Use `npx -y @calvinnwq/agent-swarm …`, or install globally (§4). For source installs, complete the one-time `pnpm setup` (§4).         |
 | `npx` can't resolve the bin                  | Known scoped-package bin-link caveat in some environments — install globally (§4), then use the skill helper's `--global-cli` fallback.                                    |
-| doctor reports a harness probe failure       | The harness CLI is missing or unauthenticated. Log in (`claude auth login`, `codex login`, `opencode auth login`) or install `acli` + `rovodev`.                           |
+| doctor reports a required harness **FAIL**   | A harness CLI needed by your configured agents is missing or unauthenticated. Log in (`claude auth login`, `codex login`, `opencode auth login`, `acli rovodev auth login`) or install the required CLI. Optional harness misses are **WARN** and non-fatal. |
 | Run fails with a timeout                     | Increase `--timeout-ms` (default 120000); real harnesses are slower than stubs.                                                                                            |
 | Run fails after an orchestrator pass         | `--resolve orchestrator` requires a working harness for the bundled `orchestrator`. The run finalizes as `failed` and exits `1`; earlier passes stay in `checkpoint.json`. |
 | Config changes seem ignored                  | Precedence is CLI flags > config > preset. Check for a flag overriding your config value.                                                                                  |

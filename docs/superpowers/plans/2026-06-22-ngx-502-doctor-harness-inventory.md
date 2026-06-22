@@ -13,7 +13,7 @@
 ## Background facts (verified in the codebase)
 
 - `src/lib/doctor.ts` currently only probes harnesses inside `if (loadedConfig) { ... }` (around line 119).
-- `resolveDoctorHarnesses(config, agentRegistry, presetRegistry)` already returns `Array<{ harness: HarnessId; agents: string[] }>` mapping each harness to its attributing agents. For no/unresolvable config it returns `[{ harness: "claude", agents: [] }]` (empty `agents` ⇒ not required).
+- `resolveDoctorHarnesses(config, agentRegistry, presetRegistry)` returns `Array<{ harness: HarnessId; agents: string[] }>` mapping each harness to its attributing agents. For unresolvable config it returns the config backend/default backend with empty `agents` (empty `agents` ⇒ not required); no-config inventory skips required-attribution computation entirely.
 - `listHarnessDescriptors()` (`src/lib/harness-registry.ts`) returns all four descriptors in order: **claude, codex, opencode, rovo**.
 - `checkHarnessCapability(harness, { env })` returns `{ name: "harness capability"; status: "ok" | "fail"; message; detail? }`. We keep the `name: "harness capability"` value unchanged so every harness check shares that name (the harness identity is already in `message`, e.g. `harness "codex" ...`).
 - `resolveAgentRuntime(agent, runBackend?)` (`src/lib/harness-resolution.ts`) returns `{ agentName, harness, ... }`.
@@ -25,7 +25,7 @@
 
 - **Modify:** `src/lib/doctor.ts` — add `section` to `DoctorCheck`; replace the harness loop with `buildHarnessInventory`; add `buildAgentSummary` + helpers; section-aware `formatDoctorReport`.
 - **Modify:** `test/unit/lib/doctor.test.ts` — update 3 no-harness assertions; add new section/inventory/summary tests; add a `formatDoctorReport` section test.
-- **Modify:** `test/unit/lib/doctor-backend.test.ts` — migrate brittle `.find(name === "harness capability")` assertions to filter-by-message; rewrite the two "no config skips harness checks" tests.
+- **Modify:** `test/unit/lib/doctor-backend.test.ts` — migrate brittle `.find(name === "harness capability")` assertions to filter-by-message; rewrite the two no-config harness tests for always-on inventory.
 - **Modify:** `test/e2e/smoke.test.ts` — add a no-config inventory assertion.
 - **Modify:** `README.md`, `SPEC.md`, `docs/site/` doctor reference — document always-on inventory + status model + agent summary.
 
@@ -447,7 +447,7 @@ These tests already assert `capability?.status`/`message`/`detail`; with the cor
 
 > Leave untouched (they already pass): the claude-config tests `"matches all config agents"`, `"fails with login guidance when the backend CLI is present but logged out"`, `"reports actionable install guidance when the claude binary is missing"` (claude is first AND required → `find` returns the correct check); `"probes each harness requested by configured agents"` (uses `.filter` + `arrayContaining`); the two attribution tests at the end (use `.filter().find(message includes "opencode")`); `"does not report backend mismatch for agents with explicit harnesses"` (no capability assertion).
 
-- [ ] **Step 2: Rewrite the "skips harness capability checks when there is no config" test**
+- [ ] **Step 2: Rewrite the no-config harness inventory test**
 
 Replace the body assertions of that test:
 

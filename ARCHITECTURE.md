@@ -182,7 +182,7 @@ subcommand in the alpha (see [SPEC.md](SPEC.md) §10).
 three sections: **Configuration** (config parsing, docs, registries, backend
 compatibility via `backend-selection.ts`), **Harness inventory** (all four
 harnesses probed unconditionally via `harness-capability.ts` — a failing harness
-not required by config is WARN; one required by an agent is FAIL with
+not required by config is WARN and non-fatal; one required by an agent is FAIL with
 `required by:` attribution), and **Agent summary** (each agent mapped to its
 resolved harness; defaults to `product-triad` agents when there is no project
 config). It reports explicitly when config is read from the legacy `.swarm/config.yml`

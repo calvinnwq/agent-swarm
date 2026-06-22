@@ -61,7 +61,7 @@ Keep the site in sync with the authoritative Markdown docs. The `test/unit/docs-
 - **Strict TS.** `tsconfig.json` is strict. Prefer Zod-inferred types (`z.infer<typeof Schema>`) over hand-rolled interfaces for any data that crosses the disk/wire boundary.
 - **No defensive code for impossible states.** Validation lives at boundaries (CLI parsing, schema decode, harness probe) — internal callers can trust resolved values.
 - **Tests are split.** Unit tests under `test/unit/` mirror `src/`. End-to-end tests under `test/e2e/` build the CLI and shell out to it.
-- **Diagnostics convention.** `agent-swarm doctor` is the canonical diagnostic surface. New diagnostics should match its exit-code convention: `0` ok, `1` checks failed (with actionable per-check messages), `2` internal command error.
+- **Diagnostics convention.** `agent-swarm doctor` is the canonical diagnostic surface. New diagnostics should preserve its sectioned output and exit-code convention: `0` ok, `1` checks failed (with actionable per-check messages), `2` internal command error.
 
 ## Releases
 
