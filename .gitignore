@@ -16,3 +16,4 @@ skills-lock.json
 
 # Superpowers session planning/spec artifacts are local-only.
 /docs/superpowers/
+.superpowers/

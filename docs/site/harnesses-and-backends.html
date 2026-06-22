@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Harnesses &amp; backends — Agent Swarm</title>
+    <meta name="description" content="Backend vs harness: the run-level dial and the per-agent dispatch surface, how they resolve, the per-harness model flags, and what doctor checks." />
+    <script>
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem("agent-swarm-docs-theme"); } catch (e) {}
+        document.documentElement.dataset.theme = t === "light" ? "light" : "dark";
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/styles.css" />
+    <script src="assets/site.js" defer></script>
+  </head>
+  <body data-page="harnesses-and-backends.html">
+    <a class="skip" href="#content">Skip to content</a>
+    <header class="masthead">
+      <div class="masthead-inner">
+        <button class="menu-btn" type="button" data-menu aria-label="Toggle navigation" aria-expanded="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 3.5h14M1 8h14M1 12.5h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+        <a class="brand" href="index.html">Agent&nbsp;Swarm<span class="brand-tag">docs</span></a>
+        <button class="search-btn" type="button" data-search-open><span>Search docs</span><kbd>/</kbd></button>
+        <div class="masthead-tools">
+          <a class="gh" href="https://github.com/calvinnwq/agent-swarm">GitHub</a>
+          <button class="theme-btn" type="button" data-theme-toggle aria-label="Toggle color theme" aria-pressed="false">
+            <svg class="icon-moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M14.6 12.1A6.5 6.5 0 0 1 7.4 2.7a6.5 6.5 0 1 0 7.2 9.4z" fill="currentColor"/></svg>
+            <svg class="icon-sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3.4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="10" y1="2" x2="10" y2="4"/><line x1="10" y1="16" x2="10" y2="18"/><line x1="2" y1="10" x2="4" y2="10"/><line x1="16" y1="10" x2="18" y2="10"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="14.4" y1="14.4" x2="15.8" y2="15.8"/><line x1="4.2" y1="15.8" x2="5.6" y2="14.4"/><line x1="14.4" y1="5.6" x2="15.8" y2="4.2"/></g></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="frame">
+      <nav id="sidebar" class="sidebar" aria-label="Documentation"></nav>
+      <main id="content" class="article-col">
+        <article>
+<p class="kicker"><span class="n">09 —</span>Build your own</p>
+<h1>Harnesses &amp; backends</h1>
+<p class="lede">
+  Agent Swarm separates the <em>run-level backend dial</em> from the
+  <em>per-agent dispatch surface</em>. Understanding the difference lets you mix
+  harnesses in a single swarm, pin a specific agent to a specific CLI, and know
+  exactly what <code>agent-swarm doctor</code> is checking.
+</p>
+
+<section>
+  <h2>Two concepts, two schemas</h2>
+  <p>
+    The codebase uses two distinct types for dispatch. They look similar but
+    control different things:
+  </p>
+  <div class="table-wrap">
+    <table class="opts">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Values</th>
+          <th>What it controls</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>BackendId</code></td>
+          <td><code>claude</code> | <code>codex</code></td>
+          <td>The <strong>run-level dial</strong> set by <code>--backend</code> or <code>config.backend</code>. Used for run metadata and the <code>wrapperName</code> field; does not directly shell out.</td>
+        </tr>
+        <tr>
+          <td><code>HarnessId</code></td>
+          <td><code>claude</code> | <code>codex</code> | <code>opencode</code> | <code>rovo</code></td>
+          <td>The <strong>per-agent dispatch surface</strong> — the CLI that actually shells out for a given agent. Set by <code>agent.harness</code> in the agent definition.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    <code>BackendId</code> and <code>HarnessId</code> share two values
+    (<code>claude</code> and <code>codex</code>) but they are separate schemas.
+    Do not conflate them: <code>opencode</code> and <code>rovo</code> are valid
+    harnesses but are not valid backends. A run-level <code>--backend codex</code>
+    does not prevent an individual agent from dispatching via the
+    <code>opencode</code> harness.
+  </p>
+  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p><code>BackendId</code> is defined in <code>src/schemas/backend-id.ts</code>; <code>HarnessId</code> is defined in <code>src/schemas/harness-id.ts</code>. Both are Zod <code>z.enum</code> schemas — the source of truth for valid values.</p></div>
+</section>
+
+<section>
+  <h2>How a harness is resolved for each agent</h2>
+  <p>
+    When a round runs, every agent gets its own harness resolved independently.
+    The resolver walks this priority order — first that is set wins:
+  </p>
+  <ol>
+    <li><strong><code>agent.harness</code></strong> — a <code>HarnessId</code> set directly in the agent definition file. This is the strongest override and bypasses the run-level backend entirely.</li>
+    <li><strong>Run-level <code>--backend</code> / <code>config.backend</code></strong> — the <code>BackendId</code> from the CLI flag or project config, mapped to the matching harness.</li>
+    <li><strong><code>agent.backend</code></strong> — a <code>BackendId</code> set in the agent definition. Weaker than a run-level override; mapped to the matching harness when neither of the above is set.</li>
+  </ol>
+  <p>
+    If none of the three is set, the agent dispatches via the <code>claude</code>
+    harness (the default). An agent with an explicit <code>harness</code> field
+    always uses that harness regardless of what <code>--backend</code> is passed
+    at the command line.
+  </p>
+  <div class="callout" data-kind="tip"><span class="callout-label">Tip</span><p>Prefer <code>harness</code> over <code>backend</code> in agent definitions when you want to pin a specific CLI. The <code>harness</code> field is unambiguous and does not depend on how <code>BackendId</code> maps to <code>HarnessId</code>.</p></div>
+</section>
+
+<section>
+  <h2>Per-harness model flags</h2>
+  <p>
+    Every agent definition accepts an optional <code>model</code> string. When
+    set, it is passed to the harness CLI using that harness's own flag. The
+    mapping is:
+  </p>
+  <div class="table-wrap">
+    <table class="opts">
+      <thead>
+        <tr>
+          <th>Harness</th>
+          <th>CLI binary</th>
+          <th>Model flag</th>
+          <th>Example</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>claude</code></td>
+          <td><code>claude</code></td>
+          <td><code>--model</code></td>
+          <td><code>claude --print --model claude-opus-4-5 -</code></td>
+        </tr>
+        <tr>
+          <td><code>codex</code></td>
+          <td><code>codex</code></td>
+          <td><code>-m</code></td>
+          <td><code>codex exec ... -m o3-mini -</code></td>
+        </tr>
+        <tr>
+          <td><code>opencode</code></td>
+          <td><code>opencode</code></td>
+          <td><code>--model</code></td>
+          <td><code>opencode run --model anthropic/claude-sonnet-4-5</code></td>
+        </tr>
+        <tr>
+          <td><code>rovo</code></td>
+          <td><code>acli</code></td>
+          <td><code>--model</code></td>
+          <td><code>acli rovodev run --shadow -y --model rovo-default</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    When <code>model</code> is omitted from the agent definition, the harness
+    uses its own default model. The model string is harness-specific — check the
+    documentation for each CLI to see valid model identifiers.
+  </p>
+</section>
+
+<section>
+  <h2>Pinning a harness in an agent definition</h2>
+  <p>
+    The bundled <code>principal-engineer-opencode</code> agent shows the pattern:
+    set <code>harness: opencode</code> in the agent definition and the agent will
+    always dispatch via OpenCode, regardless of the run-level
+    <code>--backend</code> flag.
+  </p>
+  <pre><code><span class="c"># .agent-swarm/agents/principal-engineer-opencode.yml</span>
+name: principal-engineer-opencode
+description: Engineering agent that dispatches via OpenCode.
+persona: You are a principal engineer optimizing for correctness, maintainability, and practical execution.
+harness: opencode
+model: anthropic/claude-sonnet-4-5
+prompt: |
+  You are the principal-engineer-opencode agent in a swarm.
+  Focus on implementation approach, system boundaries, and delivery feasibility.
+  Return only the shared swarm JSON contract.</code></pre>
+  <p>
+    You can also use <code>backend: codex</code> instead of
+    <code>harness: codex</code> if you want the agent-level preference to
+    participate in the run-level backend mismatch checks that
+    <code>agent-swarm doctor</code> reports. Use <code>harness</code> when you
+    want to pin <code>opencode</code> or <code>rovo</code>, since those are not
+    valid <code>BackendId</code> values.
+  </p>
+  <p>
+    To run a mixed-harness swarm — for example, two Claude agents and one OpenCode
+    agent — select all three agents in your preset or config. Each dispatches
+    independently via its own harness:
+  </p>
+  <pre><code><span class="c"># agent-swarm run against a mixed preset</span>
+agent-swarm <span class="k">run</span> 2 <span class="s">"Should we adopt the new data layer?"</span> \
+  --agents product-manager,principal-engineer,principal-engineer-opencode</code></pre>
+</section>
+
+<section>
+  <h2>What doctor checks</h2>
+  <p>
+    <code>agent-swarm doctor</code> always probes all four harnesses —
+    <strong>Claude</strong>, <strong>Codex</strong>, <strong>OpenCode</strong>,
+    and <strong>Rovo</strong> — for availability and authentication, even when no
+    project config exists. This is the <strong>Harness inventory</strong> section
+    of the doctor report.
+  </p>
+  <p>
+    Each harness probe produces one of three outcomes:
+  </p>
+  <div class="table-wrap">
+    <table class="opts">
+      <thead>
+        <tr>
+          <th>Status</th>
+          <th>Condition</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>OK</code></td>
+          <td>The harness CLI is found on <code>PATH</code> and authentication probes succeed.</td>
+        </tr>
+        <tr>
+          <td><code>WARN</code></td>
+          <td>The harness is missing or unauthenticated, but it is <strong>not required</strong> by any agent in your current config. The run can still proceed without it.</td>
+        </tr>
+        <tr>
+          <td><code>FAIL</code></td>
+          <td>The harness is missing or unauthenticated, and at least one configured agent requires it. The detail line shows <code>required by: &lt;agent-name&gt;</code>.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Agent Swarm does not globally require any harness. A single-harness setup
+    passes doctor as long as the one harness its agents use is working — the
+    other three will show as <code>WARN</code>, not <code>FAIL</code>.
+  </p>
+  <pre><code><span class="c"># probe all four harnesses and check your config</span>
+agent-swarm doctor
+
+<span class="c"># example output (Harness inventory section)</span>
+Harness inventory
+  [OK]   Claude Code: authenticated (claude 1.x.x)
+  [WARN] OpenAI Codex: not found (not required by current config)
+  [WARN] OpenCode: not found (not required by current config)
+  [WARN] Rovo Dev: not found (not required by current config)</code></pre>
+  <p>
+    Doctor exits <code>0</code> when all checks pass (warnings are non-fatal),
+    <code>1</code> when any check fails, and <code>2</code> on an internal error.
+  </p>
+  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>Run <code>agent-swarm doctor</code> after adding a new agent that pins a different harness — it will tell you immediately whether that harness is installed and authenticated, and which agents depend on it.</p></div>
+</section>
+
+<section>
+  <h2>Where next</h2>
+  <ul>
+    <li><a href="agents-and-roles.html">Agents &amp; roles</a> — the full agent definition schema, including the <code>harness</code>, <code>backend</code>, and <code>model</code> fields.</li>
+    <li><a href="quickstart.html">Quickstart</a> — install a harness CLI and verify it with doctor before your first run.</li>
+    <li><a href="reference.html">CLI reference</a> — the <code>--backend</code> flag and all other run options.</li>
+    <li><a href="architecture.html">Architecture</a> — the harness adapter layer and how dispatch is wired through the pipeline.</li>
+  </ul>
+</section>
+        </article>
+        <footer class="pager" id="pager"></footer>
+      </main>
+      <aside class="toc-col"><p class="toc-title">On this page</p><nav id="toc" aria-label="On this page"></nav></aside>
+    </div>
+
+    <footer class="colophon"><div class="colophon-inner"><span>Agent Swarm docs</span><span>MIT</span><a href="https://github.com/calvinnwq/agent-swarm">GitHub</a></div></footer>
+  </body>
+</html>

@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Product decision — Agent Swarm</title>
+    <meta name="description" content="A bundled two-agent swarm where a product manager frames user value and a principal engineer grounds feasibility, converging on a decision." />
+    <script>
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem("agent-swarm-docs-theme"); } catch (e) {}
+        document.documentElement.dataset.theme = t === "light" ? "light" : "dark";
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/styles.css" />
+    <script src="assets/site.js" defer></script>
+  </head>
+  <body data-page="swarm-product-decision.html">
+    <a class="skip" href="#content">Skip to content</a>
+    <header class="masthead">
+      <div class="masthead-inner">
+        <button class="menu-btn" type="button" data-menu aria-label="Toggle navigation" aria-expanded="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 3.5h14M1 8h14M1 12.5h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+        <a class="brand" href="index.html">Agent&nbsp;Swarm<span class="brand-tag">docs</span></a>
+        <button class="search-btn" type="button" data-search-open><span>Search docs</span><kbd>/</kbd></button>
+        <div class="masthead-tools">
+          <a class="gh" href="https://github.com/calvinnwq/agent-swarm">GitHub</a>
+          <button class="theme-btn" type="button" data-theme-toggle aria-label="Toggle color theme" aria-pressed="false">
+            <svg class="icon-moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M14.6 12.1A6.5 6.5 0 0 1 7.4 2.7a6.5 6.5 0 1 0 7.2 9.4z" fill="currentColor"/></svg>
+            <svg class="icon-sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3.4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="10" y1="2" x2="10" y2="4"/><line x1="10" y1="16" x2="10" y2="18"/><line x1="2" y1="10" x2="4" y2="10"/><line x1="16" y1="10" x2="18" y2="10"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="14.4" y1="14.4" x2="15.8" y2="15.8"/><line x1="4.2" y1="15.8" x2="5.6" y2="14.4"/><line x1="14.4" y1="5.6" x2="15.8" y2="4.2"/></g></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="frame">
+      <nav id="sidebar" class="sidebar" aria-label="Documentation"></nav>
+      <main id="content" class="article-col">
+        <article>
+<p class="kicker"><span class="n">12 —</span>Swarm gallery</p>
+<h1>Product decision</h1>
+<p class="lede">
+  A product manager frames the user problem and shapes scope; a principal
+  engineer grounds it in architecture and delivery risk. An orchestrator
+  resolves their views into one call — <em>Proceed, Defer,</em> or
+  <em>Reject</em> — grounded in both user value and engineering feasibility.
+</p>
+
+<section>
+  <h2>The roster</h2>
+  <p>Two agents run in parallel. Each contributes a structured stance; the orchestrator synthesizes them.</p>
+  <table>
+    <thead>
+      <tr><th>Agent</th><th>Role</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>product-manager</code></td>
+        <td>Frames user value, controls scope, sequences delivery, and names the clearest next product decision.</td>
+      </tr>
+      <tr>
+        <td><code>principal-engineer</code></td>
+        <td>Grounds decisions in architecture, implementation risk, operational concerns, and realistic delivery feasibility.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Goal &amp; decision</h2>
+  <p>
+    The preset's goal is: <em>Reach a decision-ready recommendation grounded
+    in user value and engineering feasibility.</em>
+  </p>
+  <p>
+    The decision vocabulary is <strong>Proceed / Defer / Reject</strong>.
+    Every agent stance maps to one of these words; the synthesis surfaces the
+    majority call (or the orchestrator's resolution when the two agents diverge).
+  </p>
+  <p>
+    Resolution is set to <code>orchestrator</code>, so after each round the
+    bundled orchestrator agent reads both structured outputs and produces the
+    directive for the next round — or, on the final round, folds them into
+    the synthesis.
+  </p>
+</section>
+
+<section>
+  <h2>Run it</h2>
+  <p>
+    The first positional argument is the number of rounds (1–3). Pass your
+    question as the second argument, then name the preset:
+  </p>
+  <pre><code>agent-swarm <span class="k">run</span> 1 <span class="s">"Should we adopt server components?"</span> \
+  --preset product-decision</code></pre>
+  <p>For a two-round run that lets the agents refine their positions:</p>
+  <pre><code>agent-swarm <span class="k">run</span> 2 <span class="s">"Should we adopt server components?"</span> \
+  --preset product-decision</code></pre>
+  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>Real harnesses can take longer than the default 120 s dispatch timeout. Bump <code>--timeout-ms 300000</code> for deeper runs, or add it to <code>.agent-swarm/config.yml</code>. Use <code>--quiet</code> for one-line-per-event output in CI.</p></div>
+</section>
+
+<section>
+  <h2>What the synthesis looks like</h2>
+  <p>
+    When the run finishes you'll find a <code>synthesis.md</code> in
+    <code>.agent-swarm/runs/&lt;timestamp&gt;-&lt;slug&gt;/</code>. The
+    verdict word comes straight from the preset's decision vocabulary; confidence
+    is reported as a level, not a fabricated percentage.
+  </p>
+  <div class="verdict">
+    <div class="verdict-top"><span>Synthesis</span><span>product-decision · round 1 · 2 agents</span></div>
+    <p class="verdict-rec"><span class="mark">Proceed</span> — server components fit the migration if routing is staged incrementally and data-fetching boundaries are settled first.</p>
+    <div class="mrow"><span class="lab">consensus</span><span class="pips"><i class="pip on"></i><i class="pip on"></i></span><span>2 of 2 agree</span></div>
+    <div class="mrow"><span class="lab">confidence</span><span class="level" data-level="medium">medium</span></div>
+    <div class="vopen"><span class="q">Still open</span>Does the data-fetching layer change before or after the routing migration?</div>
+  </div>
+  <p>
+    Confidence is <code>low</code>, <code>medium</code>, or <code>high</code>.
+    The "Still open" row surfaces deferred questions that neither agent resolved
+    — a signal of where more information is needed before acting.
+  </p>
+</section>
+
+<section>
+  <h2>Related presets</h2>
+  <p>Three presets share the same goal and decision vocabulary as <code>product-decision</code>:</p>
+  <dl>
+    <dt><code>product-triad</code></dt>
+    <dd>Expands the roster to three agents — <code>product-manager</code>, <code>product-engineer</code>, and <code>product-designer</code> — adding a user-experience perspective alongside product and engineering. Same <em>Proceed / Defer / Reject</em> vocabulary, same orchestrator resolution.</dd>
+    <dt><code>product-decision-codex</code></dt>
+    <dd>The same two-agent product decision swarm running on the Codex harness. Identical goal and decision vocabulary; swap in when your team uses Codex instead of Claude.</dd>
+    <dt><code>product-decision-opencode</code></dt>
+    <dd>The same two-agent product decision swarm running on the OpenCode harness. Identical goal and decision vocabulary; swap in when your team uses OpenCode.</dd>
+  </dl>
+  <div class="callout" data-kind="tip"><span class="callout-label">Tip</span><p>To mix harnesses or add a third voice, define your own preset in <code>.agent-swarm/presets/</code>. See <a href="composing-a-swarm.html">Composing a swarm</a> for the full authoring guide.</p></div>
+</section>
+
+<section>
+  <h2>Where next</h2>
+  <ul>
+    <li><a href="index.html">Overview</a> — the full gallery of bundled swarms.</li>
+    <li><a href="quickstart.html">Quickstart</a> — run <code>product-decision</code> end to end in five minutes.</li>
+    <li><a href="composing-a-swarm.html">Composing a swarm</a> — write your own agents, presets, and decision vocabulary.</li>
+    <li><a href="reference.html">CLI reference</a> — every command, flag, and run artifact.</li>
+  </ul>
+</section>
+        </article>
+        <footer class="pager" id="pager"></footer>
+      </main>
+      <aside class="toc-col"><p class="toc-title">On this page</p><nav id="toc" aria-label="On this page"></nav></aside>
+    </div>
+
+    <footer class="colophon"><div class="colophon-inner"><span>Agent Swarm docs</span><span>MIT</span><a href="https://github.com/calvinnwq/agent-swarm">GitHub</a></div></footer>
+  </body>
+</html>

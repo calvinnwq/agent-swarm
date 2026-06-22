@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Agents &amp; roles — Agent Swarm</title>
+    <meta name="description" content="An agent is a named role with a persona and prompt that returns structured notes. Two to five agents make a swarm." />
+    <script>
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem("agent-swarm-docs-theme"); } catch (e) {}
+        document.documentElement.dataset.theme = t === "light" ? "light" : "dark";
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/styles.css" />
+    <script src="assets/site.js" defer></script>
+  </head>
+  <body data-page="agents-and-roles.html">
+    <a class="skip" href="#content">Skip to content</a>
+    <header class="masthead">
+      <div class="masthead-inner">
+        <button class="menu-btn" type="button" data-menu aria-label="Toggle navigation" aria-expanded="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 3.5h14M1 8h14M1 12.5h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+        <a class="brand" href="index.html">Agent&nbsp;Swarm<span class="brand-tag">docs</span></a>
+        <button class="search-btn" type="button" data-search-open><span>Search docs</span><kbd>/</kbd></button>
+        <div class="masthead-tools">
+          <a class="gh" href="https://github.com/calvinnwq/agent-swarm">GitHub</a>
+          <button class="theme-btn" type="button" data-theme-toggle aria-label="Toggle color theme" aria-pressed="false">
+            <svg class="icon-moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M14.6 12.1A6.5 6.5 0 0 1 7.4 2.7a6.5 6.5 0 1 0 7.2 9.4z" fill="currentColor"/></svg>
+            <svg class="icon-sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3.4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="10" y1="2" x2="10" y2="4"/><line x1="10" y1="16" x2="10" y2="18"/><line x1="2" y1="10" x2="4" y2="10"/><line x1="16" y1="10" x2="18" y2="10"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="14.4" y1="14.4" x2="15.8" y2="15.8"/><line x1="4.2" y1="15.8" x2="5.6" y2="14.4"/><line x1="14.4" y1="5.6" x2="15.8" y2="4.2"/></g></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="frame">
+      <nav id="sidebar" class="sidebar" aria-label="Documentation"></nav>
+      <main id="content" class="article-col">
+        <article>
+<p class="kicker"><span class="n">04 —</span>Concepts</p>
+<h1>Agents &amp; roles</h1>
+<p class="lede">
+  An agent is a named <em>role</em>: a persona and a prompt that together define
+  how one participant thinks about a problem. You select 2–5 agents into a swarm;
+  each runs in parallel every round and returns the same set of structured notes.
+  The swarm's synthesis is built entirely from those notes — no model decides the
+  final word.
+</p>
+
+<section>
+  <h2>What an agent is</h2>
+  <p>
+    An agent is not a long-running process or a background service. It is a
+    <em>role definition</em> — a YAML or Markdown file that tells the harness who
+    this participant is and what to think about. When a round runs, each selected
+    agent receives the same brief and returns one set of structured notes. Between
+    rounds, those notes inform the next directive. After all rounds, the
+    deterministic synthesis folds every agent's output into one answer.
+  </p>
+  <p>
+    Because agents are plain files, they are version-controlled, shareable, and
+    overridable at the project or user level without touching bundled defaults.
+    Same-name agents in a closer scope silently override bundled ones — project
+    scope beats user scope beats bundled.
+  </p>
+  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>A swarm requires a minimum of <strong>2 agents</strong> and a maximum of <strong>5</strong>. Single-agent and six-plus-agent runs are rejected at parse time.</p></div>
+</section>
+
+<section>
+  <h2>Agent definition fields</h2>
+  <p>
+    Each agent file is validated against the <code>AgentDefinitionSchema</code>.
+    These are the fields you can set:
+  </p>
+  <div class="table-wrap">
+    <table class="opts">
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>name</code></td>
+          <td>Yes</td>
+          <td>Lowercase kebab or snake identifier. Must match <code>^[a-z0-9][a-z0-9_-]*$</code>. Examples: <code>product-manager</code>, <code>first-time-user</code>.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Yes</td>
+          <td>A short human-readable summary of the role — shown in registry listings and <code>agent-swarm doctor</code> output.</td>
+        </tr>
+        <tr>
+          <td><code>persona</code></td>
+          <td>Yes</td>
+          <td>A sentence or two that establishes who this agent is. Sets the point of view the model takes when generating output.</td>
+        </tr>
+        <tr>
+          <td><code>prompt</code></td>
+          <td>Yes</td>
+          <td>The main instruction string, or <code>{ file: "path/to/prompt.md" }</code> to load from a file relative to the agent definition.</td>
+        </tr>
+        <tr>
+          <td><code>backend</code></td>
+          <td>No</td>
+          <td>Run-level backend preference. Accepts <code>claude</code> or <code>codex</code>. Defaults to <code>claude</code>.</td>
+        </tr>
+        <tr>
+          <td><code>harness</code></td>
+          <td>No</td>
+          <td>Per-agent harness override. Accepts <code>claude</code>, <code>codex</code>, <code>opencode</code>, or <code>rovo</code>. When omitted, the run-level backend or the agent's <code>backend</code> field determines dispatch.</td>
+        </tr>
+        <tr>
+          <td><code>model</code></td>
+          <td>No</td>
+          <td>Harness-specific model string passed to the harness CLI. When omitted, the harness uses its own default.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>A minimal agent definition in YAML looks like this:</p>
+  <pre><code>name: first-time-user
+description: First-time user agent for onboarding clarity, setup friction, and early comprehension.
+persona: You are a first-time technical user trying to understand the product quickly without insider context.
+prompt: |
+  You are the first-time-user agent in a swarm.
+  Evaluate the topic from the perspective of someone encountering the product for the first time.
+  Focus on setup friction, unclear language, and the moment when value becomes obvious.
+  Return only the shared swarm JSON contract.</code></pre>
+
+  <p>Agents can also be written as Markdown files with YAML frontmatter — any field above can appear in the frontmatter block, and the Markdown body becomes the prompt.</p>
+</section>
+
+<section>
+  <h2>What each agent returns</h2>
+  <p>
+    Every agent must return a single JSON object that validates against
+    <code>AgentOutputSchema</code>. The schema is the same for every agent in
+    every swarm — it is the contract that makes synthesis deterministic. The
+    fields are:
+  </p>
+  <div class="table-wrap">
+    <table class="opts">
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>stance</code></td>
+          <td>string</td>
+          <td>A single word or short phrase — the agent's verdict in the preset's decision vocabulary (e.g. <code>Proceed</code>, <code>Fix now</code>, <code>Reject</code>).</td>
+        </tr>
+        <tr>
+          <td><code>recommendation</code></td>
+          <td>string</td>
+          <td>One sentence that completes the stance: what the agent thinks should happen and why, in plain language.</td>
+        </tr>
+        <tr>
+          <td><code>reasoning</code></td>
+          <td>string[]</td>
+          <td>An ordered list of supporting points. The synthesis uses this list to surface shared reasoning across agents.</td>
+        </tr>
+        <tr>
+          <td><code>objections</code></td>
+          <td>string[]</td>
+          <td>The agent's own counter-arguments or doubts — things that argue against its own recommendation.</td>
+        </tr>
+        <tr>
+          <td><code>risks</code></td>
+          <td>string[]</td>
+          <td>Risks the agent wants the swarm to track. Risks raised by two or more agents surface as shared risks in the synthesis.</td>
+        </tr>
+        <tr>
+          <td><code>changesFromPriorRound</code></td>
+          <td>string[]</td>
+          <td>What shifted since the last round — new evidence, updated stance, revised recommendation. Empty on round 1.</td>
+        </tr>
+        <tr>
+          <td><code>openQuestions</code></td>
+          <td>string[]</td>
+          <td>Questions the agent could not resolve. These are collected and deferred in the synthesis so they are not silently dropped.</td>
+        </tr>
+        <tr>
+          <td><code>confidence</code></td>
+          <td><code>low</code> | <code>medium</code> | <code>high</code></td>
+          <td>The agent's own confidence in its recommendation. The synthesis averages confidence across agents and rounds.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>Confidence is always one of exactly three levels — <code>low</code>, <code>medium</code>, or <code>high</code>. It is never a fabricated percentage. A response with any other value fails schema validation and triggers one automatic repair attempt.</p></div>
+</section>
+
+<section>
+  <h2>Bundled rosters</h2>
+  <p>
+    Agent Swarm ships three bundled rosters, each matched to a preset. You can
+    use any bundled agent by name in your own presets, or override any of them
+    with a same-name agent at project or user scope.
+  </p>
+
+  <p><strong>Customer panel</strong> — react to your product from customer perspectives:</p>
+  <ul>
+    <li><code>first-time-user</code> — onboarding clarity, setup friction, and early comprehension.</li>
+    <li><code>busy-operator</code> — day-to-day operational efficiency and workflow fit.</li>
+    <li><code>skeptical-buyer</code> — adoption risk, trust signals, and purchase hesitation.</li>
+  </ul>
+
+  <p><strong>Engineering review</strong> — attack a diff or architecture change from multiple angles:</p>
+  <ul>
+    <li><code>code-reviewer</code> — correctness, style, and maintainability of the change.</li>
+    <li><code>implementation-skeptic</code> — questions the approach before the implementation.</li>
+    <li><code>test-risk-reviewer</code> — test coverage gaps and regression surface.</li>
+    <li><code>principal-engineer</code> — feasibility, system-level tradeoffs, and long-term cost.</li>
+  </ul>
+
+  <p><strong>Product decision</strong> — frame user value and ground feasibility:</p>
+  <ul>
+    <li><code>product-manager</code> — user value, scope, delivery sequencing, and decision quality.</li>
+    <li><code>product-engineer</code> — engineering effort, technical tradeoffs, and build risk.</li>
+    <li><code>product-designer</code> — usability, design coherence, and user experience impact.</li>
+  </ul>
+
+  <p>
+    For example, the <code>customer-panel</code> preset selects
+    <code>first-time-user</code>, <code>busy-operator</code>, and
+    <code>skeptical-buyer</code> and runs them in parallel every round:
+  </p>
+  <pre><code>agent-swarm <span class="k">run</span> 2 <span class="s">"Should we ship the freemium tier this quarter?"</span> \
+  --preset customer-panel</code></pre>
+</section>
+
+<section>
+  <h2>Where next</h2>
+  <ul>
+    <li><a href="writing-an-agent.html">Writing an agent</a> — define your own agent from scratch with YAML or Markdown.</li>
+    <li><a href="reference.html">CLI reference</a> — every command, flag, preset, and run artifact.</li>
+    <li><a href="architecture.html">Architecture</a> — how agents flow through the pipeline at runtime.</li>
+  </ul>
+  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>The agent definition schema is defined in <code>src/schemas/agent-definition.ts</code> and the output schema in <code>src/schemas/agent-output.ts</code>. These are the authoritative sources — this page reflects them exactly.</p></div>
+</section>
+        </article>
+        <footer class="pager" id="pager"></footer>
+      </main>
+      <aside class="toc-col"><p class="toc-title">On this page</p><nav id="toc" aria-label="On this page"></nav></aside>
+    </div>
+
+    <footer class="colophon"><div class="colophon-inner"><span>Agent Swarm docs</span><span>MIT</span><a href="https://github.com/calvinnwq/agent-swarm">GitHub</a></div></footer>
+  </body>
+</html>

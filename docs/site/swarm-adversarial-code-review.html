@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Adversarial code review — Agent Swarm</title>
+    <meta name="description" content="A bundled three-reviewer swarm that stress-tests a diff, PR plan, or architecture change for correctness, implementation risk, and proof quality." />
+    <script>
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem("agent-swarm-docs-theme"); } catch (e) {}
+        document.documentElement.dataset.theme = t === "light" ? "light" : "dark";
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/styles.css" />
+    <script src="assets/site.js" defer></script>
+  </head>
+  <body data-page="swarm-adversarial-code-review.html">
+    <a class="skip" href="#content">Skip to content</a>
+    <header class="masthead">
+      <div class="masthead-inner">
+        <button class="menu-btn" type="button" data-menu aria-label="Toggle navigation" aria-expanded="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 3.5h14M1 8h14M1 12.5h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+        <a class="brand" href="index.html">Agent&nbsp;Swarm<span class="brand-tag">docs</span></a>
+        <button class="search-btn" type="button" data-search-open><span>Search docs</span><kbd>/</kbd></button>
+        <div class="masthead-tools">
+          <a class="gh" href="https://github.com/calvinnwq/agent-swarm">GitHub</a>
+          <button class="theme-btn" type="button" data-theme-toggle aria-label="Toggle color theme" aria-pressed="false">
+            <svg class="icon-moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M14.6 12.1A6.5 6.5 0 0 1 7.4 2.7a6.5 6.5 0 1 0 7.2 9.4z" fill="currentColor"/></svg>
+            <svg class="icon-sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3.4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="10" y1="2" x2="10" y2="4"/><line x1="10" y1="16" x2="10" y2="18"/><line x1="2" y1="10" x2="4" y2="10"/><line x1="16" y1="10" x2="18" y2="10"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="14.4" y1="14.4" x2="15.8" y2="15.8"/><line x1="4.2" y1="15.8" x2="5.6" y2="14.4"/><line x1="14.4" y1="5.6" x2="15.8" y2="4.2"/></g></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="frame">
+      <nav id="sidebar" class="sidebar" aria-label="Documentation"></nav>
+      <main id="content" class="article-col">
+        <article>
+<p class="kicker"><span class="n">10 —</span>Swarm gallery</p>
+<h1>Adversarial code review</h1>
+<p class="lede">
+  Three reviewers attack a diff, PR plan, or architecture change from different angles —
+  correctness, implementation risk, and proof quality — then an orchestrator folds their
+  findings into a single <em>Ready / Revise / Reject</em> verdict.
+</p>
+
+<section>
+  <h2>The roster</h2>
+  <p>The preset wires up three agents, each covering a distinct attack surface:</p>
+  <ul>
+    <li>
+      <strong>code-reviewer</strong> — Reviews proposed changes for correctness, regressions, contract drift, and maintainability; prefers specific failure modes and concrete fixes over style commentary.
+    </li>
+    <li>
+      <strong>implementation-skeptic</strong> — Protects the project from fragile, overbuilt, or poorly sequenced changes by surfacing scope creep, hidden coupling, and brittle assumptions.
+    </li>
+    <li>
+      <strong>test-risk-reviewer</strong> — Evaluates whether the change has enough proof: missing tests, weak verification, release risk, and rollback gaps.
+    </li>
+  </ul>
+</section>
+
+<section>
+  <h2>Goal and decision</h2>
+  <p>
+    The swarm's goal is to <em>stress-test the proposed code change for correctness, implementation risk, and proof quality</em>.
+    Resolution runs through the bundled <code>orchestrator</code> agent, which weighs all three reviewers' stances and synthesizes a single call.
+  </p>
+  <p>The decision vocabulary is:</p>
+  <div class="vtokens"><span class="tok go">Ready</span><span class="tok">Revise</span><span class="tok">Reject</span></div>
+  <ul>
+    <li><strong>Ready</strong> — the change is correct, well-tested, and safe to merge.</li>
+    <li><strong>Revise</strong> — the approach is sound but specific issues must be addressed first.</li>
+    <li><strong>Reject</strong> — the change has a fundamental problem; a different approach is needed.</li>
+  </ul>
+  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p><code>resolve: orchestrator</code> means the synthesis verdict is produced by the orchestrator agent, not the deterministic template. The three reviewer stances still feed the same shared JSON contract and appear in <code>synthesis.json</code>.</p></div>
+</section>
+
+<section>
+  <h2>Run it</h2>
+  <p>Pass the number of rounds as the first positional argument, then your question, then the preset flag. Two rounds lets the reviewers respond to each other's objections before the orchestrator settles:</p>
+  <pre><code>agent-swarm <span class="k">run</span> 2 <span class="s">"Is the new cache-invalidation strategy in PR #312 safe to merge?"</span> \
+  --preset adversarial-code-review</code></pre>
+  <p>For a single-pass review of a small diff, one round is enough:</p>
+  <pre><code>agent-swarm <span class="k">run</span> 1 <span class="s">"Review the auth middleware refactor in auth/middleware.ts"</span> \
+  --preset adversarial-code-review</code></pre>
+  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>Real harnesses can take time on long diffs — bump <code>--timeout-ms</code> if agents time out. Use <code>--quiet</code> for one-line-per-event CI output.</p></div>
+</section>
+
+<section>
+  <h2>What the synthesis looks like</h2>
+  <p>When the run completes, <code>synthesis.md</code> inside the run directory holds the orchestrator's verdict in the preset's own decision vocabulary:</p>
+  <div class="verdict">
+    <div class="verdict-top"><span>Synthesis</span><span>adversarial-code-review · round 2 · 3 agents</span></div>
+    <p class="verdict-rec"><span class="mark">Revise</span> — cache invalidation logic is correct under the happy path but misses concurrent write races on distributed nodes.</p>
+    <div class="mrow"><span class="lab">consensus</span><span class="pips"><i class="pip on"></i><i class="pip dim"></i><i class="pip dim"></i></span><span>1 of 3 agree</span></div>
+    <div class="mrow"><span class="lab">confidence</span><span class="level" data-level="high">high</span></div>
+    <div class="vopen"><span class="q">Still open</span>Should the fix add a distributed lock, or is a version-vector approach the right scope here?</div>
+  </div>
+  <p>Confidence is always a level — <code>low</code>, <code>medium</code>, or <code>high</code> — not a fabricated percentage. The verdict word comes directly from the preset's <code>decision</code> vocabulary.</p>
+</section>
+
+<section>
+  <h2>Where next</h2>
+  <ul>
+    <li><a href="swarm-customer-panel.html">Customer panel</a> — stand-in customers react to product friction, first-run value, and adoption risk.</li>
+    <li><a href="swarm-product-decision.html">Product decision</a> — a PM and a principal engineer converge on a build-vs-defer call.</li>
+    <li><a href="composing-a-swarm.html">Composing a swarm</a> — define your own agents, preset, and decision vocabulary.</li>
+  </ul>
+</section>
+        </article>
+        <footer class="pager" id="pager"></footer>
+      </main>
+      <aside class="toc-col"><p class="toc-title">On this page</p><nav id="toc" aria-label="On this page"></nav></aside>
+    </div>
+
+    <footer class="colophon"><div class="colophon-inner"><span>Agent Swarm docs</span><span>MIT</span><a href="https://github.com/calvinnwq/agent-swarm">GitHub</a></div></footer>
+  </body>
+</html>

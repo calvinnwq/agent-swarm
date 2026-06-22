@@ -3,137 +3,125 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Agent Swarm — Multi-agent decision CLI</title>
-    <meta
-      name="description"
-      content="Agent Swarm fans out a panel of AI agents in parallel rounds, validates their structured output, and produces one deterministic synthesis."
+    <title>Agent Swarm — Compose AI agent swarms, get one answer</title>
+    <meta name="description" content="Agent Swarm runs a panel of AI agents in parallel and folds their work into one deterministic synthesis. Start with a ready-made swarm or compose your own." />
+    <script>
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem("agent-swarm-docs-theme"); } catch (e) {}
+        document.documentElement.dataset.theme = t === "light" ? "light" : "dark";
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
     />
     <link rel="stylesheet" href="assets/styles.css" />
     <script src="assets/site.js" defer></script>
   </head>
-  <body>
-    <a class="skip-link" href="#main">Skip to content</a>
-    <header class="site-header">
-      <div class="site-header__inner">
-        <a class="site-brand" href="index.html">
-          <span class="site-brand__mark" aria-hidden="true">◇</span>
-          Agent Swarm
-        </a>
-        <button
-          class="site-nav__toggle"
-          type="button"
-          aria-expanded="false"
-          aria-controls="site-nav"
-          aria-label="Toggle navigation"
-        >
-          Menu
-        </button>
-        <nav class="site-nav" id="site-nav" aria-label="Primary">
-          <a href="index.html" aria-current="page">Home</a>
-          <a href="quickstart.html">Quickstart</a>
-          <a href="reference.html">Reference</a>
-          <a href="architecture.html">Architecture</a>
-          <a href="agent-usage.html">Agent Usage</a>
-          <a href="release-readiness.html">Release Readiness</a>
-        </nav>
+  <body data-page="index.html">
+    <a class="skip" href="#content">Skip to content</a>
+    <header class="masthead">
+      <div class="masthead-inner">
+        <button class="menu-btn" type="button" data-menu aria-label="Toggle navigation" aria-expanded="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 3.5h14M1 8h14M1 12.5h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+        <a class="brand" href="index.html">Agent&nbsp;Swarm<span class="brand-tag">docs</span></a>
+        <button class="search-btn" type="button" data-search-open><span>Search docs</span><kbd>/</kbd></button>
+        <div class="masthead-tools">
+          <a class="gh" href="https://github.com/calvinnwq/agent-swarm">GitHub</a>
+          <button class="theme-btn" type="button" data-theme-toggle aria-label="Toggle color theme" aria-pressed="false">
+            <svg class="icon-moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M14.6 12.1A6.5 6.5 0 0 1 7.4 2.7a6.5 6.5 0 1 0 7.2 9.4z" fill="currentColor"/></svg>
+            <svg class="icon-sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3.4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="10" y1="2" x2="10" y2="4"/><line x1="10" y1="16" x2="10" y2="18"/><line x1="2" y1="10" x2="4" y2="10"/><line x1="16" y1="10" x2="18" y2="10"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="14.4" y1="14.4" x2="15.8" y2="15.8"/><line x1="4.2" y1="15.8" x2="5.6" y2="14.4"/><line x1="14.4" y1="5.6" x2="15.8" y2="4.2"/></g></svg>
+          </button>
+        </div>
       </div>
     </header>
 
-    <main class="site-main" id="main">
-      <section class="hero">
-        <p class="eyebrow">Alpha · open source</p>
-        <h1>Run a panel of AI agents. Get one deterministic answer.</h1>
-        <p>
-          Agent Swarm is a TypeScript CLI that fans out 2–5 agents over 1–3
-          rounds, validates their structured JSON output, and produces a single
-          deterministic synthesis you can review or check in.
-        </p>
-        <div class="button-row">
-          <a class="btn btn--primary" href="quickstart.html">Get started →</a>
-          <a class="btn btn--ghost" href="reference.html">Command reference</a>
-        </div>
-      </section>
+    <div class="frame">
+      <nav id="sidebar" class="sidebar" aria-label="Documentation"></nav>
+      <main id="content" class="article-col">
+        <article>
+<p class="kicker"><span class="n">01 —</span>Overview</p>
+<h1>Many AI agents on the problem. One answer back.</h1>
+<p class="lede">
+  Agent Swarm runs a panel of AI agents in parallel — each with its own role —
+  and folds their work into a single <em>deterministic</em> synthesis. Review a
+  diff, pressure-test a launch, channel your customers. Start with a ready-made
+  swarm, or <em>compose your own</em>: your agents, your rounds, your rules.
+</p>
+<div class="anat"><b>Every swarm:</b> <span class="step">pick agents</span> <span class="ar">→</span> <span class="step">run rounds</span> <span class="ar">→</span> <span class="step">resolve</span> <span class="ar">→</span> <span class="step">one synthesis</span></div>
 
-      <h2>Why a swarm</h2>
-      <p>
-        One model answering alone is a single point of view. Agent Swarm runs a
-        small panel — a product manager and a principal engineer, an adversarial
-        review pair, a customer panel — in parallel, then folds their answers
-        into a deterministic synthesis: consensus, the top recommendation by
-        confidence, shared risks, and the questions still open. No LLM call
-        decides the final report, so the same packets always produce the same
-        synthesis.
-      </p>
+<section>
+  <h2>Run one in a line</h2>
+  <p>Start with a bundled swarm — no configuration required:</p>
+  <pre><code><span class="c"># install</span>
+npm install -g @calvinnwq/agent-swarm
 
-      <div class="card-grid">
-        <a class="card" href="quickstart.html">
-          <h3>Quickstart</h3>
-          <p>Install, verify your setup, and run your first one-round swarm.</p>
-        </a>
-        <a class="card" href="reference.html">
-          <h3>Reference</h3>
-          <p>Every command, flag, preset, and run artifact in one place.</p>
-        </a>
-        <a class="card" href="architecture.html">
-          <h3>Architecture</h3>
-          <p>The runtime map: pipeline, harness layering, registries, schemas.</p>
-        </a>
-        <a class="card" href="agent-usage.html">
-          <h3>Agent Usage</h3>
-          <p>How autonomous agents configure and drive a swarm safely.</p>
-        </a>
-        <a class="card" href="release-readiness.html">
-          <h3>Release Readiness</h3>
-          <p>The gates and process behind every Agent Swarm release.</p>
-        </a>
-      </div>
+<span class="c"># run a bundled swarm against a question (2 = rounds)</span>
+agent-swarm <span class="k">run</span> 2 <span class="s">"Should we ship the freemium tier this quarter?"</span> \
+  --preset customer-panel</code></pre>
+  <p>Every agent runs at the same time, so a four-agent panel takes about as long as one. You get back a single synthesis you can read, review, or check in.</p>
+</section>
 
-      <h2>How it works</h2>
-      <p>Every <code>agent-swarm run</code> follows the same lifecycle:</p>
-      <ol>
-        <li>
-          <strong>Plan.</strong> CLI flags, project config, and the chosen
-          preset are merged. Each selected agent resolves a runtime harness.
-        </li>
-        <li>
-          <strong>Round.</strong> Agents run in parallel (concurrency 3 by
-          default) and return JSON validated against the agent output schema.
-        </li>
-        <li>
-          <strong>Between rounds.</strong> Depending on <code>--resolve</code>,
-          the swarm builds the next directive deterministically or runs an LLM
-          orchestrator pass.
-        </li>
-        <li>
-          <strong>Synthesize.</strong> Once the last round finishes, a
-          deterministic synthesis is produced — no LLM call — with consensus,
-          top recommendation, shared risks, and deferred questions.
-        </li>
-      </ol>
+<section>
+  <h2>Ready-made swarms</h2>
+  <p>Each bundled preset is a different panel with its own roster and its own decision vocabulary. Pick one, or use them as a starting point for your own.</p>
+  <div class="gallery">
+    <a class="swarm" href="swarm-adversarial-code-review.html">
+      <p class="nm">Adversarial code review</p>
+      <p class="roles">code-reviewer · implementation-skeptic · test-risk-reviewer</p>
+      <p class="desc">Three reviewers attack a diff, PR plan, or architecture change from different angles.</p>
+      <div class="vtokens"><span class="tok go">Ready</span><span class="tok">Revise</span><span class="tok">Reject</span></div>
+    </a>
+    <a class="swarm" href="swarm-customer-panel.html">
+      <p class="nm">Customer panel</p>
+      <p class="roles">first-time-user · busy-operator · skeptical-buyer</p>
+      <p class="desc">Stand-in customers react to your product's first-run value, friction, and adoption risk.</p>
+      <div class="vtokens"><span class="tok go">Fix now</span><span class="tok">Defer</span><span class="tok">Reject</span></div>
+    </a>
+    <a class="swarm" href="swarm-product-decision.html">
+      <p class="nm">Product decision</p>
+      <p class="roles">product-manager · principal-engineer</p>
+      <p class="desc">A PM frames user value and a principal engineer grounds feasibility; they converge on a call.</p>
+      <div class="vtokens"><span class="tok go">Proceed</span><span class="tok">Defer</span><span class="tok">Reject</span></div>
+    </a>
+    <a class="swarm build" href="writing-an-agent.html">
+      <p class="nm">Build your own ✦</p>
+      <p class="roles">your roles · your rounds · your decision words</p>
+      <p class="desc">Define agents in <code>.agent-swarm/agents/*.md</code>, wire them into a preset. Pick the rounds, the resolution, even the verdict vocabulary.</p>
+      <div class="vtokens"><span class="tok">YAML</span><span class="tok">Markdown</span><span class="tok">your call</span></div>
+    </a>
+  </div>
+</section>
 
-      <div class="note">
-        <p>
-          The
-          <a href="https://github.com/calvinnwq/agent-swarm#readme">README</a>
-          is the authoritative user-facing contract; this site mirrors it for
-          quick reference. For the durable spec see
-          <a href="https://github.com/calvinnwq/agent-swarm/blob/main/SPEC.md"
-            >SPEC.md</a
-          >.
-        </p>
-      </div>
-    </main>
+<section>
+  <h2>What you get back</h2>
+  <p>The synthesis is the whole point: one recommendation in the swarm's own decision vocabulary, how much the panel agreed, the risks they share, and what's still open. It's computed deterministically — no model decides the final word — so the same agent notes always produce the same synthesis.</p>
+  <div class="verdict">
+    <div class="verdict-top"><span>Synthesis</span><span>customer-panel · round 2 · 3 agents</span></div>
+    <p class="verdict-rec"><span class="mark">Fix now</span> — onboarding hides the one action that shows value.</p>
+    <div class="mrow"><span class="lab">consensus</span><span class="pips"><i class="pip on"></i><i class="pip on"></i><i class="pip dim"></i></span><span>2 of 3 agree</span></div>
+    <div class="mrow"><span class="lab">confidence</span><span class="level" data-level="high">high</span></div>
+    <div class="vopen"><span class="q">Still open</span>Does the empty state need a sample project, or just a clearer first step?</div>
+  </div>
+</section>
 
-    <footer class="site-footer">
-      <div class="site-footer__inner">
-        <p>Agent Swarm — fan out agents, collect structured output, synthesize.</p>
-        <p>
-          <a href="https://github.com/calvinnwq/agent-swarm">GitHub</a> ·
-          <a href="https://github.com/calvinnwq/agent-swarm/blob/main/LICENSE"
-            >MIT License</a
-          >
-        </p>
-      </div>
-    </footer>
+<section>
+  <h2>Where next</h2>
+  <ul>
+    <li><a href="quickstart.html">Quickstart</a> — run a ready-made swarm end to end.</li>
+    <li><a href="reference.html">CLI reference</a> — every command, flag, preset, and run artifact.</li>
+    <li><a href="architecture.html">Architecture</a> — the runtime map for contributors.</li>
+  </ul>
+  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>The <a href="https://github.com/calvinnwq/agent-swarm#readme">README</a> is the authoritative user-facing contract; this site mirrors it. For the durable spec, see <a href="https://github.com/calvinnwq/agent-swarm/blob/main/SPEC.md">SPEC.md</a>.</p></div>
+</section>
+        </article>
+        <footer class="pager" id="pager"></footer>
+      </main>
+      <aside class="toc-col"><p class="toc-title">On this page</p><nav id="toc" aria-label="On this page"></nav></aside>
+    </div>
+
+    <footer class="colophon"><div class="colophon-inner"><span>Agent Swarm docs</span><span>MIT</span><a href="https://github.com/calvinnwq/agent-swarm">GitHub</a></div></footer>
   </body>
 </html>

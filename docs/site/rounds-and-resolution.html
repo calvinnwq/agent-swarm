@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rounds &amp; resolution — Agent Swarm</title>
+    <meta name="description" content="Rounds run 1 to 3 times; between them the swarm resolves. The three resolve modes — off, orchestrator, agents — in plain language." />
+    <script>
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem("agent-swarm-docs-theme"); } catch (e) {}
+        document.documentElement.dataset.theme = t === "light" ? "light" : "dark";
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/styles.css" />
+    <script src="assets/site.js" defer></script>
+  </head>
+  <body data-page="rounds-and-resolution.html">
+    <a class="skip" href="#content">Skip to content</a>
+    <header class="masthead">
+      <div class="masthead-inner">
+        <button class="menu-btn" type="button" data-menu aria-label="Toggle navigation" aria-expanded="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 3.5h14M1 8h14M1 12.5h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+        <a class="brand" href="index.html">Agent&nbsp;Swarm<span class="brand-tag">docs</span></a>
+        <button class="search-btn" type="button" data-search-open><span>Search docs</span><kbd>/</kbd></button>
+        <div class="masthead-tools">
+          <a class="gh" href="https://github.com/calvinnwq/agent-swarm">GitHub</a>
+          <button class="theme-btn" type="button" data-theme-toggle aria-label="Toggle color theme" aria-pressed="false">
+            <svg class="icon-moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M14.6 12.1A6.5 6.5 0 0 1 7.4 2.7a6.5 6.5 0 1 0 7.2 9.4z" fill="currentColor"/></svg>
+            <svg class="icon-sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3.4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="10" y1="2" x2="10" y2="4"/><line x1="10" y1="16" x2="10" y2="18"/><line x1="2" y1="10" x2="4" y2="10"/><line x1="16" y1="10" x2="18" y2="10"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="14.4" y1="14.4" x2="15.8" y2="15.8"/><line x1="4.2" y1="15.8" x2="5.6" y2="14.4"/><line x1="14.4" y1="5.6" x2="15.8" y2="4.2"/></g></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="frame">
+      <nav id="sidebar" class="sidebar" aria-label="Documentation"></nav>
+      <main id="content" class="article-col">
+        <article>
+<p class="kicker"><span class="n">05 —</span>Concepts</p>
+<h1>Rounds &amp; resolution</h1>
+<p class="lede">
+  A swarm runs 1–3 rounds. In each round every selected agent responds in
+  parallel. Between rounds the swarm <em>resolves</em> — building a directive
+  that carries the prior round's findings forward. The <code>--resolve</code>
+  flag controls how that directive is produced.
+</p>
+<div class="anat"><b>Each run:</b> <span class="step">round 1</span> <span class="ar">→</span> <span class="step">resolve</span> <span class="ar">→</span> <span class="step">round 2</span> <span class="ar">→</span> <span class="step">…</span> <span class="ar">→</span> <span class="step">synthesis</span></div>
+
+<section>
+  <h2>What is a round?</h2>
+  <p>
+    A round is one full parallel sweep of the selected agents. All agents
+    receive the same brief and respond at the same time — a four-agent panel
+    takes about as long as one agent, not four. Each agent returns structured
+    JSON validated against the agent output schema: stance, recommendation,
+    reasoning, risks, open questions, and a confidence level.
+  </p>
+  <p>
+    The first positional argument to <code>agent-swarm run</code> is the number
+    of rounds. It must be an integer from 1 to 3:
+  </p>
+  <pre><code>agent-swarm <span class="k">run</span> <span class="s">2</span> <span class="s">"Should we ship the freemium tier this quarter?"</span> \
+  --preset product-decision</code></pre>
+  <p>
+    After the final round the swarm computes a <em>deterministic</em> synthesis
+    — no model call — and writes <code>synthesis.md</code> to the run directory.
+  </p>
+  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>Agents run with up to three in parallel at once (the default concurrency). If you select five agents, rounds 1 and 2 of the concurrency window overlap; the total wall-clock time is still much shorter than running agents sequentially.</p></div>
+</section>
+
+<section>
+  <h2>What happens between rounds?</h2>
+  <p>
+    After each completed round (except the last), the swarm runs a
+    <em>between-rounds pass</em>. This pass produces a <strong>directive</strong>
+    — a brief that tells agents in the next round what the prior round found and
+    what to focus on. The directive is broadcast as a message to every agent
+    selected for the next round; it appears in that round's <code>brief.md</code>.
+  </p>
+  <p>
+    How the directive is produced depends on the <code>--resolve</code> mode. The
+    between-rounds pass also checkpoints progress so a failed run can be
+    inspected, and (in <code>orchestrator</code> mode) records question
+    resolutions and deferred questions for the synthesis.
+  </p>
+</section>
+
+<section>
+  <h2>The three resolve modes</h2>
+  <p>
+    Pass <code>--resolve &lt;mode&gt;</code> to <code>agent-swarm run</code>, or
+    set <code>resolve:</code> in a preset or project config. The three canonical
+    values are <code>off</code>, <code>orchestrator</code>, and
+    <code>agents</code>. CLI flags override preset defaults, which override
+    project config values.
+  </p>
+  <div class="table-wrap">
+    <table class="opts">
+      <thead>
+        <tr>
+          <th>Mode</th>
+          <th>Between-round behavior</th>
+          <th>Extra model call?</th>
+          <th>Best for</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>off</code></td>
+          <td>Deterministic only — the directive is a templated summary built from the prior round's packet. Question resolutions stay empty.</td>
+          <td>No</td>
+          <td>Fast, cost-free iteration; single-round runs; CI pipelines where predictability matters more than adaptive steering.</td>
+        </tr>
+        <tr>
+          <td><code>orchestrator</code></td>
+          <td>Real LLM pass — the bundled <code>orchestrator</code> agent reads the prior round's packet and returns a structured directive, question resolutions, deferred questions, and a confidence level. The directive feeds the next round's brief.</td>
+          <td>Yes — one call per between-rounds pass</td>
+          <td>Multi-round runs where you want the swarm to actively steer the next round based on what the previous round surfaced; deeper product or architecture decisions.</td>
+        </tr>
+        <tr>
+          <td><code>agents</code></td>
+          <td>Reserved — accepted and persisted in <code>manifest.json</code> and <code>synthesis.json</code>, but currently behaves like <code>off</code>. The flag is kept on the CLI surface so agent-driven resolution can land in a future release without renaming it.</td>
+          <td>No (currently)</td>
+          <td>Not yet active. Use <code>orchestrator</code> if you want an adaptive between-round pass today.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3><code>off</code> — deterministic, no extra call</h3>
+  <p>
+    The default when <code>--resolve</code> is not set. The between-rounds pass
+    calls <code>buildOrchestratorPassDirective</code>, which assembles a
+    templated summary of the prior packet (stances, recommendations, shared
+    risks, open questions) and broadcasts it as the next round's directive.
+    No model is invoked; the cost is zero; the output is fully reproducible.
+  </p>
+  <p>Use <code>off</code> when:</p>
+  <ul>
+    <li>You are running a single round — there is no between-rounds pass.</li>
+    <li>Speed or cost matters more than adaptive steering.</li>
+    <li>You want the synthesis to be the only place where outputs are aggregated.</li>
+  </ul>
+
+  <h3><code>orchestrator</code> — LLM-driven directive</h3>
+  <p>
+    The bundled <code>orchestrator</code> agent reads the completed round's
+    packet — including all agent stances, recommendations, risks, and open
+    questions — and returns a structured <code>OrchestratorOutput</code>:
+    a directive for the next round, question resolutions, deferred questions,
+    and a confidence level. The directive replaces the deterministic template in
+    the next round's <code>brief.md</code>.
+  </p>
+  <p>In <code>orchestrator</code> mode each between-rounds pass also produces:</p>
+  <ul>
+    <li>An <code>orchestrator:pass</code> event in <code>events.jsonl</code> with <code>agentName</code>, <code>directive</code>, <code>confidence</code>, <code>questionResolutionsCount</code>, <code>questionResolutionLimit</code>, and <code>deferredQuestionsCount</code>.</li>
+    <li>An entry in the <code>orchestratorPasses</code> array in <code>checkpoint.json</code> — the full <code>OrchestratorOutput</code> snapshot, used if the run is resumed.</li>
+  </ul>
+  <p>
+    If the orchestrator dispatch fails — timeout, malformed JSON after one
+    repair attempt, or non-zero exit — the run finalizes as <code>failed</code>,
+    emits a <code>run:failed</code> event, and exits <code>1</code>. Successful
+    passes already written to the checkpoint are preserved.
+  </p>
+  <p>
+    When all selected agents resolve to the same harness and no run-level
+    <code>--backend</code> override is set, the orchestrator agent inherits that
+    harness automatically. Mixed-harness swarms keep the orchestrator on its
+    default.
+  </p>
+  <p>Use <code>orchestrator</code> when:</p>
+  <ul>
+    <li>You are running 2 or 3 rounds and want the swarm to focus the second round on what the first round left unresolved.</li>
+    <li>You want question resolutions and deferred questions captured in the synthesis.</li>
+    <li>The decision is complex enough that templated steering isn't sufficient.</li>
+  </ul>
+
+  <h3><code>agents</code> — reserved</h3>
+  <p>
+    Accepted by the CLI and persisted in run metadata, but currently behaves
+    identically to <code>off</code>. The flag is reserved so that when
+    agent-driven resolution ships in a future release, no rename is needed.
+    Do not rely on <code>agents</code> producing different output from
+    <code>off</code> today.
+  </p>
+</section>
+
+<section>
+  <h2>Resolve mode synonyms</h2>
+  <p>
+    The CLI accepts shorthand synonyms for each mode so you can use what feels
+    natural on the command line:
+  </p>
+  <div class="table-wrap">
+    <table class="opts">
+      <thead>
+        <tr>
+          <th>Canonical mode</th>
+          <th>Accepted synonyms</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>off</code></td>
+          <td><code>off</code>, <code>none</code>, <code>no</code>, <code>false</code>, <code>0</code></td>
+        </tr>
+        <tr>
+          <td><code>orchestrator</code></td>
+          <td><code>orchestrator</code>, <code>on</code>, <code>yes</code>, <code>true</code>, <code>1</code></td>
+        </tr>
+        <tr>
+          <td><code>agents</code></td>
+          <td><code>agents</code>, <code>agent</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>An unrecognized value throws a <code>SwarmCommandError</code> and exits <code>2</code>.</p>
+</section>
+
+<section>
+  <h2>A two-round run with orchestrator resolution</h2>
+  <p>
+    This example runs the <code>product-decision</code> preset for two rounds.
+    After round 1 the bundled orchestrator reads the agents' output and produces
+    a targeted directive for round 2. The final synthesis aggregates both rounds
+    deterministically.
+  </p>
+  <pre><code><span class="c"># Two-round run with orchestrator-driven resolution</span>
+agent-swarm <span class="k">run</span> 2 <span class="s">"Should we adopt server components?"</span> \
+  --preset product-decision \
+  --resolve orchestrator \
+  --goal <span class="s">"Decide on migration strategy"</span> \
+  --decision <span class="s">"Adopt / Defer / Reject"</span> \
+  --timeout-ms 300000</code></pre>
+  <p>
+    The <code>product-decision</code> preset pairs a <code>product-manager</code>
+    and a <code>principal-engineer</code>. In round 1 both respond in parallel to
+    the seed brief. Between rounds the orchestrator reads their stances, risks,
+    and open questions, then writes a directive that steers round 2 toward the
+    disagreements and unresolved questions. Round 2 agents see that directive in
+    their brief before responding. The synthesis then folds both rounds into one
+    call.
+  </p>
+  <p>
+    You'll find the run artifacts under
+    <code>.agent-swarm/runs/&lt;timestamp&gt;-&lt;slug&gt;/</code>, including
+    <code>round-01/brief.md</code>, <code>round-02/brief.md</code> (which
+    embeds the orchestrator's directive), <code>events.jsonl</code> with an
+    <code>orchestrator:pass</code> event, and <code>synthesis.md</code>.
+  </p>
+  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>Real harnesses can take longer than the default 120 s dispatch timeout. Bump <code>--timeout-ms</code> for deeper multi-round runs. The orchestrator pass itself also counts against this timeout.</p></div>
+</section>
+
+<section>
+  <h2>Where next</h2>
+  <ul>
+    <li><a href="quickstart.html">Quickstart</a> — run a ready-made swarm end to end.</li>
+    <li><a href="reference.html">CLI reference</a> — every command, flag, preset, and run artifact.</li>
+    <li><a href="architecture.html">Architecture</a> — how the between-rounds pass fits into the full pipeline.</li>
+    <li><a href="writing-an-agent.html">Writing an agent</a> — define agents and wire them into a preset.</li>
+  </ul>
+</section>
+        </article>
+        <footer class="pager" id="pager"></footer>
+      </main>
+      <aside class="toc-col"><p class="toc-title">On this page</p><nav id="toc" aria-label="On this page"></nav></aside>
+    </div>
+
+    <footer class="colophon"><div class="colophon-inner"><span>Agent Swarm docs</span><span>MIT</span><a href="https://github.com/calvinnwq/agent-swarm">GitHub</a></div></footer>
+  </body>
+</html>

@@ -3,135 +3,133 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Agent Swarm — Quickstart</title>
-    <meta
-      name="description"
-      content="Install Agent Swarm, verify your setup with doctor, and run your first deterministic multi-agent swarm."
+    <title>Quickstart — Agent Swarm</title>
+    <meta name="description" content="Install Agent Swarm, verify your setup, and run your first swarm in five minutes." />
+    <script>
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem("agent-swarm-docs-theme"); } catch (e) {}
+        document.documentElement.dataset.theme = t === "light" ? "light" : "dark";
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
     />
     <link rel="stylesheet" href="assets/styles.css" />
     <script src="assets/site.js" defer></script>
   </head>
-  <body>
-    <a class="skip-link" href="#main">Skip to content</a>
-    <header class="site-header">
-      <div class="site-header__inner">
-        <a class="site-brand" href="index.html">
-          <span class="site-brand__mark" aria-hidden="true">◇</span>
-          Agent Swarm
-        </a>
-        <button
-          class="site-nav__toggle"
-          type="button"
-          aria-expanded="false"
-          aria-controls="site-nav"
-          aria-label="Toggle navigation"
-        >
-          Menu
-        </button>
-        <nav class="site-nav" id="site-nav" aria-label="Primary">
-          <a href="index.html">Home</a>
-          <a href="quickstart.html" aria-current="page">Quickstart</a>
-          <a href="reference.html">Reference</a>
-          <a href="architecture.html">Architecture</a>
-          <a href="agent-usage.html">Agent Usage</a>
-          <a href="release-readiness.html">Release Readiness</a>
-        </nav>
+  <body data-page="quickstart.html">
+    <a class="skip" href="#content">Skip to content</a>
+    <header class="masthead">
+      <div class="masthead-inner">
+        <button class="menu-btn" type="button" data-menu aria-label="Toggle navigation" aria-expanded="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 3.5h14M1 8h14M1 12.5h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+        <a class="brand" href="index.html">Agent&nbsp;Swarm<span class="brand-tag">docs</span></a>
+        <button class="search-btn" type="button" data-search-open><span>Search docs</span><kbd>/</kbd></button>
+        <div class="masthead-tools">
+          <a class="gh" href="https://github.com/calvinnwq/agent-swarm">GitHub</a>
+          <button class="theme-btn" type="button" data-theme-toggle aria-label="Toggle color theme" aria-pressed="false">
+            <svg class="icon-moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M14.6 12.1A6.5 6.5 0 0 1 7.4 2.7a6.5 6.5 0 1 0 7.2 9.4z" fill="currentColor"/></svg>
+            <svg class="icon-sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3.4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="10" y1="2" x2="10" y2="4"/><line x1="10" y1="16" x2="10" y2="18"/><line x1="2" y1="10" x2="4" y2="10"/><line x1="16" y1="10" x2="18" y2="10"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="14.4" y1="14.4" x2="15.8" y2="15.8"/><line x1="4.2" y1="15.8" x2="5.6" y2="14.4"/><line x1="14.4" y1="5.6" x2="15.8" y2="4.2"/></g></svg>
+          </button>
+        </div>
       </div>
     </header>
 
-    <main class="site-main" id="main">
-      <section class="hero">
-        <p class="eyebrow">Quickstart</p>
-        <h1>From zero to a synthesized decision</h1>
-        <p class="lead">
-          Install the CLI, verify your harness setup, and run a one-round swarm
-          with the bundled <code>product-decision</code> preset. No config
-          required.
-        </p>
-      </section>
+    <div class="frame">
+      <nav id="sidebar" class="sidebar" aria-label="Documentation"></nav>
+      <main id="content" class="article-col">
+        <article>
+<p class="kicker"><span class="n">02 —</span>Start</p>
+<h1>From zero to a synthesized decision</h1>
+<p class="lede">
+  Install the CLI, verify your harness setup, and run a one-round swarm with the
+  bundled <code>product-decision</code> preset — <em>no config required</em>.
+</p>
+<div class="anat"><b>This page:</b> <span class="step">install</span> <span class="ar">→</span> <span class="step">doctor</span> <span class="ar">→</span> <span class="step">run</span> <span class="ar">→</span> <span class="step">read the synthesis</span></div>
 
-      <h2>Prerequisites</h2>
-      <ul>
-        <li>Node ≥ 20 (Node 24 LTS recommended — <code>.nvmrc</code> pins it).</li>
-        <li>pnpm 10 for source installs and development.</li>
-        <li>
-          A harness CLI on <code>PATH</code>, authenticated. The bundled
-          <code>product-decision</code> preset uses Claude
-          (<code>claude auth login</code>); other presets use Codex
-          (<code>codex login</code>) or OpenCode
-          (<code>opencode auth login</code>).
-        </li>
-      </ul>
+<section>
+  <h2>Prerequisites</h2>
+  <ul>
+    <li>Node ≥ 20 (Node 24 LTS recommended — <code>.nvmrc</code> pins it).</li>
+    <li>pnpm 10 for source installs and development.</li>
+    <li>A harness CLI on <code>PATH</code>, authenticated. The bundled <code>product-decision</code> preset uses Claude (<code>claude auth login</code>); other presets use Codex (<code>codex login</code>) or OpenCode (<code>opencode auth login</code>).</li>
+  </ul>
+</section>
 
-      <h2>Install</h2>
-      <p>For agent-operated setup, install the public skill:</p>
-      <pre><code>npx skills add calvinnwq/agent-swarm --skill agent-swarm</code></pre>
-      <p>For direct CLI use, run it on demand with <code>npx</code>:</p>
-      <pre><code>npx -y @calvinnwq/agent-swarm --version</code></pre>
-      <p>Or install the optional global CLI for repeat use:</p>
-      <pre><code>npm install --global @calvinnwq/agent-swarm</code></pre>
-      <p>For source installs and development:</p>
-      <pre><code>pnpm install
+<section>
+  <h2>Install</h2>
+  <p>For agent-operated setup, install the public skill:</p>
+  <pre><code>npx skills add calvinnwq/agent-swarm --skill agent-swarm</code></pre>
+  <p>For direct CLI use, run it on demand with <code>npx</code>:</p>
+  <pre><code>npx -y @calvinnwq/agent-swarm --version</code></pre>
+  <p>Or install the optional global CLI for repeat use:</p>
+  <pre><code>npm install --global @calvinnwq/agent-swarm</code></pre>
+  <p>For source installs and development:</p>
+  <pre><code>pnpm install
 pnpm build
 pnpm link --global</code></pre>
+</section>
 
-      <h2>Verify your setup</h2>
-      <p>
-        Run <code>agent-swarm doctor</code> before your first swarm. It checks
-        project config, configured docs, the agent and preset registries, and
-        backend compatibility (<strong>Configuration</strong> section). It also
-        probes all four harnesses for availability and auth regardless of whether
-        a project config exists (<strong>Harness inventory</strong> section), and
-        maps each configured agent to its resolved harness
-        (<strong>Agent summary</strong> section). A harness that is missing or
-        unauthenticated but not required by your config is a non-fatal
-        <strong>WARN</strong>; one required by an agent is a
-        <strong>FAIL</strong>. agent-swarm does not globally require any harness;
-        a single-harness setup passes doctor when its required harness works.
-      </p>
-      <pre><code>npx -y @calvinnwq/agent-swarm doctor</code></pre>
-      <p>
-        Doctor exits <code>0</code> when everything is ready, <code>1</code> when
-        a check fails, and <code>2</code> on an internal error.
-      </p>
+<section>
+  <h2>Verify your setup</h2>
+  <p>
+    Run <code>agent-swarm doctor</code> before your first swarm. It checks
+    project config, configured docs, the agent and preset registries, and
+    backend compatibility (<strong>Configuration</strong> section). It also
+    probes all four harnesses for availability and auth regardless of whether
+    a project config exists (<strong>Harness inventory</strong> section), and
+    maps each configured agent to its resolved harness
+    (<strong>Agent summary</strong> section). A harness that is missing or
+    unauthenticated but not required by your config is a non-fatal
+    <strong>WARN</strong>; one required by an agent is a
+    <strong>FAIL</strong>. agent-swarm does not globally require any harness;
+    a single-harness setup passes doctor when its required harness works.
+  </p>
+  <pre><code>npx -y @calvinnwq/agent-swarm doctor</code></pre>
+  <p>Doctor exits <code>0</code> when everything is ready, <code>1</code> when a check fails, and <code>2</code> on an internal error.</p>
+</section>
 
-      <h2>Run your first swarm</h2>
-      <pre><code>npx -y @calvinnwq/agent-swarm run 1 "Should we adopt server components?" \
+<section>
+  <h2>Run your first swarm</h2>
+  <p>The first positional argument is the number of rounds (1–3); the rest is your question:</p>
+  <pre><code>npx -y @calvinnwq/agent-swarm <span class="k">run</span> 1 <span class="s">"Should we adopt server components?"</span> \
   --preset product-decision \
-  --goal "Decide on migration strategy" \
-  --decision "Adopt / Defer / Reject" \
+  --goal <span class="s">"Decide on migration strategy"</span> \
+  --decision <span class="s">"Adopt / Defer / Reject"</span> \
   --timeout-ms 300000</code></pre>
-      <p>
-        When it finishes, you'll find a self-contained run directory under
-        <code>.agent-swarm/runs/&lt;timestamp&gt;-&lt;slug&gt;/</code> with a
-        deterministic <code>synthesis.md</code>.
-      </p>
+  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>Real harnesses can take longer than the default 120s dispatch timeout — bump <code>--timeout-ms</code> for deeper runs. Use <code>--quiet</code> for one-line-per-event output in CI.</p></div>
+</section>
 
-      <div class="note">
-        <p>
-          Real harnesses can take longer than the default 120s dispatch timeout
-          — bump <code>--timeout-ms</code> for deeper runs. Use
-          <code>--quiet</code> for one-line-per-event output in CI.
-        </p>
-      </div>
+<section>
+  <h2>Read the result</h2>
+  <p>When it finishes, you'll find a self-contained run directory under <code>.agent-swarm/runs/&lt;timestamp&gt;-&lt;slug&gt;/</code> with a deterministic <code>synthesis.md</code>. The synthesis folds the panel into one call in the preset's own decision vocabulary:</p>
+  <div class="verdict">
+    <div class="verdict-top"><span>Synthesis</span><span>product-decision · round 1 · 2 agents</span></div>
+    <p class="verdict-rec"><span class="mark">Proceed</span> — server components fit the migration if routing is staged first.</p>
+    <div class="mrow"><span class="lab">consensus</span><span class="pips"><i class="pip on"></i><i class="pip on"></i></span><span>2 of 2 agree</span></div>
+    <div class="mrow"><span class="lab">confidence</span><span class="level" data-level="medium">medium</span></div>
+    <div class="vopen"><span class="q">Still open</span>Does the data-fetching layer change before or after the routing migration?</div>
+  </div>
+  <p>Confidence is reported as a level — <code>low</code>, <code>medium</code>, or <code>high</code> — not a fabricated percentage, and the verdict word comes straight from the preset's <code>--decision</code> vocabulary.</p>
+</section>
 
-      <p>
-        Next: browse the full
-        <a href="reference.html">command reference</a> or learn how
-        <a href="agent-usage.html">agents drive a swarm</a>.
-      </p>
-    </main>
+<section>
+  <h2>Where next</h2>
+  <ul>
+    <li><a href="reference.html">CLI reference</a> — every command, flag, preset, and run artifact.</li>
+    <li><a href="architecture.html">Architecture</a> — how a run flows through the pipeline.</li>
+    <li><a href="agent-usage.html">Agent usage</a> — how agents drive a swarm.</li>
+  </ul>
+</section>
+        </article>
+        <footer class="pager" id="pager"></footer>
+      </main>
+      <aside class="toc-col"><p class="toc-title">On this page</p><nav id="toc" aria-label="On this page"></nav></aside>
+    </div>
 
-    <footer class="site-footer">
-      <div class="site-footer__inner">
-        <p>Agent Swarm — fan out agents, collect structured output, synthesize.</p>
-        <p>
-          <a href="https://github.com/calvinnwq/agent-swarm">GitHub</a> ·
-          <a href="https://github.com/calvinnwq/agent-swarm/blob/main/INSTALL.md"
-            >Install guide</a
-          >
-        </p>
-      </div>
-    </footer>
+    <footer class="colophon"><div class="colophon-inner"><span>Agent Swarm docs</span><span>MIT</span><a href="https://github.com/calvinnwq/agent-swarm">GitHub</a></div></footer>
   </body>
 </html>

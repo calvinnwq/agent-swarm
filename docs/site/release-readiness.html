@@ -4,112 +4,112 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Agent Swarm — Release readiness</title>
-    <meta
-      name="description"
-      content="The verification gates and Release Please process behind every Agent Swarm release."
+    <meta name="description" content="The verification gates and Release Please process behind every Agent Swarm release." />
+    <script>
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem("agent-swarm-docs-theme"); } catch (e) {}
+        document.documentElement.dataset.theme = t === "light" ? "light" : "dark";
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
     />
     <link rel="stylesheet" href="assets/styles.css" />
     <script src="assets/site.js" defer></script>
   </head>
-  <body>
-    <a class="skip-link" href="#main">Skip to content</a>
-    <header class="site-header">
-      <div class="site-header__inner">
-        <a class="site-brand" href="index.html">
-          <span class="site-brand__mark" aria-hidden="true">◇</span>
-          Agent Swarm
-        </a>
-        <button
-          class="site-nav__toggle"
-          type="button"
-          aria-expanded="false"
-          aria-controls="site-nav"
-          aria-label="Toggle navigation"
-        >
-          Menu
-        </button>
-        <nav class="site-nav" id="site-nav" aria-label="Primary">
-          <a href="index.html">Home</a>
-          <a href="quickstart.html">Quickstart</a>
-          <a href="reference.html">Reference</a>
-          <a href="architecture.html">Architecture</a>
-          <a href="agent-usage.html">Agent Usage</a>
-          <a href="release-readiness.html" aria-current="page"
-            >Release Readiness</a
-          >
-        </nav>
+  <body data-page="release-readiness.html">
+    <a class="skip" href="#content">Skip to content</a>
+    <header class="masthead">
+      <div class="masthead-inner">
+        <button class="menu-btn" type="button" data-menu aria-label="Toggle navigation" aria-expanded="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 3.5h14M1 8h14M1 12.5h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+        <a class="brand" href="index.html">Agent&nbsp;Swarm<span class="brand-tag">docs</span></a>
+        <button class="search-btn" type="button" data-search-open><span>Search docs</span><kbd>/</kbd></button>
+        <div class="masthead-tools">
+          <a class="gh" href="https://github.com/calvinnwq/agent-swarm">GitHub</a>
+          <button class="theme-btn" type="button" data-theme-toggle aria-label="Toggle color theme" aria-pressed="false">
+            <svg class="icon-moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M14.6 12.1A6.5 6.5 0 0 1 7.4 2.7a6.5 6.5 0 1 0 7.2 9.4z" fill="currentColor"/></svg>
+            <svg class="icon-sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3.4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="10" y1="2" x2="10" y2="4"/><line x1="10" y1="16" x2="10" y2="18"/><line x1="2" y1="10" x2="4" y2="10"/><line x1="16" y1="10" x2="18" y2="10"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="14.4" y1="14.4" x2="15.8" y2="15.8"/><line x1="4.2" y1="15.8" x2="5.6" y2="14.4"/><line x1="14.4" y1="5.6" x2="15.8" y2="4.2"/></g></svg>
+          </button>
+        </div>
       </div>
     </header>
 
-    <main class="site-main" id="main">
-      <section class="hero">
-        <p class="eyebrow">Release readiness</p>
-        <h1>What ships, and how</h1>
-        <p class="lead">
-          Every release clears the same deterministic verification gates, then
-          Release Please cuts the tag and GitHub Release from Conventional
-          Commits.
-        </p>
-      </section>
+    <div class="frame">
+      <nav id="sidebar" class="sidebar" aria-label="Documentation"></nav>
+      <main id="content" class="article-col">
+        <article>
+<p class="kicker"><span class="n">16 —</span>Operations</p>
+<h1>What ships, and how</h1>
+<p class="lede">
+  Every release clears the same deterministic verification gates, then
+  Release Please cuts the tag and GitHub Release from Conventional
+  Commits.
+</p>
 
-      <h2>Verification gates</h2>
-      <p>
-        These run in CI on every pull request and must be green together before
-        anything merges to <code>main</code>:
-      </p>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Gate</th>
-              <th>Command</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Formatting</td>
-              <td><code>pnpm format:check</code></td>
-            </tr>
-            <tr>
-              <td>Lint</td>
-              <td><code>pnpm lint</code></td>
-            </tr>
-            <tr>
-              <td>Typecheck</td>
-              <td><code>pnpm typecheck</code></td>
-            </tr>
-            <tr>
-              <td>Unit tests</td>
-              <td><code>pnpm test</code></td>
-            </tr>
-            <tr>
-              <td>Build</td>
-              <td><code>pnpm build</code></td>
-            </tr>
-            <tr>
-              <td>Smoke</td>
-              <td><code>pnpm smoke</code></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+<section>
+  <h2>Verification gates</h2>
+  <p>
+    These run in CI on every pull request and must be green together before
+    anything merges to <code>main</code>:
+  </p>
+  <div class="table-wrap">
+    <table class="opts">
+      <thead>
+        <tr>
+          <th>Gate</th>
+          <th>Command</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Formatting</td>
+          <td><code>pnpm format:check</code></td>
+        </tr>
+        <tr>
+          <td>Lint</td>
+          <td><code>pnpm lint</code></td>
+        </tr>
+        <tr>
+          <td>Typecheck</td>
+          <td><code>pnpm typecheck</code></td>
+        </tr>
+        <tr>
+          <td>Unit tests</td>
+          <td><code>pnpm test</code></td>
+        </tr>
+        <tr>
+          <td>Build</td>
+          <td><code>pnpm build</code></td>
+        </tr>
+        <tr>
+          <td>Smoke</td>
+          <td><code>pnpm smoke</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
 
-      <h2>Release process</h2>
-      <p>
-        Releases are managed by Release Please from Conventional Commits on
-        <code>main</code>. Release-driving commit types such as
-        <code>feat:</code>, <code>fix:</code>, and <code>deps:</code> appear in
-        the next release; <code>docs:</code>, <code>test:</code>,
-        <code>refactor:</code>, and <code>chore:</code> do not.
-      </p>
-      <p>
-        Merging the Release Please PR updates <code>package.json</code>, writes
-        <code>CHANGELOG.md</code>, creates a git tag, and creates the GitHub
-        Release. Tags use plain <code>vX.Y.Z</code> format. npm publishing is not
-        part of the current release workflow.
-      </p>
-
-      <div class="note">
+<section>
+  <h2>Release process</h2>
+  <p>
+    Releases are managed by Release Please from Conventional Commits on
+    <code>main</code>. Release-driving commit types such as
+    <code>feat:</code>, <code>fix:</code>, and <code>deps:</code> appear in
+    the next release; <code>docs:</code>, <code>test:</code>,
+    <code>refactor:</code>, and <code>chore:</code> do not.
+  </p>
+  <p>
+    Merging the Release Please PR updates <code>package.json</code>, writes
+    <code>CHANGELOG.md</code>, creates a git tag, and creates the GitHub
+    Release. Tags use plain <code>vX.Y.Z</code> format. npm publishing is not
+    part of the current release workflow.
+  </p>
+  <div class="callout" data-kind="note"><span class="callout-label">Note</span>
         <p>
           The full readiness checklist lives in
           <a
@@ -122,23 +122,13 @@
           >. Do not publish, retag, or edit releases without explicit approval.
         </p>
       </div>
-    </main>
+</section>
+        </article>
+        <footer class="pager" id="pager"></footer>
+      </main>
+      <aside class="toc-col"><p class="toc-title">On this page</p><nav id="toc" aria-label="On this page"></nav></aside>
+    </div>
 
-    <footer class="site-footer">
-      <div class="site-footer__inner">
-        <p>Agent Swarm — fan out agents, collect structured output, synthesize.</p>
-        <p>
-          <a
-            href="https://github.com/calvinnwq/agent-swarm/blob/main/docs/release-readiness.md"
-            >Readiness checklist</a
-          >
-          ·
-          <a
-            href="https://github.com/calvinnwq/agent-swarm/blob/main/CHANGELOG.md"
-            >Changelog</a
-          >
-        </p>
-      </div>
-    </footer>
+    <footer class="colophon"><div class="colophon-inner"><span>Agent Swarm docs</span><span>MIT</span><a href="https://github.com/calvinnwq/agent-swarm">GitHub</a></div></footer>
   </body>
 </html>
