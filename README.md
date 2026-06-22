@@ -103,11 +103,14 @@ the public skill and the CLI runs on demand via `npx`:
 npx skills add calvinnwq/agent-swarm --skill agent-swarm
 ```
 
-That installs the `agent-swarm` skill into agents that support local skills; the
+That installs the public `skills/agent-swarm` mirror into agents that support
+local skills; the
 skill invokes the CLI on demand with `npx -y @calvinnwq/agent-swarm`, so the
 agent path needs no separate install. The skill knows how to pick a preset, handle a decision matrix,
 inspect run artifacts, and report the synthesis - see [INSTALL.md](INSTALL.md)
-for the full agent-operated setup and first run.
+for the full agent-operated setup and first run, and the
+[Agent usage guide](https://calvinnwq.github.io/agent-swarm/agent-usage.html) for
+the operator workflow.
 
 ## How it works
 
