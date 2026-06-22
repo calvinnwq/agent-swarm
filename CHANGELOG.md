@@ -1,5 +1,44 @@
 # Changelog
 
+## [0.5.0](https://github.com/calvinnwq/agent-swarm/compare/v0.4.0...v0.5.0) (2026-06-22)
+
+
+### Features
+
+* **cli:** show top-level help on zero-arg invocation ([740c35d](https://github.com/calvinnwq/agent-swarm/commit/740c35d44fb36b10784c966cca2933c4734d22d3))
+* **docs:** add 'Agents & roles' concept page ([4a7d6dd](https://github.com/calvinnwq/agent-swarm/commit/4a7d6dd54bfdefbfb10879a2961bf84e4658d9bc))
+* **docs:** add 'Composing a swarm' page ([57ad173](https://github.com/calvinnwq/agent-swarm/commit/57ad173223bf3ea8a3f67dd9b330e7904993a42a))
+* **docs:** add 'Harnesses & backends' page ([2a9ac0f](https://github.com/calvinnwq/agent-swarm/commit/2a9ac0fc00b5cdc101d198b6bbf114cc9cc3daf0))
+* **docs:** add 'Rounds & resolution' concept page ([60e3c7a](https://github.com/calvinnwq/agent-swarm/commit/60e3c7a496b9ec39453b334a7eac74a8fda7e338))
+* **docs:** add 'The synthesis' concept page ([09de8e7](https://github.com/calvinnwq/agent-swarm/commit/09de8e7cbc332571d4a2502de5f4f088aaff1062))
+* **docs:** add 'What is a swarm?' concept page ([d7d1fd0](https://github.com/calvinnwq/agent-swarm/commit/d7d1fd0902a5a687b28d126441e0593a17ce20ab))
+* **docs:** add 'Writing an agent' page ([3cae023](https://github.com/calvinnwq/agent-swarm/commit/3cae0234f35dc72d9dca09c30b662e4329c4b40e))
+* **docs:** add adversarial code review gallery page ([a5fb544](https://github.com/calvinnwq/agent-swarm/commit/a5fb54479c44a54ad70ab56005c384cb4c5089d0))
+* **docs:** add customer panel gallery page ([9ceffa4](https://github.com/calvinnwq/agent-swarm/commit/9ceffa44624ffcc1931cdd80f18e7c46d39b811f))
+* **docs:** add local docs preview server ([614401e](https://github.com/calvinnwq/agent-swarm/commit/614401e207ce087925620a804b246388a6f6e58a))
+* **docs:** add local docs preview server ([48fc305](https://github.com/calvinnwq/agent-swarm/commit/48fc30525b872f036f1799a2f299b9f2a8cb75bb))
+* **docs:** add product decision gallery page ([8cc1bfb](https://github.com/calvinnwq/agent-swarm/commit/8cc1bfbdeb5708a7a71828bd772f19dbca768041))
+* **docs:** add static docs site ([9abc1bf](https://github.com/calvinnwq/agent-swarm/commit/9abc1bff0970f3f173c94a78bd18f220b6394f4b))
+* **docs:** cool-dark editorial design system ([28b3c08](https://github.com/calvinnwq/agent-swarm/commit/28b3c087bd0e915e3e95eb78385dd50062c28d84))
+* **docs:** extend nav manifest for Concepts/Build/Gallery ([f7dcaa5](https://github.com/calvinnwq/agent-swarm/commit/f7dcaa53bbca7b95aa984825ab6b2820c26e7f2e))
+* **docs:** manifest-driven docs site chrome ([82433d9](https://github.com/calvinnwq/agent-swarm/commit/82433d99d5462af15166b927dcfa60758cbbf970))
+* **docs:** rebuild Overview as composability-first homepage ([ca73db4](https://github.com/calvinnwq/agent-swarm/commit/ca73db4febae5b2ea2d2c7b29df608b085827432))
+* **docs:** rebuild Quickstart for the new system ([d8ceb43](https://github.com/calvinnwq/agent-swarm/commit/d8ceb435bc4b873e07d583e1d488738b69d1893a))
+* **docs:** redesign the static docs site (manifest-driven, composability-first) ([d53d753](https://github.com/calvinnwq/agent-swarm/commit/d53d7538589f664ef75a22d23b46841b67967ce9))
+* **docs:** restructure Agent usage into new layout ([32e98d2](https://github.com/calvinnwq/agent-swarm/commit/32e98d25381364ad811ee1406ccf144bd2d0cfcf))
+* **docs:** restructure Architecture into new layout ([2d195d7](https://github.com/calvinnwq/agent-swarm/commit/2d195d70a11694a54ee2cb4d1101a00e1ce6961a))
+* **docs:** restructure CLI reference into new layout ([7a1f178](https://github.com/calvinnwq/agent-swarm/commit/7a1f178f08b3bacc62584bdfa466e3897894f551))
+* **docs:** restructure Release readiness into new layout ([6fc6bf1](https://github.com/calvinnwq/agent-swarm/commit/6fc6bf145956b213d49670a9f8b2720d19bbafad))
+* **doctor:** add agent-to-harness summary section ([28f7e1c](https://github.com/calvinnwq/agent-swarm/commit/28f7e1c285b2a875d21b0c7296d23ae25acf8cb3))
+* **doctor:** add harness and agent availability inventory ([cbebb12](https://github.com/calvinnwq/agent-swarm/commit/cbebb123d0a8328ee6d5b838e82c0f0a9fe18686))
+* **doctor:** always-on harness inventory with required/optional status ([10c5b65](https://github.com/calvinnwq/agent-swarm/commit/10c5b652fd04d14565085fa2828107270d52147e))
+* **doctor:** section-aware report formatting ([9cb502c](https://github.com/calvinnwq/agent-swarm/commit/9cb502c11197aaab0e6ac9ccdf6eda3c282c8ab2))
+
+
+### Bug Fixes
+
+* **cli:** show help for bare invocation ([c29e925](https://github.com/calvinnwq/agent-swarm/commit/c29e92592e64b5d9f367c2a566d313a2e77a3291))
+
 ## [0.4.0](https://github.com/calvinnwq/agent-swarm/compare/v0.3.2...v0.4.0) (2026-06-20)
 
 
