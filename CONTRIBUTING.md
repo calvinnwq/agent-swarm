@@ -50,6 +50,8 @@ GitHub CI (`.github/workflows/ci.yml`) gates pull requests, pushes to `main`, an
 
 The browsable docs site is plain HTML/CSS/JS under `docs/site/`. It has no build step: `.github/workflows/pages.yml` uploads `docs/site/` directly to GitHub Pages on pushes to `main` that touch the site or workflow, and it can also be run manually with `workflow_dispatch`.
 
+To preview the published site locally, run `pnpm docs:serve` and open the printed `http://localhost:3000` URL. It serves `docs/site/` with a zero-dependency static server that mirrors GitHub Pages (directory requests resolve to `index.html`). Override the port with `pnpm docs:serve -- --port 4000` or `PORT=4000 pnpm docs:serve`.
+
 Keep the site in sync with the authoritative Markdown docs. The `test/unit/docs-site.test.ts` unit test enforces the canonical page set, shared assets, local links/anchors, README site link, Pages workflow, and bundled preset coverage on the reference page.
 
 ## Conventions
