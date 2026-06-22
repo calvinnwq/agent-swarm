@@ -102,7 +102,8 @@ Options:
                 Real LLM pass — the bundled <code>orchestrator</code> agent reads
                 the prior packet and returns a structured
                 <code>OrchestratorOutput</code> that feeds the next round. Each
-                pass is captured in <code>checkpoint.json</code> for resume.
+                pass is captured in <code>checkpoint.json</code> as inspectable
+                recovery state; user-facing resume tooling is future work.
               </td>
             </tr>
             <tr>
@@ -216,8 +217,8 @@ Options:
       <ul>
         <li><code>manifest.json</code> — run inputs and resolved runtimes.</li>
         <li>
-          <code>checkpoint.json</code> — append-only progress for inspection and
-          resume.
+          <code>checkpoint.json</code> — append-only, inspectable recovery state for
+          run progress.
         </li>
         <li>
           <code>events.jsonl</code> / <code>messages.jsonl</code> — the run
