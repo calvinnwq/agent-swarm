@@ -16,6 +16,7 @@ import {
   chmodSync,
   existsSync,
   mkdirSync,
+  mkdtempSync,
   readFileSync,
   readdirSync,
   realpathSync,
@@ -1463,6 +1464,20 @@ describe("smoke: README golden path", () => {
     expect(result.stdout).not.toContain("config agents");
     expect(result.stdout).not.toContain("config preset");
     expect(result.stderr).toBe("");
+  });
+
+  it("`agent-swarm doctor` prints the harness inventory with no project config", () => {
+    const home = mkdtempSync(join(tmpdir(), "swarm-doctor-noconfig-"));
+    const noConfigBinDir = join(home, "bin");
+    installClaudeStub(noConfigBinDir);
+    const result = spawnSync("node", [cliPath, "doctor"], {
+      cwd: home,
+      env: { ...process.env, HOME: home, PATH: `${noConfigBinDir}:${process.env.PATH ?? ""}` },
+      encoding: "utf-8",
+    });
+    expect(result.stdout).toContain("Harness inventory");
+    expect(result.stdout).toContain('harness "claude"');
+    expect(result.stdout).toContain("Agent summary");
   });
 
   it("`agent-swarm run 2 ... --preset product-decision` auto-selects quiet logs on non-TTY stderr and produces the golden-path artifacts", () => {
