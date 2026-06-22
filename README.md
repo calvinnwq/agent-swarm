@@ -437,7 +437,7 @@ Two rendering modes:
 
 ## Status & roadmap
 
-**Supported (the v0.2 alpha contract).** Everything documented above is shipped and verified: `agent-swarm run` and `agent-swarm doctor`, the bundled presets and agents, project config, carry-forward docs, per-agent harness/model pinning (Claude, Codex, OpenCode, Rovo) and mixed-harness swarms, `--resolve off` and `--resolve orchestrator`, durable run artifacts, and deterministic synthesis. This is feature-complete enough to dogfood on real decisions.
+**Supported (the v0.2 alpha contract).** Everything documented above is shipped and verified: `agent-swarm run` and `agent-swarm doctor`, the bundled presets and agents, project config, carry-forward docs, per-agent harness/model pinning (Claude, Codex, OpenCode, Rovo) and mixed-harness swarms, `--resolve off` and `--resolve orchestrator`, durable run artifacts, deterministic synthesis, and the static docs site that mirrors these docs. This is feature-complete enough to dogfood on real decisions.
 
 **Reserved (accepted, but not part of the contract yet).** These are exposed so a future flag/rename isn't needed, but they don't add behavior today:
 
@@ -446,7 +446,7 @@ Two rendering modes:
 
 **Agent operation.** Agents can operate Agent Swarm from natural prompts by following the repeatable workflow in [docs/agent-operation.md](docs/agent-operation.md). For agent-operated setup — installing the skill into a coding agent and the first run — see [INSTALL.md](INSTALL.md); first-time agent skill installation and project setup also live in [docs/agent-usage.md](docs/agent-usage.md). The npm package ships an installable `skills/agent-swarm` mirror, added with `npx skills add calvinnwq/agent-swarm --skill agent-swarm`. That contract covers preset selection, decision-matrix handling, artifact inspection, and synthesis reporting without adding a new runtime control plane. Runnable dogfood examples for real operator/OpenClaw decisions live in [docs/dogfood-recipes.md](docs/dogfood-recipes.md).
 
-**Future (v0.3+ productionization candidates).** Not promised, not part of the alpha contract — tracked in the project roadmap (M11–M15): a user-facing `agent-swarm resume` command (resume is implemented and tested internally but not yet a subcommand), agent-driven `--resolve agents`, a public docs/spec site so this README can stay concise, CI/release-operations hardening, additional runtime-boundary hardening, and deeper agent DX/recipes beyond the current operator contract. Release-readiness status and the full milestone breakdown live in [docs/release-readiness.md](docs/release-readiness.md).
+**Future (v0.3+ productionization candidates).** Not promised, not part of the alpha contract — tracked in the project roadmap (M11–M15): a user-facing `agent-swarm resume` command (resume is implemented and tested internally but not yet a subcommand), agent-driven `--resolve agents`, CI/release-operations hardening, additional runtime-boundary hardening, and deeper agent DX/recipes beyond the current operator contract. Release-readiness status and the full milestone breakdown live in [docs/release-readiness.md](docs/release-readiness.md).
 
 ## Migration note
 

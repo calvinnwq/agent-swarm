@@ -10,7 +10,7 @@
 
 ## Agent Swarm Boundaries
 
-- [ ] README/SPEC updated if user-facing alpha behavior changed
+- [ ] README/SPEC/docs site updated if user-facing alpha behavior changed
 - [ ] `.agent-swarm/` writes and legacy `.swarm/` read fallback are preserved, or not touched
 - [ ] Harness-specific behavior stays behind the harness adapter boundary, or not touched
 - [ ] Durable artifacts remain append-only/resumable where applicable, or not touched

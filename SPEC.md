@@ -382,7 +382,6 @@ Tracked under the productionization roadmap (M11–M15); not promised:
   [docs/agent-operation.md](docs/agent-operation.md); deeper recipes remain
   future work.
 - UI / control-plane ideas beyond the current live/quiet renderers.
-- A public docs/spec site so the README can stay concise.
 - Additional behavior-preserving runtime-boundary hardening after the M15 shared
   runtime-core extraction.
 
