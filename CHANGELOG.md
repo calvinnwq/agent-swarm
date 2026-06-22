@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.5.0](https://github.com/calvinnwq/agent-swarm/compare/v0.4.0...v0.5.0) (2026-06-22)
+
+
+### Features
+
+* **cli:** show top-level help on zero-arg invocation ([740c35d](https://github.com/calvinnwq/agent-swarm/commit/740c35d44fb36b10784c966cca2933c4734d22d3))
+* **doctor:** add agent-to-harness summary section ([28f7e1c](https://github.com/calvinnwq/agent-swarm/commit/28f7e1c285b2a875d21b0c7296d23ae25acf8cb3))
+* **doctor:** add harness and agent availability inventory ([cbebb12](https://github.com/calvinnwq/agent-swarm/commit/cbebb123d0a8328ee6d5b838e82c0f0a9fe18686))
+* **doctor:** always-on harness inventory with required/optional status ([10c5b65](https://github.com/calvinnwq/agent-swarm/commit/10c5b652fd04d14565085fa2828107270d52147e))
+* **doctor:** section-aware report formatting ([9cb502c](https://github.com/calvinnwq/agent-swarm/commit/9cb502c11197aaab0e6ac9ccdf6eda3c282c8ab2))
+
+
+### Bug Fixes
+
+* **cli:** show help for bare invocation ([c29e925](https://github.com/calvinnwq/agent-swarm/commit/c29e92592e64b5d9f367c2a566d313a2e77a3291))
+
 ## [0.4.0](https://github.com/calvinnwq/agent-swarm/compare/v0.3.2...v0.4.0) (2026-06-20)
 
 
