@@ -4,7 +4,7 @@ Run a panel of AI agents in parallel rounds, then synthesize their answers into 
 
 `agent-swarm` is a TypeScript CLI that fans out 2–5 agents over 1–3 rounds, validates their structured JSON output, and produces a single synthesis you can review or check in.
 
-> **Alpha — v0.2 baseline.** The alpha runtime is feature-complete and ready for dogfooding. This README is the authoritative user-facing contract: anything not documented here — and anything flagged _reserved_ — isn't part of it. For the durable, versioned contract see [SPEC.md](SPEC.md); for a step-by-step setup guide see [INSTALL.md](INSTALL.md); for the runtime internals see [ARCHITECTURE.md](ARCHITECTURE.md). Also see [Status & roadmap](#status--roadmap).
+> **Alpha — v0.2 baseline.** The alpha runtime is feature-complete and ready for dogfooding. This README is the authoritative user-facing contract: anything not documented here — and anything flagged _reserved_ — isn't part of it. For the durable, versioned contract see [SPEC.md](SPEC.md); for a step-by-step setup guide see [INSTALL.md](INSTALL.md); for the runtime internals see [ARCHITECTURE.md](ARCHITECTURE.md); for a browsable version of these docs see the [docs site](https://calvinnwq.github.io/agent-swarm/). Also see [Status & roadmap](#status--roadmap).
 
 ## Install
 
