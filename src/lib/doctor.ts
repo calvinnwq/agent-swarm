@@ -28,9 +28,10 @@ import {
 } from "./load-project-config.js";
 import { CLI_NAME } from "./identity.js";
 import { DEFAULT_INIT_PRESET } from "./init-config.js";
-import type { AgentDefinition } from "../schemas/index.js";
+import type { AgentDefinition, ResolveMode } from "../schemas/index.js";
 import type { BackendId } from "../schemas/backend-id.js";
 import type { HarnessId } from "../schemas/harness-id.js";
+import type { SwarmPreset } from "../schemas/preset.js";
 import { SwarmCommandError } from "./parse-command.js";
 
 export type DoctorCheckStatus = "ok" | "warn" | "fail";
@@ -51,6 +52,8 @@ export interface DoctorReport {
 const SECTION_CONFIG = "Configuration";
 const SECTION_HARNESS = "Harness inventory";
 const SECTION_AGENTS = "Agent summary";
+
+type ProjectConfigState = "missing" | "loaded" | "invalid";
 
 export interface RunDoctorOptions {
   cwd?: string;
@@ -88,7 +91,7 @@ export async function runDoctor(
   const presetRegistry = presetRegistryCheck.registry;
 
   if (loadedConfig?.config.agents && agentRegistry) {
-    checks.push(checkConfigAgents(loadedConfig.config.agents, agentRegistry));
+    checks.push(checkConfigAgents(loadedConfig.config, agentRegistry));
   }
 
   if (
@@ -99,6 +102,7 @@ export async function runDoctor(
     checks.push(
       checkConfigPreset(
         loadedConfig.config.preset,
+        loadedConfig.config.resolve,
         presetRegistry,
         agentRegistry,
       ),
@@ -138,7 +142,14 @@ export async function runDoctor(
   );
   checks.push(...harnessChecks);
 
-  checks.push(buildAgentSummary(loadedConfig, agentRegistry, presetRegistry));
+  checks.push(
+    buildAgentSummary(
+      loadedConfig,
+      projectConfigCheck.state,
+      agentRegistry,
+      presetRegistry,
+    ),
+  );
 
   const ok = checks.every((c) => c.status !== "fail");
   return { ok, checks };
@@ -147,7 +158,7 @@ export async function runDoctor(
 async function checkProjectConfig(options: LoadProjectConfigOptions): Promise<{
   check: DoctorCheck;
   loaded: LoadedProjectConfig | null;
-  state: "missing" | "loaded" | "invalid";
+  state: ProjectConfigState;
 }> {
   try {
     const loaded = await loadProjectConfig(options);
@@ -248,15 +259,22 @@ async function checkPresetRegistry(
 }
 
 function checkConfigAgents(
-  agents: string[],
+  config: LoadedProjectConfig["config"],
   registry: AgentRegistry,
 ): DoctorCheck {
   const missing: string[] = [];
-  for (const name of agents) {
+  for (const name of config.agents ?? []) {
     try {
       registry.getAgent(name);
     } catch {
       missing.push(name);
+    }
+  }
+  if (config.resolve === "orchestrator") {
+    try {
+      registry.getAgent("orchestrator");
+    } catch {
+      missing.push("orchestrator");
     }
   }
   if (missing.length > 0) {
@@ -270,7 +288,7 @@ function checkConfigAgents(
   return {
     name: "config agents",
     status: "ok",
-    message: `all ${agents.length} config agent(s) resolve`,
+    message: `all ${config.agents?.length ?? 0} config agent(s) resolve`,
   };
 }
 
@@ -309,6 +327,7 @@ function formatConfigDocPacket(
 
 function checkConfigPreset(
   presetName: string,
+  configResolve: ResolveMode | undefined,
   presetRegistry: PresetRegistry,
   agentRegistry: AgentRegistry | null,
 ): DoctorCheck {
@@ -330,6 +349,13 @@ function checkConfigPreset(
         agentRegistry.getAgent(name);
       } catch {
         missing.push(name);
+      }
+    }
+    if ((configResolve ?? preset.resolve) === "orchestrator") {
+      try {
+        agentRegistry.getAgent("orchestrator");
+      } catch {
+        missing.push("orchestrator");
       }
     }
     if (missing.length > 0) {
@@ -429,6 +455,45 @@ function buildConfigBackendCheck(
 
 type HarnessWithAgents = { harness: HarnessId; agents: string[] };
 
+function resolveDoctorOrchestratorAgent(
+  orchestratorAgent: AgentDefinition,
+  agents: readonly AgentDefinition[],
+  hasRunBackendOverride: boolean,
+): AgentDefinition {
+  if (hasRunBackendOverride || orchestratorAgent.harness !== undefined) {
+    return orchestratorAgent;
+  }
+
+  const explicitHarnesses = new Set<HarnessId>();
+  for (const agent of agents) {
+    explicitHarnesses.add(agent.harness ?? backendToHarness(agent.backend));
+  }
+
+  if (explicitHarnesses.size !== 1) {
+    return orchestratorAgent;
+  }
+
+  const [harness] = explicitHarnesses;
+  return { ...orchestratorAgent, harness };
+}
+
+function addOrchestratorAgent(
+  agents: AgentDefinition[],
+  agentRegistry: AgentRegistry,
+  hasRunBackendOverride: boolean,
+): AgentDefinition[] | null {
+  try {
+    const orchestratorAgent = resolveDoctorOrchestratorAgent(
+      agentRegistry.getAgent("orchestrator"),
+      agents,
+      hasRunBackendOverride,
+    );
+    return [...agents, orchestratorAgent];
+  } catch {
+    return null;
+  }
+}
+
 function resolveDoctorHarnesses(
   config: LoadedProjectConfig["config"],
   agentRegistry: AgentRegistry | null,
@@ -527,14 +592,28 @@ function resolveConfiguredAgents(
   }
 
   if (config.agents) {
-    return resolveAgents(config.agents, agentRegistry);
+    const agents = resolveAgents(config.agents, agentRegistry);
+    if (!agents || config.resolve !== "orchestrator") {
+      return agents;
+    }
+    return addOrchestratorAgent(
+      agents,
+      agentRegistry,
+      config.backend !== undefined,
+    );
   }
 
   if (config.preset && presetRegistry) {
     try {
-      return resolveAgents(
-        presetRegistry.getPreset(config.preset).agents,
+      const preset = presetRegistry.getPreset(config.preset);
+      const agents = resolveAgents(preset.agents, agentRegistry);
+      if (!agents || (config.resolve ?? preset.resolve) !== "orchestrator") {
+        return agents;
+      }
+      return addOrchestratorAgent(
+        agents,
         agentRegistry,
+        config.backend !== undefined,
       );
     } catch {
       return null;
@@ -561,9 +640,19 @@ function resolveAgents(
 
 function buildAgentSummary(
   loadedConfig: LoadedProjectConfig | null,
+  projectConfigState: ProjectConfigState,
   agentRegistry: AgentRegistry | null,
   presetRegistry: PresetRegistry | null,
 ): DoctorCheck {
+  if (projectConfigState === "invalid") {
+    return {
+      name: "agent summary",
+      status: "warn",
+      message: "project config invalid; agent summary unavailable",
+      section: SECTION_AGENTS,
+    };
+  }
+
   if (!agentRegistry) {
     return {
       name: "agent summary",
@@ -612,7 +701,17 @@ function resolveSummaryAgents(
     if (!agents) {
       return { error: "config agents could not be resolved" };
     }
-    return { agents, sourceLabel: "config agents" };
+    if (loadedConfig.config.resolve !== "orchestrator") {
+      return { agents, sourceLabel: "config agents" };
+    }
+    const agentsWithOrchestrator = addOrchestratorAgent(
+      agents,
+      agentRegistry,
+      loadedConfig.config.backend !== undefined,
+    );
+    return agentsWithOrchestrator
+      ? { agents: agentsWithOrchestrator, sourceLabel: "config agents" }
+      : { error: "orchestrator agent not found" };
   }
 
   if (loadedConfig?.config.preset) {
@@ -621,12 +720,21 @@ function resolveSummaryAgents(
       agentRegistry,
       presetRegistry,
     );
-    return "error" in result
-      ? result
-      : {
-          agents: result.agents,
+    if ("error" in result) {
+      return result;
+    }
+    const agents = agentsForResolveMode(
+      result.agents,
+      loadedConfig.config.resolve ?? result.preset.resolve,
+      agentRegistry,
+      loadedConfig.config.backend !== undefined,
+    );
+    return agents
+      ? {
+          agents,
           sourceLabel: `preset "${loadedConfig.config.preset}"`,
-        };
+        }
+      : { error: "orchestrator agent not found" };
   }
 
   const result = resolvePresetAgents(
@@ -638,17 +746,38 @@ function resolveSummaryAgents(
     ? {
         error: `default preset "${DEFAULT_INIT_PRESET}" not found; run \`${CLI_NAME} init\``,
       }
-    : {
-        agents: result.agents,
-        sourceLabel: `default preset "${DEFAULT_INIT_PRESET}"`,
-      };
+    : (() => {
+        const agents = agentsForResolveMode(
+          result.agents,
+          result.preset.resolve,
+          agentRegistry,
+          false,
+        );
+        return agents
+          ? {
+              agents,
+              sourceLabel: `default preset "${DEFAULT_INIT_PRESET}"`,
+            }
+          : { error: "orchestrator agent not found" };
+      })();
+}
+
+function agentsForResolveMode(
+  agents: AgentDefinition[],
+  resolveMode: ResolveMode | undefined,
+  agentRegistry: AgentRegistry,
+  hasRunBackendOverride: boolean,
+): AgentDefinition[] | null {
+  return resolveMode === "orchestrator"
+    ? addOrchestratorAgent(agents, agentRegistry, hasRunBackendOverride)
+    : agents;
 }
 
 function resolvePresetAgents(
   presetName: string,
   agentRegistry: AgentRegistry,
   presetRegistry: PresetRegistry | null,
-): { agents: AgentDefinition[] } | { error: string } {
+): { agents: AgentDefinition[]; preset: SwarmPreset } | { error: string } {
   if (!presetRegistry) {
     return { error: "preset registry unavailable" };
   }
@@ -662,7 +791,7 @@ function resolvePresetAgents(
   if (!agents) {
     return { error: `preset "${presetName}" references unknown agent(s)` };
   }
-  return { agents };
+  return { agents, preset };
 }
 
 function formatBackendMismatches(
