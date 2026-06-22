@@ -425,4 +425,19 @@ describe("formatDoctorReport", () => {
     });
     expect(text).toContain("agent-swarm doctor: ready");
   });
+
+  it("groups checks under section headers in first-seen order", () => {
+    const text = formatDoctorReport({
+      ok: true,
+      checks: [
+        { name: "project config", status: "ok", message: "loaded", section: "Configuration" },
+        { name: "harness capability", status: "warn", message: 'harness "codex" missing', section: "Harness inventory" },
+      ],
+    });
+    expect(text).toContain("Configuration");
+    expect(text).toContain("Harness inventory");
+    expect(text.indexOf("Configuration")).toBeLessThan(text.indexOf("Harness inventory"));
+    expect(text).toContain("[OK] project config: loaded");
+    expect(text).toContain('[WARN] harness capability: harness "codex" missing');
+  });
 });

@@ -37,6 +37,7 @@ export interface DoctorCheck {
   status: DoctorCheckStatus;
   message: string;
   detail?: string;
+  section?: string;
 }
 
 export interface DoctorReport {
@@ -510,13 +511,29 @@ function errorMessage(error: unknown): string {
 
 export function formatDoctorReport(report: DoctorReport): string {
   const lines: string[] = [];
+  const sectionOrder: string[] = [];
   for (const check of report.checks) {
-    const marker =
-      check.status === "ok" ? "OK" : check.status === "warn" ? "WARN" : "FAIL";
-    lines.push(`[${marker}] ${check.name}: ${check.message}`);
-    if (check.detail) {
-      for (const detailLine of check.detail.split("\n")) {
-        lines.push(`        ${detailLine}`);
+    const section = check.section ?? "Other";
+    if (!sectionOrder.includes(section)) {
+      sectionOrder.push(section);
+    }
+  }
+  for (const section of sectionOrder) {
+    lines.push(section);
+    for (const check of report.checks.filter(
+      (c) => (c.section ?? "Other") === section,
+    )) {
+      const marker =
+        check.status === "ok"
+          ? "OK"
+          : check.status === "warn"
+            ? "WARN"
+            : "FAIL";
+      lines.push(`  [${marker}] ${check.name}: ${check.message}`);
+      if (check.detail) {
+        for (const detailLine of check.detail.split("\n")) {
+          lines.push(`        ${detailLine}`);
+        }
       }
     }
   }
