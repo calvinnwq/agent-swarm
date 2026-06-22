@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Writing an agent — Agent Swarm</title>
+    <meta name="description" content="Author an agent as a YAML or Markdown file with a name, persona, and prompt — and how the registry resolves project, user, and bundled agents." />
+    <script>
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem("agent-swarm-docs-theme"); } catch (e) {}
+        document.documentElement.dataset.theme = t === "light" ? "light" : "dark";
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/styles.css" />
+    <script src="assets/site.js" defer></script>
+  </head>
+  <body data-page="writing-an-agent.html">
+    <a class="skip" href="#content">Skip to content</a>
+    <header class="masthead">
+      <div class="masthead-inner">
+        <button class="menu-btn" type="button" data-menu aria-label="Toggle navigation" aria-expanded="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 3.5h14M1 8h14M1 12.5h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+        <a class="brand" href="index.html">Agent&nbsp;Swarm<span class="brand-tag">docs</span></a>
+        <button class="search-btn" type="button" data-search-open><span>Search docs</span><kbd>/</kbd></button>
+        <div class="masthead-tools">
+          <a class="gh" href="https://github.com/calvinnwq/agent-swarm">GitHub</a>
+          <button class="theme-btn" type="button" data-theme-toggle aria-label="Toggle color theme" aria-pressed="false">
+            <svg class="icon-moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M14.6 12.1A6.5 6.5 0 0 1 7.4 2.7a6.5 6.5 0 1 0 7.2 9.4z" fill="currentColor"/></svg>
+            <svg class="icon-sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3.4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="10" y1="2" x2="10" y2="4"/><line x1="10" y1="16" x2="10" y2="18"/><line x1="2" y1="10" x2="4" y2="10"/><line x1="16" y1="10" x2="18" y2="10"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="14.4" y1="14.4" x2="15.8" y2="15.8"/><line x1="4.2" y1="15.8" x2="5.6" y2="14.4"/><line x1="14.4" y1="5.6" x2="15.8" y2="4.2"/></g></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="frame">
+      <nav id="sidebar" class="sidebar" aria-label="Documentation"></nav>
+      <main id="content" class="article-col">
+        <article>
+<p class="kicker"><span class="n">07 —</span>Build your own</p>
+<h1>Writing an agent</h1>
+<p class="lede">
+  An agent is a single YAML or Markdown file with a name, a persona, and a
+  prompt. Drop it into <code>.agent-swarm/agents/</code> and the registry picks
+  it up automatically — no code wiring required.
+</p>
+
+<section>
+  <h2>Two formats, one schema</h2>
+  <p>
+    You can author agents as plain <code>.yml</code> files or as
+    <code>.md</code> files with YAML frontmatter. Both are validated against
+    the same Zod schema at load time. Choose whichever fits your workflow —
+    Markdown is handy when you want the prompt to read naturally in a text
+    editor or code review.
+  </p>
+
+  <h3>YAML agent (<code>.yml</code>)</h3>
+  <pre><code><span class="c"># .agent-swarm/agents/security-reviewer.yml</span>
+<span class="k">name</span>: security-reviewer
+<span class="k">description</span>: Reviews code and architecture changes for security vulnerabilities and trust-boundary drift.
+<span class="k">persona</span>: You are a paranoid but practical security engineer. You look for real exploitable
+  issues, not theoretical edge cases, and you always propose a concrete fix alongside
+  each finding.
+<span class="k">prompt</span>: |
+  You are the security-reviewer agent in a swarm.
+
+  Focus on authentication gaps, injection vectors, broken trust boundaries,
+  insecure defaults, and secrets in the wrong place.
+  Prefer concrete failure modes over vague risk language.
+
+  Return only the shared swarm JSON contract with these fields:
+  agent, round, stance, recommendation, reasoning, objections, risks,
+  changesFromPriorRound, confidence, openQuestions</code></pre>
+
+  <h3>Markdown agent with YAML frontmatter (<code>.md</code>)</h3>
+  <pre><code><span class="c">&lt;!-- .agent-swarm/agents/data-steward.md --&gt;</span>
+---
+<span class="k">name</span>: <span class="s">data-steward</span>
+<span class="k">description</span>: <span class="s">Evaluates proposals for data-privacy compliance and retention risk.</span>
+<span class="k">persona</span>: <span class="s">You are a data-governance specialist who reads every schema change through
+  the lens of GDPR, CCPA, and internal retention policy.</span>
+<span class="k">harness</span>: <span class="s">opencode</span>
+<span class="k">model</span>: <span class="s">claude-opus-4-5</span>
+---
+
+You are the data-steward agent in a swarm.
+
+Focus on PII exposure, retention periods, consent signals, and cross-border
+data flow. Call out any field that could identify a user even after anonymisation.
+
+Return only the shared swarm JSON contract with these fields:
+agent, round, stance, recommendation, reasoning, objections, risks,
+changesFromPriorRound, confidence, openQuestions</code></pre>
+
+  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>In a Markdown agent the text after the closing <code>---</code> of the frontmatter becomes the <code>prompt</code>. You can still use an explicit <code>prompt:</code> key in the frontmatter if you prefer everything in one block; the frontmatter key wins when both are present.</p></div>
+</section>
+
+<section>
+  <h2>Agent fields</h2>
+  <p>Every field is validated by <code>AgentDefinitionSchema</code> in <code>src/schemas/agent-definition.ts</code>. Unknown keys are passed through, but the fields below are the only ones the runtime acts on.</p>
+
+  <div class="table-wrap">
+    <table class="opts">
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>Required</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>name</code></td>
+          <td>Yes</td>
+          <td><code>string</code></td>
+          <td>Unique identifier for the agent. Must match <code>^[a-z0-9][a-z0-9_-]*$</code> — lowercase letters, digits, hyphens, and underscores; must start with a letter or digit. Used as the key in presets and run artifacts.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Yes</td>
+          <td><code>string</code></td>
+          <td>One-line human-readable summary of the agent's role. Shown in <code>agent-swarm doctor</code> output and in the agent registry listing.</td>
+        </tr>
+        <tr>
+          <td><code>persona</code></td>
+          <td>Yes</td>
+          <td><code>string</code></td>
+          <td>The agent's identity and disposition. Written in second person ("You are…"). Frames how the agent interprets its task before the prompt is applied.</td>
+        </tr>
+        <tr>
+          <td><code>prompt</code></td>
+          <td>Yes</td>
+          <td><code>string</code> or <code>{ file: string }</code></td>
+          <td>The task instructions sent to the harness. Either an inline string (including YAML block scalars with <code>|</code>) or a file reference — <code>{ file: "path/to/prompt.txt" }</code> — resolved relative to the agent file's location.</td>
+        </tr>
+        <tr>
+          <td><code>backend</code></td>
+          <td>No</td>
+          <td><code>claude</code> | <code>codex</code></td>
+          <td>The run-level backend to request for this agent. Defaults to <code>claude</code>. Used when no <code>harness</code> is set and the run has no backend override. Note that <code>backend</code> and <code>harness</code> are distinct: <code>backend</code> is the coarse run-level dial; <code>harness</code> is the per-agent dispatch surface.</td>
+        </tr>
+        <tr>
+          <td><code>harness</code></td>
+          <td>No</td>
+          <td><code>claude</code> | <code>codex</code> | <code>opencode</code> | <code>rovo</code></td>
+          <td>The specific harness CLI this agent should run on. When set, it takes precedence over the run-level <code>--backend</code> flag and the agent's own <code>backend</code> value. Use this to pin an agent to a particular harness regardless of what the rest of the swarm uses.</td>
+        </tr>
+        <tr>
+          <td><code>model</code></td>
+          <td>No</td>
+          <td><code>string</code></td>
+          <td>Model identifier to pass to the harness CLI (e.g. <code>claude-opus-4-5</code>). The exact flag used depends on the resolved harness: <code>claude --model</code>, <code>codex -m</code>, <code>opencode --model</code>, or <code>acli rovodev run --model</code>. Omit to let the harness use its default.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout" data-kind="tip"><span class="callout-label">Tip</span><p>Start with just <code>name</code>, <code>description</code>, <code>persona</code>, and <code>prompt</code>. Add <code>harness</code> or <code>model</code> only when you have a specific reason to diverge from the swarm's default execution surface.</p></div>
+</section>
+
+<section>
+  <h2>Registry resolution</h2>
+  <p>
+    When the runtime loads agents it searches six roots in order and stops at the
+    first match for a given name. This means a project-level agent silently
+    overrides a bundled one of the same name — a deliberate affordance for
+    customisation.
+  </p>
+
+  <div class="table-wrap">
+    <table class="opts">
+      <thead>
+        <tr>
+          <th>Priority</th>
+          <th>Scope</th>
+          <th>Root</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1 (highest)</td>
+          <td>Project — current</td>
+          <td><code>.agent-swarm/agents/</code></td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Project — legacy</td>
+          <td><code>.swarm/agents/</code></td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>User — current</td>
+          <td><code>~/.agent-swarm/agents/</code></td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>User — legacy</td>
+          <td><code>~/.swarm/agents/</code></td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>Bundled</td>
+          <td><code>dist/agents/bundled/</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>Resolution rules to keep in mind:</p>
+  <ul>
+    <li><strong>First match wins.</strong> The registry stops at the first root where an agent with the requested name is found.</li>
+    <li><strong>Same-name override is allowed across scopes.</strong> A project agent named <code>product-manager</code> shadows the bundled <code>product-manager</code> without error.</li>
+    <li><strong>Duplicates inside one root are an error.</strong> Two files in the same directory that resolve to the same agent name will fail at load time.</li>
+    <li><strong>Legacy roots are read-only fallbacks.</strong> The <code>.swarm/</code> paths are searched after their <code>.agent-swarm/</code> counterparts during the migration window; new agents should always be written to the <code>.agent-swarm/</code> root.</li>
+  </ul>
+
+  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>Agents in subdirectories (e.g. <code>.agent-swarm/agents/product/product-manager.yml</code>) are discovered recursively. The agent's <code>name</code> field — not its filename — is the registry key.</p></div>
+</section>
+
+<section>
+  <h2>Prompt file references</h2>
+  <p>
+    For longer prompts, or when you want to version a prompt separately from its
+    metadata, use the file reference form of <code>prompt</code>:
+  </p>
+  <pre><code><span class="c"># .agent-swarm/agents/legal-reviewer.yml</span>
+<span class="k">name</span>: legal-reviewer
+<span class="k">description</span>: Flags contractual and regulatory risk in product decisions.
+<span class="k">persona</span>: You are an in-house counsel who reads every launch proposal for
+  indemnification exposure, IP risk, and regulatory tripwires.
+<span class="k">prompt</span>:
+  <span class="k">file</span>: <span class="s">prompts/legal-reviewer.txt</span></code></pre>
+  <p>
+    The path is resolved relative to the agent file's location, so
+    <code>prompts/legal-reviewer.txt</code> would sit at
+    <code>.agent-swarm/agents/prompts/legal-reviewer.txt</code>.
+  </p>
+</section>
+
+<section>
+  <h2>Overriding a bundled agent</h2>
+  <p>
+    Bundled agents like <code>product-manager</code> and <code>code-reviewer</code>
+    are starting points, not constraints. To customise one, copy its YAML to your
+    project root and edit it — the project-scope copy takes over automatically:
+  </p>
+  <pre><code><span class="c"># Copy the bundled agent into your project</span>
+mkdir -p .agent-swarm/agents
+cp <span class="s">"$(npm root -g)/@calvinnwq/agent-swarm/dist/agents/bundled/product/product-manager.yml"</span> \
+   .agent-swarm/agents/product-manager.yml
+
+<span class="c"># Edit persona, prompt, harness, model — the project copy wins</span></code></pre>
+  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>The override is keyed on the <code>name</code> field, not the filename. Your file can be named anything as long as the <code>name:</code> value matches the bundled agent you want to replace.</p></div>
+</section>
+
+<section>
+  <h2>Where next</h2>
+  <ul>
+    <li><a href="composing-a-swarm.html">Composing a swarm</a> — wire your agents into a preset and choose rounds, decision vocabulary, and resolution mode.</li>
+    <li><a href="harnesses-and-backends.html">Harnesses and backends</a> — understand the <code>backend</code> vs. <code>harness</code> distinction and how the runtime resolves which CLI each agent runs on.</li>
+    <li><a href="reference.html">CLI reference</a> — every flag, including per-run backend overrides.</li>
+  </ul>
+</section>
+        </article>
+        <footer class="pager" id="pager"></footer>
+      </main>
+      <aside class="toc-col"><p class="toc-title">On this page</p><nav id="toc" aria-label="On this page"></nav></aside>
+    </div>
+
+    <footer class="colophon"><div class="colophon-inner"><span>Agent Swarm docs</span><span>MIT</span><a href="https://github.com/calvinnwq/agent-swarm">GitHub</a></div></footer>
+  </body>
+</html>
