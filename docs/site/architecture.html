@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Agent Swarm — Architecture</title>
+    <meta
+      name="description"
+      content="The Agent Swarm runtime map: pipeline lifecycle, backend and harness layering, registries, schemas, and run artifacts."
+    />
+    <link rel="stylesheet" href="assets/styles.css" />
+    <script src="assets/site.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <a class="site-brand" href="index.html">
+          <span class="site-brand__mark" aria-hidden="true">◇</span>
+          Agent Swarm
+        </a>
+        <button
+          class="site-nav__toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="site-nav"
+          aria-label="Toggle navigation"
+        >
+          Menu
+        </button>
+        <nav class="site-nav" id="site-nav" aria-label="Primary">
+          <a href="index.html">Home</a>
+          <a href="quickstart.html">Quickstart</a>
+          <a href="reference.html">Reference</a>
+          <a href="architecture.html" aria-current="page">Architecture</a>
+          <a href="agent-usage.html">Agent Usage</a>
+          <a href="release-readiness.html">Release Readiness</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="site-main" id="main">
+      <section class="hero">
+        <p class="eyebrow">Architecture</p>
+        <h1>Runtime map</h1>
+        <p class="lead">
+          How a run flows from CLI flags to a deterministic synthesis, and the
+          layers that keep dispatch decoupled from the run-level backend.
+        </p>
+      </section>
+
+      <h2>Pipeline lifecycle</h2>
+      <p>
+        <code>runSwarm</code> sets up fresh runs; <code>resumeSwarm</code>
+        rehydrates interrupted ones. Both hand a shared runtime core to
+        <code>executeRun</code>. Each run resolves config and agents, picks a
+        harness per agent, runs rounds in parallel, folds the prior packet into
+        the next directive between rounds, persists everything append-only, and
+        finishes with a deterministic synthesis.
+      </p>
+      <ol>
+        <li>
+          <strong>Resolve config + agents.</strong> CLI flags &gt; project
+          config &gt; preset defaults, then each agent's runtime is resolved.
+        </li>
+        <li>
+          <strong>Resolve harnesses.</strong> Each agent picks a harness:
+          <code>agent.harness</code> → run-level
+          <code>--backend</code> → <code>agent.backend</code>.
+        </li>
+        <li>
+          <strong>Round execution.</strong> Agents run with a default
+          concurrency of 3 and one format-repair retry; output is validated
+          against the Zod <code>AgentOutputSchema</code>.
+        </li>
+        <li>
+          <strong>Between rounds.</strong> The next directive is templated
+          (<code>off</code>) or produced by the orchestrator agent.
+        </li>
+        <li>
+          <strong>Synthesis.</strong> Fully deterministic — no LLM call —
+          consensus, top recommendation, shared risks, deferred questions.
+        </li>
+      </ol>
+
+      <h2>Backend and harness layering</h2>
+      <p>
+        A <strong>backend</strong> is the run-level dial
+        (<code>claude</code> or <code>codex</code>); a
+        <strong>harness</strong> is the per-agent dispatch target
+        (<code>claude</code>, <code>codex</code>, <code>opencode</code>, or
+        <code>rovo</code>). They are deliberately separate. The run-level backend
+        still names the run metadata, but each agent's dispatch goes through the
+        adapter resolved from its own harness, so a swarm can mix harnesses in a
+        single run.
+      </p>
+
+      <h2>Registries</h2>
+      <p>
+        Agents and presets load from three scopes — project, user, then bundled
+        — with first match winning and the current
+        <code>.agent-swarm/</code> root searched before the legacy
+        <code>.swarm/</code> root. Markdown agents use YAML frontmatter validated
+        against the same schema as <code>.yml</code> agents.
+      </p>
+
+      <h2>Schemas</h2>
+      <p>
+        Every cross-boundary contract is a Zod schema — no hand-rolled types for
+        anything that crosses the disk or wire boundary. Key schemas include
+        <code>AgentOutputSchema</code>, <code>OrchestratorOutputSchema</code>,
+        <code>RunManifest</code>, <code>RunCheckpoint</code>, and
+        <code>MessageEnvelope</code>. <code>BackendId</code> and
+        <code>HarnessId</code> are separate schemas on purpose.
+      </p>
+
+      <h2>Persistence</h2>
+      <p>
+        Three append-only writers fan out from <code>OutputRouter</code>: an
+        artifact writer (round folders + manifest), a ledger writer
+        (<code>events.jsonl</code> + <code>messages.jsonl</code>), and a
+        checkpoint writer (<code>checkpoint.json</code>). Because writes are
+        incremental, a failed run can be inspected and resumed from the last
+        completed round.
+      </p>
+
+      <div class="note">
+        <p>
+          For the full contributor map see
+          <a
+            href="https://github.com/calvinnwq/agent-swarm/blob/main/ARCHITECTURE.md"
+            >ARCHITECTURE.md</a
+          >.
+        </p>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="site-footer__inner">
+        <p>Agent Swarm — fan out agents, collect structured output, synthesize.</p>
+        <p>
+          <a
+            href="https://github.com/calvinnwq/agent-swarm/blob/main/ARCHITECTURE.md"
+            >ARCHITECTURE.md</a
+          >
+          ·
+          <a
+            href="https://github.com/calvinnwq/agent-swarm/blob/main/CONTRIBUTING.md"
+            >Contributing</a
+          >
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

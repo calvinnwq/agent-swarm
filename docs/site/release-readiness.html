@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Agent Swarm — Release readiness</title>
+    <meta
+      name="description"
+      content="The verification gates and Release Please process behind every Agent Swarm release."
+    />
+    <link rel="stylesheet" href="assets/styles.css" />
+    <script src="assets/site.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <a class="site-brand" href="index.html">
+          <span class="site-brand__mark" aria-hidden="true">◇</span>
+          Agent Swarm
+        </a>
+        <button
+          class="site-nav__toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="site-nav"
+          aria-label="Toggle navigation"
+        >
+          Menu
+        </button>
+        <nav class="site-nav" id="site-nav" aria-label="Primary">
+          <a href="index.html">Home</a>
+          <a href="quickstart.html">Quickstart</a>
+          <a href="reference.html">Reference</a>
+          <a href="architecture.html">Architecture</a>
+          <a href="agent-usage.html">Agent Usage</a>
+          <a href="release-readiness.html" aria-current="page"
+            >Release Readiness</a
+          >
+        </nav>
+      </div>
+    </header>
+
+    <main class="site-main" id="main">
+      <section class="hero">
+        <p class="eyebrow">Release readiness</p>
+        <h1>What ships, and how</h1>
+        <p class="lead">
+          Every release clears the same deterministic verification gates, then
+          Release Please cuts the tag and GitHub Release from Conventional
+          Commits.
+        </p>
+      </section>
+
+      <h2>Verification gates</h2>
+      <p>
+        These run in CI on every pull request and must be green together before
+        anything merges to <code>main</code>:
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Gate</th>
+              <th>Command</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Formatting</td>
+              <td><code>pnpm format:check</code></td>
+            </tr>
+            <tr>
+              <td>Lint</td>
+              <td><code>pnpm lint</code></td>
+            </tr>
+            <tr>
+              <td>Typecheck</td>
+              <td><code>pnpm typecheck</code></td>
+            </tr>
+            <tr>
+              <td>Unit tests</td>
+              <td><code>pnpm test</code></td>
+            </tr>
+            <tr>
+              <td>Build</td>
+              <td><code>pnpm build</code></td>
+            </tr>
+            <tr>
+              <td>Smoke</td>
+              <td><code>pnpm smoke</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Release process</h2>
+      <p>
+        Releases are managed by Release Please from Conventional Commits on
+        <code>main</code>. Release-driving commit types such as
+        <code>feat:</code>, <code>fix:</code>, and <code>deps:</code> appear in
+        the next release; <code>docs:</code>, <code>test:</code>,
+        <code>refactor:</code>, and <code>chore:</code> do not.
+      </p>
+      <p>
+        Merging the Release Please PR updates <code>package.json</code>, writes
+        <code>CHANGELOG.md</code>, creates a git tag, and creates the GitHub
+        Release. Tags use plain <code>vX.Y.Z</code> format. npm publishing is not
+        part of the current release workflow.
+      </p>
+
+      <div class="note">
+        <p>
+          The full readiness checklist lives in
+          <a
+            href="https://github.com/calvinnwq/agent-swarm/blob/main/docs/release-readiness.md"
+            >docs/release-readiness.md</a
+          >, and the operator runbook in
+          <a
+            href="https://github.com/calvinnwq/agent-swarm/blob/main/docs/release-operations.md"
+            >docs/release-operations.md</a
+          >. Do not publish, retag, or edit releases without explicit approval.
+        </p>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="site-footer__inner">
+        <p>Agent Swarm — fan out agents, collect structured output, synthesize.</p>
+        <p>
+          <a
+            href="https://github.com/calvinnwq/agent-swarm/blob/main/docs/release-readiness.md"
+            >Readiness checklist</a
+          >
+          ·
+          <a
+            href="https://github.com/calvinnwq/agent-swarm/blob/main/CHANGELOG.md"
+            >Changelog</a
+          >
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>
