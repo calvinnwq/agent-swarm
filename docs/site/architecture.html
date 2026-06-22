@@ -4,153 +4,151 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Agent Swarm — Architecture</title>
-    <meta
-      name="description"
-      content="The Agent Swarm runtime map: pipeline lifecycle, backend and harness layering, registries, schemas, and run artifacts."
+    <meta name="description" content="The Agent Swarm runtime map: pipeline lifecycle, backend and harness layering, registries, schemas, and run artifacts." />
+    <script>
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem("agent-swarm-docs-theme"); } catch (e) {}
+        document.documentElement.dataset.theme = t === "light" ? "light" : "dark";
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
     />
     <link rel="stylesheet" href="assets/styles.css" />
     <script src="assets/site.js" defer></script>
   </head>
-  <body>
-    <a class="skip-link" href="#main">Skip to content</a>
-    <header class="site-header">
-      <div class="site-header__inner">
-        <a class="site-brand" href="index.html">
-          <span class="site-brand__mark" aria-hidden="true">◇</span>
-          Agent Swarm
-        </a>
-        <button
-          class="site-nav__toggle"
-          type="button"
-          aria-expanded="false"
-          aria-controls="site-nav"
-          aria-label="Toggle navigation"
-        >
-          Menu
-        </button>
-        <nav class="site-nav" id="site-nav" aria-label="Primary">
-          <a href="index.html">Home</a>
-          <a href="quickstart.html">Quickstart</a>
-          <a href="reference.html">Reference</a>
-          <a href="architecture.html" aria-current="page">Architecture</a>
-          <a href="agent-usage.html">Agent Usage</a>
-          <a href="release-readiness.html">Release Readiness</a>
-        </nav>
+  <body data-page="architecture.html">
+    <a class="skip" href="#content">Skip to content</a>
+    <header class="masthead">
+      <div class="masthead-inner">
+        <button class="menu-btn" type="button" data-menu aria-label="Toggle navigation" aria-expanded="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 3.5h14M1 8h14M1 12.5h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+        <a class="brand" href="index.html">Agent&nbsp;Swarm<span class="brand-tag">docs</span></a>
+        <button class="search-btn" type="button" data-search-open><span>Search docs</span><kbd>/</kbd></button>
+        <div class="masthead-tools">
+          <a class="gh" href="https://github.com/calvinnwq/agent-swarm">GitHub</a>
+          <button class="theme-btn" type="button" data-theme-toggle aria-label="Toggle color theme" aria-pressed="false">
+            <svg class="icon-moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M14.6 12.1A6.5 6.5 0 0 1 7.4 2.7a6.5 6.5 0 1 0 7.2 9.4z" fill="currentColor"/></svg>
+            <svg class="icon-sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3.4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="10" y1="2" x2="10" y2="4"/><line x1="10" y1="16" x2="10" y2="18"/><line x1="2" y1="10" x2="4" y2="10"/><line x1="16" y1="10" x2="18" y2="10"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="14.4" y1="14.4" x2="15.8" y2="15.8"/><line x1="4.2" y1="15.8" x2="5.6" y2="14.4"/><line x1="14.4" y1="5.6" x2="15.8" y2="4.2"/></g></svg>
+          </button>
+        </div>
       </div>
     </header>
 
-    <main class="site-main" id="main">
-      <section class="hero">
-        <p class="eyebrow">Architecture</p>
-        <h1>Runtime map</h1>
-        <p class="lead">
-          How a run flows from CLI flags to a deterministic synthesis, and the
-          layers that keep dispatch decoupled from the run-level backend.
-        </p>
-      </section>
+    <div class="frame">
+      <nav id="sidebar" class="sidebar" aria-label="Documentation"></nav>
+      <main id="content" class="article-col">
+        <article>
+<p class="kicker"><span class="n">04 —</span>Reference</p>
+<h1>Runtime map</h1>
+<p class="lede">
+  How a run flows from CLI flags to a deterministic synthesis, and the
+  layers that keep dispatch decoupled from the run-level backend.
+</p>
 
-      <h2>Pipeline lifecycle</h2>
-      <p>
-        <code>runSwarm</code> sets up fresh runs; <code>resumeSwarm</code>
-        rehydrates interrupted ones. Both hand a shared runtime core to
-        <code>executeRun</code>. Each run resolves config and agents, picks a
-        harness per agent, runs rounds in parallel, folds the prior packet into
-        the next directive between rounds, persists everything append-only, and
-        finishes with a deterministic synthesis.
-      </p>
-      <ol>
-        <li>
-          <strong>Resolve config + agents.</strong> CLI flags &gt; project
-          config &gt; preset defaults, then each agent's runtime is resolved.
-        </li>
-        <li>
-          <strong>Resolve harnesses.</strong> Each agent picks a harness:
-          <code>agent.harness</code> → run-level
-          <code>--backend</code> → <code>agent.backend</code>.
-        </li>
-        <li>
-          <strong>Round execution.</strong> Agents run with a default
-          concurrency of 3 and one format-repair retry; output is validated
-          against the Zod <code>AgentOutputSchema</code>.
-        </li>
-        <li>
-          <strong>Between rounds.</strong> The next directive is templated
-          (<code>off</code>) or produced by the orchestrator agent.
-        </li>
-        <li>
-          <strong>Synthesis.</strong> Fully deterministic — no LLM call —
-          consensus, top recommendation, shared risks, deferred questions.
-        </li>
-      </ol>
+<section>
+  <h2>Pipeline lifecycle</h2>
+  <p>
+    <code>runSwarm</code> sets up fresh runs; <code>resumeSwarm</code>
+    rehydrates interrupted ones. Both hand a shared runtime core to
+    <code>executeRun</code>. Each run resolves config and agents, picks a
+    harness per agent, runs rounds in parallel, folds the prior packet into
+    the next directive between rounds, persists everything append-only, and
+    finishes with a deterministic synthesis.
+  </p>
+  <ol>
+    <li>
+      <strong>Resolve config + agents.</strong> CLI flags &gt; project
+      config &gt; preset defaults, then each agent's runtime is resolved.
+    </li>
+    <li>
+      <strong>Resolve harnesses.</strong> Each agent picks a harness:
+      <code>agent.harness</code> → run-level
+      <code>--backend</code> → <code>agent.backend</code>.
+    </li>
+    <li>
+      <strong>Round execution.</strong> Agents run with a default
+      concurrency of 3 and one format-repair retry; output is validated
+      against the Zod <code>AgentOutputSchema</code>.
+    </li>
+    <li>
+      <strong>Between rounds.</strong> The next directive is templated
+      (<code>off</code>) or produced by the orchestrator agent.
+    </li>
+    <li>
+      <strong>Synthesis.</strong> Fully deterministic — no LLM call —
+      consensus, top recommendation, shared risks, deferred questions.
+    </li>
+  </ol>
+</section>
 
-      <h2>Backend and harness layering</h2>
-      <p>
-        A <strong>backend</strong> is the run-level dial
-        (<code>claude</code> or <code>codex</code>); a
-        <strong>harness</strong> is the per-agent dispatch target
-        (<code>claude</code>, <code>codex</code>, <code>opencode</code>, or
-        <code>rovo</code>). They are deliberately separate. The run-level backend
-        still names the run metadata, but each agent's dispatch goes through the
-        adapter resolved from its own harness, so a swarm can mix harnesses in a
-        single run.
-      </p>
+<section>
+  <h2>Backend and harness layering</h2>
+  <p>
+    A <strong>backend</strong> is the run-level dial
+    (<code>claude</code> or <code>codex</code>); a
+    <strong>harness</strong> is the per-agent dispatch target
+    (<code>claude</code>, <code>codex</code>, <code>opencode</code>, or
+    <code>rovo</code>). They are deliberately separate. The run-level backend
+    still names the run metadata, but each agent's dispatch goes through the
+    adapter resolved from its own harness, so a swarm can mix harnesses in a
+    single run.
+  </p>
+</section>
 
-      <h2>Registries</h2>
-      <p>
-        Agents and presets load from three scopes — project, user, then bundled
-        — with first match winning and the current
-        <code>.agent-swarm/</code> root searched before the legacy
-        <code>.swarm/</code> root. Markdown agents use YAML frontmatter validated
-        against the same schema as <code>.yml</code> agents.
-      </p>
+<section>
+  <h2>Registries</h2>
+  <p>
+    Agents and presets load from three scopes — project, user, then bundled
+    — with first match winning and the current
+    <code>.agent-swarm/</code> root searched before the legacy
+    <code>.swarm/</code> root. Markdown agents use YAML frontmatter validated
+    against the same schema as <code>.yml</code> agents.
+  </p>
+</section>
 
-      <h2>Schemas</h2>
-      <p>
-        Every cross-boundary contract is a Zod schema — no hand-rolled types for
-        anything that crosses the disk or wire boundary. Key schemas include
-        <code>AgentOutputSchema</code>, <code>OrchestratorOutputSchema</code>,
-        <code>RunManifest</code>, <code>RunCheckpoint</code>, and
-        <code>MessageEnvelope</code>. <code>BackendId</code> and
-        <code>HarnessId</code> are separate schemas on purpose.
-      </p>
+<section>
+  <h2>Schemas</h2>
+  <p>
+    Every cross-boundary contract is a Zod schema — no hand-rolled types for
+    anything that crosses the disk or wire boundary. Key schemas include
+    <code>AgentOutputSchema</code>, <code>OrchestratorOutputSchema</code>,
+    <code>RunManifest</code>, <code>RunCheckpoint</code>, and
+    <code>MessageEnvelope</code>. <code>BackendId</code> and
+    <code>HarnessId</code> are separate schemas on purpose.
+  </p>
+</section>
 
-      <h2>Persistence</h2>
-      <p>
-        Three append-only writers fan out from <code>OutputRouter</code>: an
-        artifact writer (round folders + manifest), a ledger writer
-        (<code>events.jsonl</code> + <code>messages.jsonl</code>), and a
-        checkpoint writer (<code>checkpoint.json</code>). Because writes are
-        incremental, a failed run leaves inspectable artifacts and state for
-        recovery; user-facing resume tooling is future work, not part of the
-        alpha contract.
-      </p>
+<section>
+  <h2>Persistence</h2>
+  <p>
+    Three append-only writers fan out from <code>OutputRouter</code>: an
+    artifact writer (round folders + manifest), a ledger writer
+    (<code>events.jsonl</code> + <code>messages.jsonl</code>), and a
+    checkpoint writer (<code>checkpoint.json</code>). Because writes are
+    incremental, a failed run leaves inspectable artifacts and state for
+    recovery; user-facing resume tooling is future work, not part of the
+    alpha contract.
+  </p>
+  <div class="callout" data-kind="note"><span class="callout-label">Note</span>
+    <p>
+      For the full contributor map see
+      <a
+        href="https://github.com/calvinnwq/agent-swarm/blob/main/ARCHITECTURE.md"
+        >ARCHITECTURE.md</a
+      >.
+    </p>
+  </div>
+</section>
+        </article>
+        <footer class="pager" id="pager"></footer>
+      </main>
+      <aside class="toc-col"><p class="toc-title">On this page</p><nav id="toc" aria-label="On this page"></nav></aside>
+    </div>
 
-      <div class="note">
-        <p>
-          For the full contributor map see
-          <a
-            href="https://github.com/calvinnwq/agent-swarm/blob/main/ARCHITECTURE.md"
-            >ARCHITECTURE.md</a
-          >.
-        </p>
-      </div>
-    </main>
-
-    <footer class="site-footer">
-      <div class="site-footer__inner">
-        <p>Agent Swarm — fan out agents, collect structured output, synthesize.</p>
-        <p>
-          <a
-            href="https://github.com/calvinnwq/agent-swarm/blob/main/ARCHITECTURE.md"
-            >ARCHITECTURE.md</a
-          >
-          ·
-          <a
-            href="https://github.com/calvinnwq/agent-swarm/blob/main/CONTRIBUTING.md"
-            >Contributing</a
-          >
-        </p>
-      </div>
-    </footer>
+    <footer class="colophon"><div class="colophon-inner"><span>Agent Swarm docs</span><span>MIT</span><a href="https://github.com/calvinnwq/agent-swarm">GitHub</a></div></footer>
   </body>
 </html>
