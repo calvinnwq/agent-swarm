@@ -44,7 +44,12 @@ const CONTENT_TYPES = {
 function resolveTarget(urlPath) {
   // Strip query/hash and decode, then resolve against the site root, refusing
   // any path that escapes docs/site/ (path traversal guard).
-  const decoded = decodeURIComponent(urlPath.split("?")[0].split("#")[0]);
+  let decoded;
+  try {
+    decoded = decodeURIComponent(urlPath.split("?")[0].split("#")[0]);
+  } catch {
+    return null;
+  }
   const candidate = path.join(siteRoot, decoded);
   const relative = path.relative(siteRoot, candidate);
   if (relative.startsWith("..") || path.isAbsolute(relative)) {
