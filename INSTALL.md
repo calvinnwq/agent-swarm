@@ -124,8 +124,8 @@ files under `.agent-swarm/agents/` and `.agent-swarm/presets/` **only when you
 ask for a custom swarm** — for example a project-specific review panel. The skill
 creates them on request; you rarely author them by hand. Subdirectories under
 those folders are for readability only — the YAML `name` is the canonical
-identity. First-time agent setup details live in
-[docs/agent-usage.md](docs/agent-usage.md).
+identity. First-time agent setup details live in the public docs site:
+<https://calvinnwq.github.io/agent-swarm/agent-usage.html>.
 
 ---
 

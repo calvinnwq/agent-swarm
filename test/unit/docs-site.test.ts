@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 const repoRoot = fileURLToPath(new URL("../../", import.meta.url));
-const siteDir = path.join(repoRoot, "docs", "site");
+const siteDir = path.join(repoRoot, "docs");
 const pagesWorkflowPath = path.join(
   repoRoot,
   ".github",
@@ -15,11 +15,11 @@ const pagesWorkflowPath = path.join(
 const readmePath = path.join(repoRoot, "README.md");
 
 // The deployed docs site lives at the project's GitHub Pages origin. The README
-// links here and the Pages workflow publishes docs/site/ to it.
+// links here and the Pages workflow publishes docs/ to it.
 const DOCS_SITE_URL = "calvinnwq.github.io/agent-swarm";
 
 // The static docs site renders without a build step, so every page is a plain
-// HTML file under docs/site/ that inlines the shared chrome. These are the
+// HTML file under docs/ that inlines the shared chrome. These are the
 // canonical top-level pages the navigation links between.
 const CANONICAL_PAGES = [
   "index.html",
@@ -211,16 +211,16 @@ describe("static docs site", () => {
 });
 
 describe("docs site deployment", () => {
-  it("ships a GitHub Pages workflow that publishes docs/site without a build", async () => {
+  it("ships a GitHub Pages workflow that publishes docs without a build", async () => {
     expect(existsSync(pagesWorkflowPath), "pages.yml").toBe(true);
     const workflow = await readFile(pagesWorkflowPath, "utf-8");
 
     // Deploys via the official no-build Pages pipeline: upload the static
-    // docs/site/ directory as the artifact, then deploy it.
+    // docs/ directory as the artifact, then deploy it.
     expect(workflow).toContain("actions/configure-pages");
     expect(workflow).toContain("actions/upload-pages-artifact");
     expect(workflow).toContain("actions/deploy-pages");
-    expect(workflow).toMatch(/path:\s*docs\/site/);
+    expect(workflow).toMatch(/path:\s*docs\b/);
 
     // GitHub Pages deployment requires these OIDC + pages permissions.
     expect(workflow).toMatch(/pages:\s*write/);

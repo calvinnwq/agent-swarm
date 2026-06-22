@@ -49,9 +49,9 @@ describe("agent-swarm skill helper", () => {
       "--decision",
       "Proceed / Defer / Reject",
       "--doc",
-      "docs/agent-operation.md",
+      "README.md",
       "--doc",
-      "docs/agent-usage.md",
+      "SPEC.md",
       "--built-cli",
       "--json",
     ]);
@@ -75,9 +75,9 @@ describe("agent-swarm skill helper", () => {
       "--decision",
       "Proceed / Defer / Reject",
       "--doc",
-      "docs/agent-operation.md",
+      "README.md",
       "--doc",
-      "docs/agent-usage.md",
+      "SPEC.md",
     ]);
     expect(result.command).toContain("node ../dist/cli.mjs run 1");
     expect(result.command).toContain("'Should we ship Bob'\\''s plan?'");

@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-// Serve the static docs site (docs/site/) locally for preview.
+// Serve the static docs site (docs/) locally for preview.
 //
 // The site renders without a build step and is deployed to GitHub Pages as-is
 // (see .github/workflows/pages.yml), so a plain static file server rooted at
-// docs/site/ reproduces the published site exactly. This script has zero
+// docs/ reproduces the published site exactly. This script has zero
 // dependencies — it uses only the Node standard library — to stay aligned with
 // the no-build ethos of the docs site.
 //
@@ -15,7 +15,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = fileURLToPath(new URL("../", import.meta.url));
-const siteRoot = path.join(repoRoot, "docs", "site");
+const siteRoot = path.join(repoRoot, "docs");
 
 const args = process.argv.slice(2);
 const portArgIndex = args.findIndex((arg) => arg === "--port" || arg === "-p");
@@ -43,7 +43,7 @@ const CONTENT_TYPES = {
 
 function resolveTarget(urlPath) {
   // Strip query/hash and decode, then resolve against the site root, refusing
-  // any path that escapes docs/site/ (path traversal guard).
+  // any path that escapes docs/ (path traversal guard).
   let decoded;
   try {
     decoded = decodeURIComponent(urlPath.split("?")[0].split("#")[0]);
@@ -92,7 +92,7 @@ server.listen(resolvedPort, () => {
   const address = server.address();
   const actualPort =
     typeof address === "object" && address ? address.port : resolvedPort;
-  console.log(`Serving docs/site at http://localhost:${actualPort}`);
+  console.log(`Serving docs at http://localhost:${actualPort}`);
   console.log("Press Ctrl+C to stop.");
 });
 

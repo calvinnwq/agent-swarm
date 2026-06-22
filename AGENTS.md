@@ -10,14 +10,14 @@ Product/storage identity is centralized in `src/lib/identity.ts` (`PRODUCT_NAME`
 
 `agent-swarm init` writes only `.agent-swarm/config.yml` with minimal defaults (`preset: product-triad`, `resolve: off`, `timeoutMs: 300000`), preserves existing config unless `--force` is passed, and only reports legacy `.swarm/config.yml` without mutating it.
 
-The README is the authoritative user-facing entry point — when alpha behavior is ambiguous, README contracts win. `SPEC.md` is the durable alpha contract, `INSTALL.md` is the step-by-step setup/troubleshooting guide, and `ARCHITECTURE.md` is the contributor runtime map. The no-build static docs site lives under `docs/site/` and is deployed by `.github/workflows/pages.yml`.
+The README is the authoritative user-facing entry point — when alpha behavior is ambiguous, README contracts win. `SPEC.md` is the durable alpha contract, `INSTALL.md` is the step-by-step setup/troubleshooting guide, and `ARCHITECTURE.md` is the contributor runtime map. The no-build static docs site lives under `docs/` and is deployed by `.github/workflows/pages.yml`.
 
 ## Commands
 
 ```bash
 pnpm build           # tsdown bundle + copies bundled agents/presets into dist/
 pnpm dev             # tsdown --watch
-pnpm docs:serve      # preview docs/site/ locally at http://localhost:3000
+pnpm docs:serve      # preview docs/ locally at http://localhost:3000
 pnpm test            # vitest unit tests (test/unit/**)
 pnpm test:e2e        # builds, then vitest with vitest.e2e.config.ts (test/e2e/**)
 pnpm smoke           # builds, runs only test/e2e/smoke.test.ts (golden-path verification)
@@ -57,8 +57,8 @@ part of NGX-478; do not recreate legacy component-prefixed release tags.
 The npm package is scoped as `@calvinnwq/agent-swarm`, but the executable bin is
 still `agent-swarm`. Do not publish npm packages, change package access, create
 or delete tags, edit GitHub releases, or configure trusted publishing without
-explicit approval. The operator runbook is
-`docs/release-operations.md`; follow it before any release/publish action.
+explicit approval. Follow the release rules in this file and `CONTRIBUTING.md`
+before any release/publish action.
 
 ## Architecture
 
