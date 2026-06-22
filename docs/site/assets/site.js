@@ -11,17 +11,42 @@
       ]
     },
     {
+      title: "Concepts",
+      items: [
+        { n: "03", t: "What is a swarm?", h: "what-is-a-swarm.html" },
+        { n: "04", t: "Agents & roles", h: "agents-and-roles.html" },
+        { n: "05", t: "Rounds & resolution", h: "rounds-and-resolution.html" },
+        { n: "06", t: "The synthesis", h: "the-synthesis.html" }
+      ]
+    },
+    {
+      title: "Build your own",
+      items: [
+        { n: "07", t: "Writing an agent", h: "writing-an-agent.html" },
+        { n: "08", t: "Composing a swarm", h: "composing-a-swarm.html" },
+        { n: "09", t: "Harnesses & backends", h: "harnesses-and-backends.html" }
+      ]
+    },
+    {
+      title: "Swarm gallery",
+      items: [
+        { n: "10", t: "Adversarial code review", h: "swarm-adversarial-code-review.html" },
+        { n: "11", t: "Customer panel", h: "swarm-customer-panel.html" },
+        { n: "12", t: "Product decision", h: "swarm-product-decision.html" }
+      ]
+    },
+    {
       title: "Reference",
       items: [
-        { n: "03", t: "CLI reference", h: "reference.html" },
-        { n: "04", t: "Architecture", h: "architecture.html" },
-        { n: "05", t: "Agent usage", h: "agent-usage.html" }
+        { n: "13", t: "CLI reference", h: "reference.html" },
+        { n: "14", t: "Architecture", h: "architecture.html" },
+        { n: "15", t: "Agent usage", h: "agent-usage.html" }
       ]
     },
     {
       title: "Operations",
       items: [
-        { n: "06", t: "Release readiness", h: "release-readiness.html" },
+        { n: "16", t: "Release readiness", h: "release-readiness.html" },
         { t: "GitHub", h: "https://github.com/calvinnwq/agent-swarm", ext: true },
         { t: "npm", h: "https://www.npmjs.com/package/@calvinnwq/agent-swarm", ext: true }
       ]
@@ -43,7 +68,7 @@
   /* ---------- theme ---------- */
 
   var THEME_KEY = "agent-swarm-docs-theme";
-  var INDEX_KEY = "agent-swarm-docs-index-v1";
+  var INDEX_KEY = "agent-swarm-docs-index-v2";
 
   function getStorageItem(storageName, key) {
     try { return window[storageName].getItem(key); } catch (_) { return null; }
