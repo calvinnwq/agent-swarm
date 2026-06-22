@@ -25,6 +25,7 @@ Don't edit anything under `dist/` by hand. The `build` script bundles `src/` and
 ```bash
 pnpm build           # tsdown bundle + copy bundled agents/presets
 pnpm dev             # tsdown --watch
+pnpm docs:serve      # preview docs/site/ locally at http://localhost:3000
 pnpm test            # vitest unit tests (test/unit/**)
 pnpm test:e2e        # builds, then vitest with vitest.e2e.config.ts (test/e2e/**)
 pnpm smoke           # builds, runs only test/e2e/smoke.test.ts (golden-path verification)
@@ -49,6 +50,8 @@ GitHub CI (`.github/workflows/ci.yml`) gates pull requests, pushes to `main`, an
 ## Static docs site
 
 The browsable docs site is plain HTML/CSS/JS under `docs/site/`. It has no build step: `.github/workflows/pages.yml` uploads `docs/site/` directly to GitHub Pages on pushes to `main` that touch the site or workflow, and it can also be run manually with `workflow_dispatch`.
+
+To preview the published site locally, run `pnpm docs:serve` and open the printed `http://localhost:3000` URL. It serves `docs/site/` with a zero-dependency static server that mirrors GitHub Pages (directory requests resolve to `index.html`). Override the port with `pnpm docs:serve -- --port 4000` or `PORT=4000 pnpm docs:serve`.
 
 Keep the site in sync with the authoritative Markdown docs. The `test/unit/docs-site.test.ts` unit test enforces the canonical page set, shared assets, local links/anchors, README site link, Pages workflow, and bundled preset coverage on the reference page.
 

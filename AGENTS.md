@@ -17,6 +17,7 @@ The README is the authoritative user-facing entry point — when alpha behavior 
 ```bash
 pnpm build           # tsdown bundle + copies bundled agents/presets into dist/
 pnpm dev             # tsdown --watch
+pnpm docs:serve      # preview docs/site/ locally at http://localhost:3000
 pnpm test            # vitest unit tests (test/unit/**)
 pnpm test:e2e        # builds, then vitest with vitest.e2e.config.ts (test/e2e/**)
 pnpm smoke           # builds, runs only test/e2e/smoke.test.ts (golden-path verification)
