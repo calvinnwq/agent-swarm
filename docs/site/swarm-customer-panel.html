@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Customer panel — Agent Swarm</title>
+    <meta name="description" content="A bundled three-persona swarm of stand-in customers that react to your product's first-run value, friction, and adoption risk." />
+    <script>
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem("agent-swarm-docs-theme"); } catch (e) {}
+        document.documentElement.dataset.theme = t === "light" ? "light" : "dark";
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/styles.css" />
+    <script src="assets/site.js" defer></script>
+  </head>
+  <body data-page="swarm-customer-panel.html">
+    <a class="skip" href="#content">Skip to content</a>
+    <header class="masthead">
+      <div class="masthead-inner">
+        <button class="menu-btn" type="button" data-menu aria-label="Toggle navigation" aria-expanded="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 3.5h14M1 8h14M1 12.5h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+        <a class="brand" href="index.html">Agent&nbsp;Swarm<span class="brand-tag">docs</span></a>
+        <button class="search-btn" type="button" data-search-open><span>Search docs</span><kbd>/</kbd></button>
+        <div class="masthead-tools">
+          <a class="gh" href="https://github.com/calvinnwq/agent-swarm">GitHub</a>
+          <button class="theme-btn" type="button" data-theme-toggle aria-label="Toggle color theme" aria-pressed="false">
+            <svg class="icon-moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M14.6 12.1A6.5 6.5 0 0 1 7.4 2.7a6.5 6.5 0 1 0 7.2 9.4z" fill="currentColor"/></svg>
+            <svg class="icon-sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3.4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="10" y1="2" x2="10" y2="4"/><line x1="10" y1="16" x2="10" y2="18"/><line x1="2" y1="10" x2="4" y2="10"/><line x1="16" y1="10" x2="18" y2="10"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="14.4" y1="14.4" x2="15.8" y2="15.8"/><line x1="4.2" y1="15.8" x2="5.6" y2="14.4"/><line x1="14.4" y1="5.6" x2="15.8" y2="4.2"/></g></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="frame">
+      <nav id="sidebar" class="sidebar" aria-label="Documentation"></nav>
+      <main id="content" class="article-col">
+        <article>
+<p class="kicker"><span class="n">11 —</span>Swarm gallery</p>
+<h1>Customer panel</h1>
+<p class="lede">
+  Three stand-in customers — a first-timer, a daily operator, and a skeptical
+  buyer — react to your product's first-run value, friction, and adoption risk
+  in parallel. The orchestrator folds their takes into one call: <em>Fix now</em>,
+  <em>Defer</em>, or <em>Reject</em>.
+</p>
+
+<section>
+  <h2>The roster</h2>
+  <p>The preset runs three bundled agents at once. Each holds a distinct customer perspective so the panel covers the full adoption arc — discovery, repeated use, and long-term commitment.</p>
+  <ul>
+    <li>
+      <strong>first-time-user</strong> — Evaluates onboarding clarity, setup friction, and the moment early value becomes obvious, from the perspective of someone encountering the product for the first time without insider context.
+    </li>
+    <li>
+      <strong>busy-operator</strong> — Pushes on workflow fit, defaults, copy/paste burden, and time-to-result, from the perspective of a technical operator who needs the tool to save time immediately.
+    </li>
+    <li>
+      <strong>skeptical-buyer</strong> — Probes adoption barriers, unclear value, weak differentiation, and missing proof, from the perspective of a technical buyer who needs a clear reason to try and keep using the tool.
+    </li>
+  </ul>
+</section>
+
+<section>
+  <h2>Goal &amp; decision</h2>
+  <p>The preset's goal is fixed in the bundle:</p>
+  <blockquote>
+    <p>Identify the clearest customer-facing value, friction, and adoption risk.</p>
+  </blockquote>
+  <p>
+    Resolution mode is <code>orchestrator</code>: after each round the bundled
+    orchestrator agent reads all three responses and builds the directive for the
+    next round, then synthesizes the final call in the preset's decision vocabulary:
+  </p>
+  <div class="vtokens"><span class="tok go">Fix now</span><span class="tok">Defer</span><span class="tok">Reject</span></div>
+  <p>
+    <strong>Fix now</strong> means a blocking friction or missing value signal that
+    should be addressed before shipping. <strong>Defer</strong> means the issue is
+    real but not blocking. <strong>Reject</strong> means the proposal does not earn
+    adoption in its current form.
+  </p>
+  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>The decision vocabulary comes straight from the preset's <code>decision</code> field and appears verbatim in <code>synthesis.md</code>. You can override it per run with <code>--decision</code>, but the bundled preset ships with <em>Fix now / Defer / Reject</em>.</p></div>
+</section>
+
+<section>
+  <h2>Run it</h2>
+  <p>Pass the number of rounds as the first positional argument (1–3), then your question. No config needed — the preset wires up the roster and decision vocabulary:</p>
+  <pre><code>agent-swarm <span class="k">run</span> 2 <span class="s">"Does the onboarding flow make the first successful run obvious enough to earn a second?"</span> \
+  --preset customer-panel</code></pre>
+  <p>All three agents run in parallel. A two-round run lets the orchestrator refocus the panel on contested points before the final synthesis. For a quicker read, one round is often enough:</p>
+  <pre><code>agent-swarm <span class="k">run</span> 1 <span class="s">"Does the onboarding flow make the first successful run obvious enough to earn a second?"</span> \
+  --preset customer-panel</code></pre>
+  <div class="callout" data-kind="note"><span class="callout-label">Note</span><p>Real harnesses can take longer than the default 120 s dispatch timeout. Pass <code>--timeout-ms 300000</code> for deeper runs. Use <code>--quiet</code> for one-line-per-event output in CI.</p></div>
+</section>
+
+<section>
+  <h2>What the synthesis looks like</h2>
+  <p>When the run finishes you'll find a self-contained directory under <code>.agent-swarm/runs/&lt;timestamp&gt;-&lt;slug&gt;/</code>. The synthesis folds all three agents into one call:</p>
+  <div class="verdict">
+    <div class="verdict-top"><span>Synthesis</span><span>customer-panel · round 2 · 3 agents</span></div>
+    <p class="verdict-rec"><span class="mark">Fix now</span> — onboarding hides the one action that shows value.</p>
+    <div class="mrow"><span class="lab">consensus</span><span class="pips"><i class="pip on"></i><i class="pip on"></i><i class="pip dim"></i></span><span>2 of 3 agree</span></div>
+    <div class="mrow"><span class="lab">confidence</span><span class="level" data-level="high">high</span></div>
+    <div class="vopen"><span class="q">Still open</span>Does the empty state need a sample project, or just a clearer first step?</div>
+  </div>
+  <p>
+    Confidence is reported as a level — <code>low</code>, <code>medium</code>, or
+    <code>high</code> — not a fabricated percentage. The verdict word comes straight
+    from the preset's decision vocabulary. "Still open" surfaces questions that at
+    least two agents deferred across all rounds.
+  </p>
+</section>
+
+<section>
+  <h2>Where next</h2>
+  <ul>
+    <li><a href="index.html#ready-made-swarms">Swarm gallery</a> — browse the other bundled presets.</li>
+    <li><a href="swarm-adversarial-code-review.html">Adversarial code review</a> — three reviewers attack a diff from different angles.</li>
+    <li><a href="swarm-product-decision.html">Product decision</a> — a PM and a principal engineer converge on a call.</li>
+    <li><a href="composing-a-swarm.html">Composing a swarm</a> — define your own agents and wire them into a preset.</li>
+    <li><a href="writing-an-agent.html">Writing an agent</a> — author an agent file in YAML or Markdown.</li>
+  </ul>
+</section>
+        </article>
+        <footer class="pager" id="pager"></footer>
+      </main>
+      <aside class="toc-col"><p class="toc-title">On this page</p><nav id="toc" aria-label="On this page"></nav></aside>
+    </div>
+
+    <footer class="colophon"><div class="colophon-inner"><span>Agent Swarm docs</span><span>MIT</span><a href="https://github.com/calvinnwq/agent-swarm">GitHub</a></div></footer>
+  </body>
+</html>
