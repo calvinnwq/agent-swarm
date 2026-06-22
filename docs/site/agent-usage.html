@@ -4,108 +4,113 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Agent Swarm — Agent usage</title>
-    <meta
-      name="description"
-      content="How autonomous agents configure and operate an Agent Swarm: presets, project config, the bundled skill, and the operation contract."
+    <meta name="description" content="How autonomous agents configure and operate an Agent Swarm: presets, project config, the bundled skill, and the operation contract." />
+    <script>
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem("agent-swarm-docs-theme"); } catch (e) {}
+        document.documentElement.dataset.theme = t === "light" ? "light" : "dark";
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
     />
     <link rel="stylesheet" href="assets/styles.css" />
     <script src="assets/site.js" defer></script>
   </head>
-  <body>
-    <a class="skip-link" href="#main">Skip to content</a>
-    <header class="site-header">
-      <div class="site-header__inner">
-        <a class="site-brand" href="index.html">
-          <span class="site-brand__mark" aria-hidden="true">◇</span>
-          Agent Swarm
-        </a>
-        <button
-          class="site-nav__toggle"
-          type="button"
-          aria-expanded="false"
-          aria-controls="site-nav"
-          aria-label="Toggle navigation"
-        >
-          Menu
-        </button>
-        <nav class="site-nav" id="site-nav" aria-label="Primary">
-          <a href="index.html">Home</a>
-          <a href="quickstart.html">Quickstart</a>
-          <a href="reference.html">Reference</a>
-          <a href="architecture.html">Architecture</a>
-          <a href="agent-usage.html" aria-current="page">Agent Usage</a>
-          <a href="release-readiness.html">Release Readiness</a>
-        </nav>
+  <body data-page="agent-usage.html">
+    <a class="skip" href="#content">Skip to content</a>
+    <header class="masthead">
+      <div class="masthead-inner">
+        <button class="menu-btn" type="button" data-menu aria-label="Toggle navigation" aria-expanded="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 3.5h14M1 8h14M1 12.5h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+        <a class="brand" href="index.html">Agent&nbsp;Swarm<span class="brand-tag">docs</span></a>
+        <button class="search-btn" type="button" data-search-open><span>Search docs</span><kbd>/</kbd></button>
+        <div class="masthead-tools">
+          <a class="gh" href="https://github.com/calvinnwq/agent-swarm">GitHub</a>
+          <button class="theme-btn" type="button" data-theme-toggle aria-label="Toggle color theme" aria-pressed="false">
+            <svg class="icon-moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M14.6 12.1A6.5 6.5 0 0 1 7.4 2.7a6.5 6.5 0 1 0 7.2 9.4z" fill="currentColor"/></svg>
+            <svg class="icon-sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3.4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="10" y1="2" x2="10" y2="4"/><line x1="10" y1="16" x2="10" y2="18"/><line x1="2" y1="10" x2="4" y2="10"/><line x1="16" y1="10" x2="18" y2="10"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="14.4" y1="14.4" x2="15.8" y2="15.8"/><line x1="4.2" y1="15.8" x2="5.6" y2="14.4"/><line x1="14.4" y1="5.6" x2="15.8" y2="4.2"/></g></svg>
+          </button>
+        </div>
       </div>
     </header>
 
-    <main class="site-main" id="main">
-      <section class="hero">
-        <p class="eyebrow">Agent usage</p>
-        <h1>Driving a swarm as an agent</h1>
-        <p class="lead">
-          Agent Swarm is built to be operated by other agents. This is the
-          short version of the operation contract — what to configure, how to
-          run, and how to report.
-        </p>
-      </section>
+    <div class="frame">
+      <nav id="sidebar" class="sidebar" aria-label="Documentation"></nav>
+      <main id="content" class="article-col">
+        <article>
+<p class="kicker"><span class="n">05 —</span>Reference</p>
+<h1>Driving a swarm as an agent</h1>
+<p class="lede">
+  Agent Swarm is built to be operated by other agents. This is the
+  short version of the operation contract — what to configure, how to
+  run, and how to report.
+</p>
 
-      <h2>Pick a preset</h2>
-      <p>
-        Start from a bundled preset rather than hand-listing agents. Agent Swarm
-        ships with seven bundled presets; common choices:
-      </p>
-      <ul>
-        <li>
-          <code>product-decision</code> — the supported alpha flow for a single
-          decision.
-        </li>
-        <li>
-          <code>product-triad</code> — product, engineering, and design
-          perspectives on one question.
-        </li>
-        <li>
-          <code>adversarial-code-review</code> — a trio that argues for and
-          against a change.
-        </li>
-        <li><code>customer-panel</code> — simulated customer perspectives.</li>
-      </ul>
-      <p>
-        See the <a href="reference.html">command reference</a> for the full
-        preset table, including the Codex and OpenCode harness-specific
-        variants.
-      </p>
+<section>
+  <h2>Pick a preset</h2>
+  <p>
+    Start from a bundled preset rather than hand-listing agents. Agent Swarm
+    ships with seven bundled presets; common choices:
+  </p>
+  <ul>
+    <li>
+      <code>product-decision</code> — the supported alpha flow for a single
+      decision.
+    </li>
+    <li>
+      <code>product-triad</code> — product, engineering, and design
+      perspectives on one question.
+    </li>
+    <li>
+      <code>adversarial-code-review</code> — a trio that argues for and
+      against a change.
+    </li>
+    <li><code>customer-panel</code> — simulated customer perspectives.</li>
+  </ul>
+  <p>
+    See the <a href="reference.html">command reference</a> for the full
+    preset table, including the Codex and OpenCode harness-specific
+    variants.
+  </p>
+</section>
 
-      <h2>Configure a swarm</h2>
-      <p>
-        Project defaults live in <code>.agent-swarm/config.yml</code>. The
-        minimal config <code>agent-swarm init</code> writes is enough to start:
-      </p>
-      <pre><code># .agent-swarm/config.yml
+<section>
+  <h2>Configure a swarm</h2>
+  <p>
+    Project defaults live in <code>.agent-swarm/config.yml</code>. The
+    minimal config <code>agent-swarm init</code> writes is enough to start:
+  </p>
+  <pre><code># .agent-swarm/config.yml
 preset: product-triad
 resolve: off
 timeoutMs: 300000</code></pre>
-      <p>
-        Custom agents and presets are discovered from
-        <code>.agent-swarm/agents/**/*.yml</code> and
-        <code>.agent-swarm/presets/**/*.yml</code>. Folder names are for
-        organization only — they are not namespaces.
-      </p>
+  <p>
+    Custom agents and presets are discovered from
+    <code>.agent-swarm/agents/**/*.yml</code> and
+    <code>.agent-swarm/presets/**/*.yml</code>. Folder names are for
+    organization only — they are not namespaces.
+  </p>
+</section>
 
-      <h2>Run and report</h2>
-      <p>
-        Pass <code>--goal</code> and <code>--decision</code> for decision work,
-        and <code>--doc</code> to carry forward source material. Report in the
-        shape requested by the prompt, preset, or agent instructions — there is
-        no saved-run database and no speculative control plane to manage.
-      </p>
-      <pre><code>agent-swarm run 2 "Prioritize the Q3 roadmap" \
+<section>
+  <h2>Run and report</h2>
+  <p>
+    Pass <code>--goal</code> and <code>--decision</code> for decision work,
+    and <code>--doc</code> to carry forward source material. Report in the
+    shape requested by the prompt, preset, or agent instructions — there is
+    no saved-run database and no speculative control plane to manage.
+  </p>
+  <pre><code>agent-swarm run 2 "Prioritize the Q3 roadmap" \
   --preset product-triad \
   --goal "Choose the top three bets" \
   --resolve orchestrator \
   --timeout-ms 300000</code></pre>
 
-      <div class="note">
+  <div class="callout" data-kind="note"><span class="callout-label">Note</span>
         <p>
           The full
           <a
@@ -121,23 +126,13 @@ timeoutMs: 300000</code></pre>
           depth.
         </p>
       </div>
-    </main>
+</section>
+        </article>
+        <footer class="pager" id="pager"></footer>
+      </main>
+      <aside class="toc-col"><p class="toc-title">On this page</p><nav id="toc" aria-label="On this page"></nav></aside>
+    </div>
 
-    <footer class="site-footer">
-      <div class="site-footer__inner">
-        <p>Agent Swarm — fan out agents, collect structured output, synthesize.</p>
-        <p>
-          <a
-            href="https://github.com/calvinnwq/agent-swarm/blob/main/docs/agent-usage.md"
-            >Agent usage guide</a
-          >
-          ·
-          <a
-            href="https://github.com/calvinnwq/agent-swarm/blob/main/docs/agent-operation.md"
-            >Operation contract</a
-          >
-        </p>
-      </div>
-    </footer>
+    <footer class="colophon"><div class="colophon-inner"><span>Agent Swarm docs</span><span>MIT</span><a href="https://github.com/calvinnwq/agent-swarm">GitHub</a></div></footer>
   </body>
 </html>
