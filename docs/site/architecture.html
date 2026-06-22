@@ -120,8 +120,9 @@
         artifact writer (round folders + manifest), a ledger writer
         (<code>events.jsonl</code> + <code>messages.jsonl</code>), and a
         checkpoint writer (<code>checkpoint.json</code>). Because writes are
-        incremental, a failed run can be inspected and resumed from the last
-        completed round.
+        incremental, a failed run leaves inspectable artifacts and state for
+        recovery; user-facing resume tooling is future work, not part of the
+        alpha contract.
       </p>
 
       <div class="note">
