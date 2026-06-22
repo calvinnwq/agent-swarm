@@ -4,66 +4,69 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Agent Swarm — Command reference</title>
-    <meta
-      name="description"
-      content="Agent Swarm command reference: run and doctor commands, flags, resolution modes, bundled presets, and run artifacts."
+    <meta name="description" content="Agent Swarm command reference: run and doctor commands, flags, resolution modes, bundled presets, and run artifacts." />
+    <script>
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem("agent-swarm-docs-theme"); } catch (e) {}
+        document.documentElement.dataset.theme = t === "light" ? "light" : "dark";
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
     />
     <link rel="stylesheet" href="assets/styles.css" />
     <script src="assets/site.js" defer></script>
   </head>
-  <body>
-    <a class="skip-link" href="#main">Skip to content</a>
-    <header class="site-header">
-      <div class="site-header__inner">
-        <a class="site-brand" href="index.html">
-          <span class="site-brand__mark" aria-hidden="true">◇</span>
-          Agent Swarm
-        </a>
-        <button
-          class="site-nav__toggle"
-          type="button"
-          aria-expanded="false"
-          aria-controls="site-nav"
-          aria-label="Toggle navigation"
-        >
-          Menu
-        </button>
-        <nav class="site-nav" id="site-nav" aria-label="Primary">
-          <a href="index.html">Home</a>
-          <a href="quickstart.html">Quickstart</a>
-          <a href="reference.html" aria-current="page">Reference</a>
-          <a href="architecture.html">Architecture</a>
-          <a href="agent-usage.html">Agent Usage</a>
-          <a href="release-readiness.html">Release Readiness</a>
-        </nav>
+  <body data-page="reference.html">
+    <a class="skip" href="#content">Skip to content</a>
+    <header class="masthead">
+      <div class="masthead-inner">
+        <button class="menu-btn" type="button" data-menu aria-label="Toggle navigation" aria-expanded="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 3.5h14M1 8h14M1 12.5h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+        <a class="brand" href="index.html">Agent&nbsp;Swarm<span class="brand-tag">docs</span></a>
+        <button class="search-btn" type="button" data-search-open><span>Search docs</span><kbd>/</kbd></button>
+        <div class="masthead-tools">
+          <a class="gh" href="https://github.com/calvinnwq/agent-swarm">GitHub</a>
+          <button class="theme-btn" type="button" data-theme-toggle aria-label="Toggle color theme" aria-pressed="false">
+            <svg class="icon-moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M14.6 12.1A6.5 6.5 0 0 1 7.4 2.7a6.5 6.5 0 1 0 7.2 9.4z" fill="currentColor"/></svg>
+            <svg class="icon-sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3.4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="10" y1="2" x2="10" y2="4"/><line x1="10" y1="16" x2="10" y2="18"/><line x1="2" y1="10" x2="4" y2="10"/><line x1="16" y1="10" x2="18" y2="10"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="14.4" y1="14.4" x2="15.8" y2="15.8"/><line x1="4.2" y1="15.8" x2="5.6" y2="14.4"/><line x1="14.4" y1="5.6" x2="15.8" y2="4.2"/></g></svg>
+          </button>
+        </div>
       </div>
     </header>
 
-    <main class="site-main" id="main">
-      <section class="hero">
-        <p class="eyebrow">Reference</p>
-        <h1>Command reference</h1>
-        <p class="lead">
-          Commands, flags, resolution modes, presets, and the artifacts every
-          run writes to disk.
-        </p>
-      </section>
+    <div class="frame">
+      <nav id="sidebar" class="sidebar" aria-label="Documentation"></nav>
+      <main id="content" class="article-col">
+        <article>
+<p class="kicker"><span class="n">03 —</span>Reference</p>
+<h1>Command reference</h1>
+<p class="lede">
+  Commands, flags, resolution modes, presets, and the artifacts every
+  run writes to disk.
+</p>
 
-      <h2>Commands</h2>
-      <pre><code>Usage: agent-swarm [options] [command]
+<section>
+  <h2>Commands</h2>
+  <pre><code>Usage: agent-swarm [options] [command]
 
 Commands:
   run [options] &lt;rounds&gt; &lt;topic...&gt;  Run a swarm
   doctor                             Diagnose swarm setup
   init [options]                     Create .agent-swarm/config.yml defaults
   help [command]                     Display help for a command</code></pre>
-      <p>
-        Running <code>agent-swarm</code> with no arguments prints this top-level
-        help and exits 0, the same as <code>agent-swarm --help</code>.
-      </p>
+  <p>
+    Running <code>agent-swarm</code> with no arguments prints this top-level
+    help and exits 0, the same as <code>agent-swarm --help</code>.
+  </p>
+</section>
 
-      <h2><code>agent-swarm run</code></h2>
-      <pre><code>Usage: agent-swarm run [options] &lt;rounds&gt; &lt;topic...&gt;
+<section>
+  <h2><code>agent-swarm run</code></h2>
+  <pre><code>Usage: agent-swarm run [options] &lt;rounds&gt; &lt;topic...&gt;
 
 Arguments:
   rounds             number of rounds (1–3)
@@ -80,215 +83,215 @@ Options:
   --timeout-ms &lt;ms&gt;  per-agent and orchestrator dispatch timeout (default: 120000)
   --quiet            force quiet output; default auto by TTY</code></pre>
 
-      <h3>Resolution modes</h3>
-      <p>
-        <code>--resolve</code> controls what happens between rounds while the run
-        is in flight.
-      </p>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Mode</th>
-              <th>Between-round behavior</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><code>off</code></td>
-              <td>
-                Deterministic only — the next-round brief gets a templated
-                summary built from the prior packet. No extra LLM call.
-              </td>
-            </tr>
-            <tr>
-              <td><code>orchestrator</code></td>
-              <td>
-                Real LLM pass — the bundled <code>orchestrator</code> agent reads
-                the prior packet and returns a structured
-                <code>OrchestratorOutput</code> that feeds the next round. Each
-                pass is captured in <code>checkpoint.json</code> as inspectable
-                recovery state; user-facing resume tooling is future work.
-              </td>
-            </tr>
-            <tr>
-              <td><code>agents</code></td>
-              <td>
-                Reserved — accepted and persisted but currently behaves like
-                <code>off</code>.
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+  <h3>Resolution modes</h3>
+  <p>
+    <code>--resolve</code> controls what happens between rounds while the run
+    is in flight.
+  </p>
+  <div class="table-wrap">
+    <table class="opts">
+      <thead>
+        <tr>
+          <th>Mode</th>
+          <th>Between-round behavior</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>off</code></td>
+          <td>
+            Deterministic only — the next-round brief gets a templated
+            summary built from the prior packet. No extra LLM call.
+          </td>
+        </tr>
+        <tr>
+          <td><code>orchestrator</code></td>
+          <td>
+            Real LLM pass — the bundled <code>orchestrator</code> agent reads
+            the prior packet and returns a structured
+            <code>OrchestratorOutput</code> that feeds the next round. Each
+            pass is captured in <code>checkpoint.json</code> as inspectable
+            recovery state; user-facing resume tooling is future work.
+          </td>
+        </tr>
+        <tr>
+          <td><code>agents</code></td>
+          <td>
+            Reserved — accepted and persisted but currently behaves like
+            <code>off</code>.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
 
-      <h2><code>agent-swarm doctor</code></h2>
-      <p>
-        <code>agent-swarm doctor</code> validates your setup before a run.
-        Output is grouped into three sections:
-      </p>
-      <ul>
-        <li>
-          <strong>Configuration</strong> — config parses cleanly, carry-forward
-          docs are readable, the agent and preset registries load, referenced
-          agents and presets resolve, and the configured
-          <code>--backend</code> is supported.
-        </li>
-        <li>
-          <strong>Harness inventory</strong> — all four harnesses (Claude,
-          Codex, OpenCode, Rovo) are probed for availability and auth, even
-          with no project config. A harness that fails but is not required by
-          your configured agents is reported as <strong>WARN</strong>
-          (non-fatal). A failing harness required by one or more agents is
-          <strong>FAIL</strong> with <code>required by: &lt;agent...&gt;</code>
-          attribution and guidance. agent-swarm does not globally require any
-          harness; a single-harness setup passes doctor when its required
-          harness works.
-        </li>
-        <li>
-          <strong>Agent summary</strong> — each configured agent mapped to its
-          resolved harness. With no project config, the default
-          <code>product-triad</code> preset's agents are shown.
-        </li>
-      </ul>
-      <p>
-        Exit codes: <code>0</code> ready, <code>1</code> a check failed,
-        <code>2</code> internal error.
-      </p>
+<section>
+  <h2><code>agent-swarm doctor</code></h2>
+  <p>
+    <code>agent-swarm doctor</code> validates your setup before a run.
+    Output is grouped into three sections:
+  </p>
+  <ul>
+    <li>
+      <strong>Configuration</strong> — config parses cleanly, carry-forward
+      docs are readable, the agent and preset registries load, referenced
+      agents and presets resolve, and the configured
+      <code>--backend</code> is supported.
+    </li>
+    <li>
+      <strong>Harness inventory</strong> — all four harnesses (Claude,
+      Codex, OpenCode, Rovo) are probed for availability and auth, even
+      with no project config. A harness that fails but is not required by
+      your configured agents is reported as <strong>WARN</strong>
+      (non-fatal). A failing harness required by one or more agents is
+      <strong>FAIL</strong> with <code>required by: &lt;agent...&gt;</code>
+      attribution and guidance. agent-swarm does not globally require any
+      harness; a single-harness setup passes doctor when its required
+      harness works.
+    </li>
+    <li>
+      <strong>Agent summary</strong> — each configured agent mapped to its
+      resolved harness. With no project config, the default
+      <code>product-triad</code> preset's agents are shown.
+    </li>
+  </ul>
+  <p>
+    Exit codes: <code>0</code> ready, <code>1</code> a check failed,
+    <code>2</code> internal error.
+  </p>
+</section>
 
-      <h2><code>agent-swarm init</code></h2>
-      <pre><code>Usage: agent-swarm init [options]
+<section>
+  <h2><code>agent-swarm init</code></h2>
+  <pre><code>Usage: agent-swarm init [options]
 
 Options:
   --force  overwrite an existing .agent-swarm/config.yml</code></pre>
-      <p>
-        <code>agent-swarm init</code> writes minimal safe defaults to
-        <code>.agent-swarm/config.yml</code>, leaves existing config unchanged
-        unless <code>--force</code> is passed, and never mutates legacy
-        <code>.swarm/config.yml</code>.
-      </p>
+  <p>
+    <code>agent-swarm init</code> writes minimal safe defaults to
+    <code>.agent-swarm/config.yml</code>, leaves existing config unchanged
+    unless <code>--force</code> is passed, and never mutates legacy
+    <code>.swarm/config.yml</code>.
+  </p>
+</section>
 
-      <h2>Bundled presets</h2>
-      <p>Agent Swarm ships with seven bundled presets:</p>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Preset</th>
-              <th>Agents</th>
-              <th>Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><code>product-decision</code></td>
-              <td><code>product-manager</code>, <code>principal-engineer</code></td>
-              <td>
-                The supported alpha flow: framing a product decision through
-                user-value and engineering-feasibility lenses.
-              </td>
-            </tr>
-            <tr>
-              <td><code>product-decision-codex</code></td>
-              <td>
-                <code>product-manager-codex</code>,
-                <code>principal-engineer-codex</code>
-              </td>
-              <td>The same flow, dispatched through Codex.</td>
-            </tr>
-            <tr>
-              <td><code>product-decision-opencode</code></td>
-              <td>
-                <code>product-manager-opencode</code>,
-                <code>principal-engineer-opencode</code>
-              </td>
-              <td>The same flow, dispatched through OpenCode.</td>
-            </tr>
-            <tr>
-              <td><code>triad</code></td>
-              <td>
-                <code>product-manager</code>, <code>principal-engineer</code>,
-                <code>product-designer</code>
-              </td>
-              <td>Full product triad: value, feasibility, and UX together.</td>
-            </tr>
-            <tr>
-              <td><code>product-triad</code></td>
-              <td>
-                <code>product-manager</code>, <code>product-engineer</code>,
-                <code>product-designer</code>
-              </td>
-              <td>
-                First-time default for product, design, and build tradeoffs.
-              </td>
-            </tr>
-            <tr>
-              <td><code>adversarial-code-review</code></td>
-              <td>
-                <code>code-reviewer</code>, <code>implementation-skeptic</code>,
-                <code>test-risk-reviewer</code>
-              </td>
-              <td>Proposed code changes, PR plans, and architecture diffs.</td>
-            </tr>
-            <tr>
-              <td><code>customer-panel</code></td>
-              <td>
-                <code>first-time-user</code>, <code>busy-operator</code>,
-                <code>skeptical-buyer</code>
-              </td>
-              <td>
-                First-run value, adoption blockers, and outside-in product
-                feedback.
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <p>
-        Select a preset with <code>--preset</code>, or pass explicit
-        <code>--agents</code>. Run-level <code>--backend</code> chooses the
-        default adapter; individual agents can still pin their own harness.
-      </p>
+<section>
+  <h2>Bundled presets</h2>
+  <p>Agent Swarm ships with seven bundled presets:</p>
+  <div class="table-wrap">
+    <table class="opts">
+      <thead>
+        <tr>
+          <th>Preset</th>
+          <th>Agents</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>product-decision</code></td>
+          <td><code>product-manager</code>, <code>principal-engineer</code></td>
+          <td>
+            The supported alpha flow: framing a product decision through
+            user-value and engineering-feasibility lenses.
+          </td>
+        </tr>
+        <tr>
+          <td><code>product-decision-codex</code></td>
+          <td>
+            <code>product-manager-codex</code>,
+            <code>principal-engineer-codex</code>
+          </td>
+          <td>The same flow, dispatched through Codex.</td>
+        </tr>
+        <tr>
+          <td><code>product-decision-opencode</code></td>
+          <td>
+            <code>product-manager-opencode</code>,
+            <code>principal-engineer-opencode</code>
+          </td>
+          <td>The same flow, dispatched through OpenCode.</td>
+        </tr>
+        <tr>
+          <td><code>triad</code></td>
+          <td>
+            <code>product-manager</code>, <code>principal-engineer</code>,
+            <code>product-designer</code>
+          </td>
+          <td>Full product triad: value, feasibility, and UX together.</td>
+        </tr>
+        <tr>
+          <td><code>product-triad</code></td>
+          <td>
+            <code>product-manager</code>, <code>product-engineer</code>,
+            <code>product-designer</code>
+          </td>
+          <td>
+            First-time default for product, design, and build tradeoffs.
+          </td>
+        </tr>
+        <tr>
+          <td><code>adversarial-code-review</code></td>
+          <td>
+            <code>code-reviewer</code>, <code>implementation-skeptic</code>,
+            <code>test-risk-reviewer</code>
+          </td>
+          <td>Proposed code changes, PR plans, and architecture diffs.</td>
+        </tr>
+        <tr>
+          <td><code>customer-panel</code></td>
+          <td>
+            <code>first-time-user</code>, <code>busy-operator</code>,
+            <code>skeptical-buyer</code>
+          </td>
+          <td>
+            First-run value, adoption blockers, and outside-in product
+            feedback.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Select a preset with <code>--preset</code>, or pass explicit
+    <code>--agents</code>. Run-level <code>--backend</code> chooses the
+    default adapter; individual agents can still pin their own harness.
+  </p>
+</section>
 
-      <h2>Run artifacts</h2>
-      <p>
-        Each run writes a self-contained directory under
-        <code>.agent-swarm/runs/&lt;timestamp&gt;-&lt;slug&gt;/</code>:
-      </p>
-      <ul>
-        <li><code>manifest.json</code> — run inputs and resolved runtimes.</li>
-        <li>
-          <code>checkpoint.json</code> — append-only, inspectable recovery state for
-          run progress.
-        </li>
-        <li>
-          <code>events.jsonl</code> / <code>messages.jsonl</code> — the run
-          ledger.
-        </li>
-        <li>
-          <code>round-NN/</code> — per-round brief and each agent's markdown
-          output.
-        </li>
-        <li>
-          <code>synthesis.json</code> / <code>synthesis.md</code> — the
-          deterministic final report.
-        </li>
-      </ul>
-    </main>
+<section>
+  <h2>Run artifacts</h2>
+  <p>
+    Each run writes a self-contained directory under
+    <code>.agent-swarm/runs/&lt;timestamp&gt;-&lt;slug&gt;/</code>:
+  </p>
+  <ul>
+    <li><code>manifest.json</code> — run inputs and resolved runtimes.</li>
+    <li>
+      <code>checkpoint.json</code> — append-only, inspectable recovery state for
+      run progress.
+    </li>
+    <li>
+      <code>events.jsonl</code> / <code>messages.jsonl</code> — the run
+      ledger.
+    </li>
+    <li>
+      <code>round-NN/</code> — per-round brief and each agent's markdown
+      output.
+    </li>
+    <li>
+      <code>synthesis.json</code> / <code>synthesis.md</code> — the
+      deterministic final report.
+    </li>
+  </ul>
+</section>
+        </article>
+        <footer class="pager" id="pager"></footer>
+      </main>
+      <aside class="toc-col"><p class="toc-title">On this page</p><nav id="toc" aria-label="On this page"></nav></aside>
+    </div>
 
-    <footer class="site-footer">
-      <div class="site-footer__inner">
-        <p>Agent Swarm — fan out agents, collect structured output, synthesize.</p>
-        <p>
-          <a href="https://github.com/calvinnwq/agent-swarm/blob/main/README.md"
-            >README</a
-          >
-          ·
-          <a href="https://github.com/calvinnwq/agent-swarm/blob/main/SPEC.md"
-            >SPEC</a
-          >
-        </p>
-      </div>
-    </footer>
+    <footer class="colophon"><div class="colophon-inner"><span>Agent Swarm docs</span><span>MIT</span><a href="https://github.com/calvinnwq/agent-swarm">GitHub</a></div></footer>
   </body>
 </html>
