@@ -94,21 +94,28 @@ exits `1`. CLI argument/validation errors exit `2`.
 
 ### 2.2 `agent-swarm doctor`
 
-Validates setup before a run and checks:
+Validates setup before a run. Output is grouped into three sections:
 
-- `.agent-swarm/config.yml` parses cleanly.
-- Configured carry-forward docs exist and are readable (truncation is flagged).
-- The agent and preset registries load.
-- Agents/preset referenced in project config actually resolve.
-- The configured backend is supported and matches config agents that don't pin
-  `harness`.
-- When a project config is loaded, configured agents' resolved harness CLIs are
-  runnable: Claude, Codex, and OpenCode probes verify auth; Codex also verifies
-  `codex exec` support; Rovo verifies `acli rovodev`.
+**Configuration** — `.agent-swarm/config.yml` parses cleanly; configured
+carry-forward docs exist and are readable (truncation is flagged); the agent and
+preset registries load; agents/preset referenced in project config actually
+resolve; the configured backend is supported and matches config agents that don't
+pin `harness`.
 
-Without a project config, doctor skips harness-capability checks. When config is
-read from the legacy `.swarm/config.yml` path, doctor reports it explicitly and
-points to `.agent-swarm/config.yml`.
+**Harness inventory** — all four harnesses (Claude, Codex, OpenCode, Rovo) are
+always probed, even with no project config. Claude, Codex, and OpenCode probes
+verify auth; Codex also verifies `codex exec` support; Rovo verifies
+`acli rovodev`. A harness that fails but is not required by the current config is
+reported as **WARN** (non-fatal). A harness that fails and is required by one or
+more configured agents is reported as **FAIL** with `required by: <agent...>`
+attribution and install/auth guidance. agent-swarm does not globally require any
+harness — a single-harness setup passes doctor when its required harness works.
+
+**Agent summary** — each configured agent mapped to its resolved harness. When
+there is no project config the default `product-triad` preset's agents are shown.
+
+When config is read from the legacy `.swarm/config.yml` path, doctor reports it
+explicitly and points to `.agent-swarm/config.yml`.
 
 **Doctor exit codes:** `0` ready, `1` at least one check failed (with actionable
 per-check messages), `2` internal command error.

@@ -124,12 +124,36 @@ Options:
 
       <h2><code>agent-swarm doctor</code></h2>
       <p>
-        <code>agent-swarm doctor</code> validates your setup before a run:
-        config parses, carry-forward docs are readable, the agent and preset
-        registries load, referenced agents and presets resolve, and the
-        configured <code>--backend</code> is supported. Exit codes:
-        <code>0</code> ready, <code>1</code> a check failed, <code>2</code>
-        internal error.
+        <code>agent-swarm doctor</code> validates your setup before a run.
+        Output is grouped into three sections:
+      </p>
+      <ul>
+        <li>
+          <strong>Configuration</strong> — config parses cleanly, carry-forward
+          docs are readable, the agent and preset registries load, referenced
+          agents and presets resolve, and the configured
+          <code>--backend</code> is supported.
+        </li>
+        <li>
+          <strong>Harness inventory</strong> — all four harnesses (Claude,
+          Codex, OpenCode, Rovo) are probed for availability and auth, even
+          with no project config. A harness that fails but is not required by
+          your configured agents is reported as <strong>WARN</strong>
+          (non-fatal). A failing harness required by one or more agents is
+          <strong>FAIL</strong> with <code>required by: &lt;agent...&gt;</code>
+          attribution and guidance. agent-swarm does not globally require any
+          harness; a single-harness setup passes doctor when its required
+          harness works.
+        </li>
+        <li>
+          <strong>Agent summary</strong> — each configured agent mapped to its
+          resolved harness. With no project config, the default
+          <code>product-triad</code> preset's agents are shown.
+        </li>
+      </ul>
+      <p>
+        Exit codes: <code>0</code> ready, <code>1</code> a check failed,
+        <code>2</code> internal error.
       </p>
 
       <h2><code>agent-swarm init</code></h2>

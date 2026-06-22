@@ -183,7 +183,7 @@ describe("smoke: README golden path", () => {
     );
     expect(result.stdout).toContain("[OK] agent registry");
     expect(result.stdout).toContain("[OK] preset registry");
-    expect(result.stdout).not.toContain("harness capability");
+    expect(result.stdout).toContain("[OK] harness capability");
     expect(result.stdout).not.toContain("config agents");
     expect(result.stdout).not.toContain("config preset");
     expect(result.stderr).toBe("");
@@ -298,7 +298,7 @@ describe("smoke: README golden path", () => {
     expect(result.stdout).toContain("rounds");
     expect(result.stdout).toContain("[OK] agent registry");
     expect(result.stdout).toContain("[OK] preset registry");
-    expect(result.stdout).not.toContain("harness capability");
+    expect(result.stdout).toContain("[OK] harness capability");
     expect(result.stderr).toBe("");
   });
 
@@ -1463,6 +1463,24 @@ describe("smoke: README golden path", () => {
     expect(result.stdout).not.toContain("config agents");
     expect(result.stdout).not.toContain("config preset");
     expect(result.stderr).toBe("");
+  });
+
+  it("`agent-swarm doctor` prints the harness inventory with no project config", () => {
+    // cwd has no .agent-swarm/config.yml; HOME is isolated so the user registry
+    // is empty. The claude stub is already on PATH via beforeEach.
+    const home = join(baseDir, "noconfig-home");
+    mkdirSync(home, { recursive: true });
+    const result = spawnSync("node", [cliPath, "doctor"], {
+      cwd: home,
+      env: {
+        ...process.env,
+        HOME: home,
+      },
+      encoding: "utf-8",
+    });
+    expect(result.stdout).toContain("Harness inventory");
+    expect(result.stdout).toContain('harness "claude"');
+    expect(result.stdout).toContain("Agent summary");
   });
 
   it("`agent-swarm run 2 ... --preset product-decision` auto-selects quiet logs on non-TTY stderr and produces the golden-path artifacts", () => {

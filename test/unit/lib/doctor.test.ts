@@ -119,9 +119,13 @@ describe("runDoctor", () => {
     const config = report.checks.find((c) => c.name === "project config");
     expect(config?.status).toBe("ok");
     expect(config?.message).toContain("no .agent-swarm/config.yml");
+    const inventory = report.checks.filter(
+      (c) => c.name === "harness capability",
+    );
+    expect(inventory).toHaveLength(4);
     expect(
-      report.checks.find((c) => c.name === "harness capability"),
-    ).toBeUndefined();
+      inventory.find((c) => c.message.includes('harness "claude"'))?.status,
+    ).toBe("ok");
   });
 
   it("reports FAIL when both registries are empty", async () => {
@@ -136,8 +140,8 @@ describe("runDoctor", () => {
       report.checks.find((c) => c.name === "preset registry")?.status,
     ).toBe("fail");
     expect(
-      report.checks.find((c) => c.name === "harness capability"),
-    ).toBeUndefined();
+      report.checks.filter((c) => c.name === "harness capability"),
+    ).toHaveLength(4);
   });
 
   it("reports FAIL when config references an unknown agent", async () => {
@@ -190,8 +194,12 @@ describe("runDoctor", () => {
     expect(check?.message).toContain("invalid .swarm/config.yml");
     expect(check?.message).toContain("rounds");
     expect(
-      report.checks.find((c) => c.name === "harness capability"),
-    ).toBeUndefined();
+      report.checks.filter((c) => c.name === "harness capability"),
+    ).toHaveLength(4);
+    const summary = report.checks.find((c) => c.name === "agent summary");
+    expect(summary?.status).toBe("warn");
+    expect(summary?.message).toContain("project config invalid");
+    expect(summary?.message).not.toContain("product-triad");
   });
 
   it("flags a legacy .swarm/config.yml with an explicit migration hint", async () => {
@@ -329,6 +337,11 @@ describe("runDoctor", () => {
       agentYaml("principal-engineer"),
     );
     await writeFileUnder(
+      roots.bundledAgentsDir,
+      "orchestrator.yml",
+      agentYaml("orchestrator"),
+    );
+    await writeFileUnder(
       roots.bundledPresetsDir,
       "product-decision.yml",
       [
@@ -353,6 +366,270 @@ describe("runDoctor", () => {
     expect(
       report.checks.find((c) => c.name === "harness capability")?.status,
     ).toBe("ok");
+  });
+
+  it("summarizes config-preset agents in the agent summary", async () => {
+    const roots = await makeIsolatedRoots();
+    await installLoggedInClaudeStub(roots.binDir);
+    await writeFileUnder(
+      roots.bundledAgentsDir,
+      "product-manager.yml",
+      agentYaml("product-manager"),
+    );
+    await writeFileUnder(
+      roots.bundledAgentsDir,
+      "principal-engineer.yml",
+      agentYaml("principal-engineer"),
+    );
+    await writeFileUnder(
+      roots.bundledPresetsDir,
+      "product-decision.yml",
+      [
+        "name: product-decision",
+        "agents:",
+        "  - product-manager",
+        "  - principal-engineer",
+      ].join("\n"),
+    );
+    await writeFileUnder(
+      roots.cwd,
+      ".agent-swarm/config.yml",
+      "preset: product-decision\n",
+    );
+
+    const report = await runDoctor(roots);
+
+    const summary = report.checks.find((c) => c.name === "agent summary");
+    expect(summary?.section).toBe("Agent summary");
+    expect(summary?.status).toBe("ok");
+    expect(summary?.message).toContain('preset "product-decision"');
+    expect(summary?.detail).toContain("product-manager → claude");
+    expect(summary?.detail).toContain("principal-engineer → claude");
+    expect(report.ok).toBe(true);
+  });
+
+  it("includes the orchestrator in summaries for orchestrator presets", async () => {
+    const roots = await makeIsolatedRoots();
+    await installLoggedInClaudeStub(roots.binDir);
+    await writeFileUnder(
+      roots.bundledAgentsDir,
+      "product-manager.yml",
+      agentYaml("product-manager"),
+    );
+    await writeFileUnder(
+      roots.bundledAgentsDir,
+      "principal-engineer.yml",
+      agentYaml("principal-engineer"),
+    );
+    await writeFileUnder(
+      roots.bundledAgentsDir,
+      "orchestrator.yml",
+      agentYaml("orchestrator"),
+    );
+    await writeFileUnder(
+      roots.bundledPresetsDir,
+      "product-decision.yml",
+      [
+        "name: product-decision",
+        "agents:",
+        "  - product-manager",
+        "  - principal-engineer",
+        "resolve: orchestrator",
+      ].join("\n"),
+    );
+    await writeFileUnder(
+      roots.cwd,
+      ".agent-swarm/config.yml",
+      "preset: product-decision\n",
+    );
+
+    const report = await runDoctor(roots);
+
+    const summary = report.checks.find((c) => c.name === "agent summary");
+    expect(summary?.status).toBe("ok");
+    expect(summary?.message).toContain("3 agent(s) mapped");
+    expect(summary?.detail).toContain("orchestrator → claude");
+    expect(report.ok).toBe(true);
+  });
+
+  it("fails when an orchestrator preset cannot resolve the orchestrator agent", async () => {
+    const roots = await makeIsolatedRoots();
+    await installLoggedInClaudeStub(roots.binDir);
+    await writeFileUnder(
+      roots.bundledAgentsDir,
+      "product-manager.yml",
+      agentYaml("product-manager"),
+    );
+    await writeFileUnder(
+      roots.bundledAgentsDir,
+      "principal-engineer.yml",
+      agentYaml("principal-engineer"),
+    );
+    await writeFileUnder(
+      roots.bundledPresetsDir,
+      "product-decision.yml",
+      [
+        "name: product-decision",
+        "agents:",
+        "  - product-manager",
+        "  - principal-engineer",
+        "resolve: orchestrator",
+      ].join("\n"),
+    );
+    await writeFileUnder(
+      roots.cwd,
+      ".agent-swarm/config.yml",
+      "preset: product-decision\n",
+    );
+
+    const report = await runDoctor(roots);
+
+    const preset = report.checks.find((c) => c.name === "config preset");
+    expect(preset?.status).toBe("fail");
+    expect(preset?.message).toContain("orchestrator");
+    expect(report.ok).toBe(false);
+  });
+
+  it("reports the full harness inventory with no config; optional misses are warn", async () => {
+    const roots = await makeIsolatedRoots();
+    await installLoggedInClaudeStub(roots.binDir);
+    await writeFileUnder(
+      roots.bundledAgentsDir,
+      "product-manager.yml",
+      agentYaml("product-manager"),
+    );
+    await writeFileUnder(
+      roots.bundledAgentsDir,
+      "principal-engineer.yml",
+      agentYaml("principal-engineer"),
+    );
+    await writeFileUnder(
+      roots.bundledPresetsDir,
+      "product-decision.yml",
+      [
+        "name: product-decision",
+        "agents:",
+        "  - product-manager",
+        "  - principal-engineer",
+      ].join("\n"),
+    );
+
+    const report = await runDoctor(roots);
+
+    const inventory = report.checks.filter(
+      (c) => c.name === "harness capability",
+    );
+    expect(inventory).toHaveLength(4);
+    expect(inventory.every((c) => c.section === "Harness inventory")).toBe(
+      true,
+    );
+    const claude = inventory.find((c) =>
+      c.message.includes('harness "claude"'),
+    );
+    expect(claude?.status).toBe("ok");
+    const codex = inventory.find((c) => c.message.includes('harness "codex"'));
+    expect(codex?.status).toBe("warn");
+    expect(codex?.message).toContain("not required by current config");
+    expect(report.ok).toBe(true);
+  });
+
+  it("fails the inventory only for harnesses the config requires, with attribution", async () => {
+    const roots = await makeIsolatedRoots();
+    await installLoggedInClaudeStub(roots.binDir);
+    await writeFileUnder(
+      roots.bundledAgentsDir,
+      "product-manager.yml",
+      agentYaml("product-manager"),
+    );
+    await writeFileUnder(
+      roots.bundledAgentsDir,
+      "eng-opencode.yml",
+      [agentYaml("eng-opencode"), "harness: opencode"].join("\n"),
+    );
+    await writeFileUnder(
+      roots.cwd,
+      ".agent-swarm/config.yml",
+      ["agents:", "  - product-manager", "  - eng-opencode"].join("\n"),
+    );
+
+    const report = await runDoctor(roots);
+
+    const inventory = report.checks.filter(
+      (c) => c.name === "harness capability",
+    );
+    const opencode = inventory.find((c) => c.message.includes("opencode"));
+    expect(opencode?.status).toBe("fail");
+    expect(opencode?.detail).toContain("required by: eng-opencode");
+    const codex = inventory.find((c) => c.message.includes('harness "codex"'));
+    expect(codex?.status).toBe("warn");
+    expect(report.ok).toBe(false);
+  });
+
+  it("summarizes default-preset agents and harnesses when there is no config", async () => {
+    const roots = await makeIsolatedRoots();
+    await installLoggedInClaudeStub(roots.binDir);
+    await writeFileUnder(
+      roots.bundledAgentsDir,
+      "product-manager.yml",
+      agentYaml("product-manager"),
+    );
+    await writeFileUnder(
+      roots.bundledAgentsDir,
+      "product-engineer.yml",
+      agentYaml("product-engineer"),
+    );
+    await writeFileUnder(
+      roots.bundledPresetsDir,
+      "product-triad.yml",
+      [
+        "name: product-triad",
+        "agents:",
+        "  - product-manager",
+        "  - product-engineer",
+      ].join("\n"),
+    );
+
+    const report = await runDoctor(roots);
+
+    const summary = report.checks.find((c) => c.name === "agent summary");
+    expect(summary?.section).toBe("Agent summary");
+    expect(summary?.status).toBe("ok");
+    expect(summary?.message).toContain('default preset "product-triad"');
+    expect(summary?.detail).toContain("product-manager → claude");
+    expect(summary?.detail).toContain("product-engineer → claude");
+    expect(report.ok).toBe(true);
+  });
+
+  it("warns in the agent summary when no config and the default preset is absent", async () => {
+    const roots = await makeIsolatedRoots();
+    await installLoggedInClaudeStub(roots.binDir);
+    await writeFileUnder(
+      roots.bundledAgentsDir,
+      "product-manager.yml",
+      agentYaml("product-manager"),
+    );
+    await writeFileUnder(
+      roots.bundledAgentsDir,
+      "principal-engineer.yml",
+      agentYaml("principal-engineer"),
+    );
+    await writeFileUnder(
+      roots.bundledPresetsDir,
+      "product-decision.yml",
+      [
+        "name: product-decision",
+        "agents:",
+        "  - product-manager",
+        "  - principal-engineer",
+      ].join("\n"),
+    );
+
+    const report = await runDoctor(roots);
+
+    const summary = report.checks.find((c) => c.name === "agent summary");
+    expect(summary?.status).toBe("warn");
+    expect(summary?.message).toContain("product-triad");
+    expect(report.ok).toBe(true);
   });
 
   it("skips preset validation when explicit config agents are present", async () => {
@@ -424,5 +701,34 @@ describe("formatDoctorReport", () => {
       checks: [{ name: "a", status: "ok", message: "fine" }],
     });
     expect(text).toContain("agent-swarm doctor: ready");
+  });
+
+  it("groups checks under section headers in first-seen order", () => {
+    const text = formatDoctorReport({
+      ok: true,
+      checks: [
+        {
+          name: "project config",
+          status: "ok",
+          message: "loaded",
+          section: "Configuration",
+        },
+        {
+          name: "harness capability",
+          status: "warn",
+          message: 'harness "codex" missing',
+          section: "Harness inventory",
+        },
+      ],
+    });
+    expect(text).toContain("Configuration");
+    expect(text).toContain("Harness inventory");
+    expect(text.indexOf("Configuration")).toBeLessThan(
+      text.indexOf("Harness inventory"),
+    );
+    expect(text).toContain("[OK] project config: loaded");
+    expect(text).toContain(
+      '[WARN] harness capability: harness "codex" missing',
+    );
   });
 });
