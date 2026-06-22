@@ -10,7 +10,7 @@ Product/storage identity is centralized in `src/lib/identity.ts` (`PRODUCT_NAME`
 
 `agent-swarm init` writes only `.agent-swarm/config.yml` with minimal defaults (`preset: product-triad`, `resolve: off`, `timeoutMs: 300000`), preserves existing config unless `--force` is passed, and only reports legacy `.swarm/config.yml` without mutating it.
 
-The README is the authoritative user-facing entry point — when alpha behavior is ambiguous, README contracts win. `SPEC.md` is the durable alpha contract, `INSTALL.md` is the step-by-step setup/troubleshooting guide, and `ARCHITECTURE.md` is the contributor runtime map.
+The README is the authoritative user-facing entry point — when alpha behavior is ambiguous, README contracts win. `SPEC.md` is the durable alpha contract, `INSTALL.md` is the step-by-step setup/troubleshooting guide, and `ARCHITECTURE.md` is the contributor runtime map. The no-build static docs site lives under `docs/site/` and is deployed by `.github/workflows/pages.yml`.
 
 ## Commands
 

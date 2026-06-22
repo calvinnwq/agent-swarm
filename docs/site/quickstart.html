@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Agent Swarm — Quickstart</title>
+    <meta
+      name="description"
+      content="Install Agent Swarm, verify your setup with doctor, and run your first deterministic multi-agent swarm."
+    />
+    <link rel="stylesheet" href="assets/styles.css" />
+    <script src="assets/site.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <a class="site-brand" href="index.html">
+          <span class="site-brand__mark" aria-hidden="true">◇</span>
+          Agent Swarm
+        </a>
+        <button
+          class="site-nav__toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="site-nav"
+          aria-label="Toggle navigation"
+        >
+          Menu
+        </button>
+        <nav class="site-nav" id="site-nav" aria-label="Primary">
+          <a href="index.html">Home</a>
+          <a href="quickstart.html" aria-current="page">Quickstart</a>
+          <a href="reference.html">Reference</a>
+          <a href="architecture.html">Architecture</a>
+          <a href="agent-usage.html">Agent Usage</a>
+          <a href="release-readiness.html">Release Readiness</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="site-main" id="main">
+      <section class="hero">
+        <p class="eyebrow">Quickstart</p>
+        <h1>From zero to a synthesized decision</h1>
+        <p class="lead">
+          Install the CLI, verify your harness setup, and run a one-round swarm
+          with the bundled <code>product-decision</code> preset. No config
+          required.
+        </p>
+      </section>
+
+      <h2>Prerequisites</h2>
+      <ul>
+        <li>Node ≥ 20 (Node 24 LTS recommended — <code>.nvmrc</code> pins it).</li>
+        <li>pnpm 10 for source installs and development.</li>
+        <li>
+          A harness CLI on <code>PATH</code>, authenticated. The bundled
+          <code>product-decision</code> preset uses Claude
+          (<code>claude auth login</code>); other presets use Codex
+          (<code>codex login</code>) or OpenCode
+          (<code>opencode auth login</code>).
+        </li>
+      </ul>
+
+      <h2>Install</h2>
+      <p>For agent-operated setup, install the public skill:</p>
+      <pre><code>npx skills add calvinnwq/agent-swarm --skill agent-swarm</code></pre>
+      <p>For direct CLI use, run it on demand with <code>npx</code>:</p>
+      <pre><code>npx -y @calvinnwq/agent-swarm --version</code></pre>
+      <p>Or install the optional global CLI for repeat use:</p>
+      <pre><code>npm install --global @calvinnwq/agent-swarm</code></pre>
+      <p>For source installs and development:</p>
+      <pre><code>pnpm install
+pnpm build
+pnpm link --global</code></pre>
+
+      <h2>Verify your setup</h2>
+      <p>
+        Run <code>agent-swarm doctor</code> before your first swarm. It checks
+        project config, configured docs, the agent and preset registries,
+        backend compatibility, and probes your harness CLIs for auth.
+      </p>
+      <pre><code>npx -y @calvinnwq/agent-swarm doctor</code></pre>
+      <p>
+        Doctor exits <code>0</code> when everything is ready, <code>1</code> when
+        a check fails, and <code>2</code> on an internal error.
+      </p>
+
+      <h2>Run your first swarm</h2>
+      <pre><code>npx -y @calvinnwq/agent-swarm run 1 "Should we adopt server components?" \
+  --preset product-decision \
+  --goal "Decide on migration strategy" \
+  --decision "Adopt / Defer / Reject" \
+  --timeout-ms 300000</code></pre>
+      <p>
+        When it finishes, you'll find a self-contained run directory under
+        <code>.agent-swarm/runs/&lt;timestamp&gt;-&lt;slug&gt;/</code> with a
+        deterministic <code>synthesis.md</code>.
+      </p>
+
+      <div class="note">
+        <p>
+          Real harnesses can take longer than the default 120s dispatch timeout
+          — bump <code>--timeout-ms</code> for deeper runs. Use
+          <code>--quiet</code> for one-line-per-event output in CI.
+        </p>
+      </div>
+
+      <p>
+        Next: browse the full
+        <a href="reference.html">command reference</a> or learn how
+        <a href="agent-usage.html">agents drive a swarm</a>.
+      </p>
+    </main>
+
+    <footer class="site-footer">
+      <div class="site-footer__inner">
+        <p>Agent Swarm — fan out agents, collect structured output, synthesize.</p>
+        <p>
+          <a href="https://github.com/calvinnwq/agent-swarm">GitHub</a> ·
+          <a href="https://github.com/calvinnwq/agent-swarm/blob/main/INSTALL.md"
+            >Install guide</a
+          >
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

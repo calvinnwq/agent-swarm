@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Agent Swarm — Multi-agent decision CLI</title>
+    <meta
+      name="description"
+      content="Agent Swarm fans out a panel of AI agents in parallel rounds, validates their structured output, and produces one deterministic synthesis."
+    />
+    <link rel="stylesheet" href="assets/styles.css" />
+    <script src="assets/site.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <a class="site-brand" href="index.html">
+          <span class="site-brand__mark" aria-hidden="true">◇</span>
+          Agent Swarm
+        </a>
+        <button
+          class="site-nav__toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="site-nav"
+          aria-label="Toggle navigation"
+        >
+          Menu
+        </button>
+        <nav class="site-nav" id="site-nav" aria-label="Primary">
+          <a href="index.html" aria-current="page">Home</a>
+          <a href="quickstart.html">Quickstart</a>
+          <a href="reference.html">Reference</a>
+          <a href="architecture.html">Architecture</a>
+          <a href="agent-usage.html">Agent Usage</a>
+          <a href="release-readiness.html">Release Readiness</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="site-main" id="main">
+      <section class="hero">
+        <p class="eyebrow">Alpha · open source</p>
+        <h1>Run a panel of AI agents. Get one deterministic answer.</h1>
+        <p>
+          Agent Swarm is a TypeScript CLI that fans out 2–5 agents over 1–3
+          rounds, validates their structured JSON output, and produces a single
+          deterministic synthesis you can review or check in.
+        </p>
+        <div class="button-row">
+          <a class="btn btn--primary" href="quickstart.html">Get started →</a>
+          <a class="btn btn--ghost" href="reference.html">Command reference</a>
+        </div>
+      </section>
+
+      <h2>Why a swarm</h2>
+      <p>
+        One model answering alone is a single point of view. Agent Swarm runs a
+        small panel — a product manager and a principal engineer, an adversarial
+        review pair, a customer panel — in parallel, then folds their answers
+        into a deterministic synthesis: consensus, the top recommendation by
+        confidence, shared risks, and the questions still open. No LLM call
+        decides the final report, so the same packets always produce the same
+        synthesis.
+      </p>
+
+      <div class="card-grid">
+        <a class="card" href="quickstart.html">
+          <h3>Quickstart</h3>
+          <p>Install, verify your setup, and run your first one-round swarm.</p>
+        </a>
+        <a class="card" href="reference.html">
+          <h3>Reference</h3>
+          <p>Every command, flag, preset, and run artifact in one place.</p>
+        </a>
+        <a class="card" href="architecture.html">
+          <h3>Architecture</h3>
+          <p>The runtime map: pipeline, harness layering, registries, schemas.</p>
+        </a>
+        <a class="card" href="agent-usage.html">
+          <h3>Agent Usage</h3>
+          <p>How autonomous agents configure and drive a swarm safely.</p>
+        </a>
+        <a class="card" href="release-readiness.html">
+          <h3>Release Readiness</h3>
+          <p>The gates and process behind every Agent Swarm release.</p>
+        </a>
+      </div>
+
+      <h2>How it works</h2>
+      <p>Every <code>agent-swarm run</code> follows the same lifecycle:</p>
+      <ol>
+        <li>
+          <strong>Plan.</strong> CLI flags, project config, and the chosen
+          preset are merged. Each selected agent resolves a runtime harness.
+        </li>
+        <li>
+          <strong>Round.</strong> Agents run in parallel (concurrency 3 by
+          default) and return JSON validated against the agent output schema.
+        </li>
+        <li>
+          <strong>Between rounds.</strong> Depending on <code>--resolve</code>,
+          the swarm builds the next directive deterministically or runs an LLM
+          orchestrator pass.
+        </li>
+        <li>
+          <strong>Synthesize.</strong> Once the last round finishes, a
+          deterministic synthesis is produced — no LLM call — with consensus,
+          top recommendation, shared risks, and deferred questions.
+        </li>
+      </ol>
+
+      <div class="note">
+        <p>
+          The
+          <a href="https://github.com/calvinnwq/agent-swarm#readme">README</a>
+          is the authoritative user-facing contract; this site mirrors it for
+          quick reference. For the durable spec see
+          <a href="https://github.com/calvinnwq/agent-swarm/blob/main/SPEC.md"
+            >SPEC.md</a
+          >.
+        </p>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="site-footer__inner">
+        <p>Agent Swarm — fan out agents, collect structured output, synthesize.</p>
+        <p>
+          <a href="https://github.com/calvinnwq/agent-swarm">GitHub</a> ·
+          <a href="https://github.com/calvinnwq/agent-swarm/blob/main/LICENSE"
+            >MIT License</a
+          >
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

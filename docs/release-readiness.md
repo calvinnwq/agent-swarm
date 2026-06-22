@@ -52,6 +52,8 @@ The `.no-mistakes.yaml` workflow runs `pnpm install --frozen-lockfile && pnpm te
 
 Real harness binaries are exercised by the **manual** `pnpm smoke:real` gate (not part of CI). It runs the built CLI against live `claude`/`codex`/`opencode` CLIs and emits a normalized JSON summary with offline artifact validation. See [CONTRIBUTING.md](../CONTRIBUTING.md#real-harness-smoke-gate-pnpm-smokereal) for usage and output shape.
 
+The static docs site is published by `.github/workflows/pages.yml`: pushes to `main` that touch `docs/site/**` or the workflow upload `docs/site/` directly to GitHub Pages with no build step. The site contract is covered by `test/unit/docs-site.test.ts` as part of `pnpm test`.
+
 ### Agent Skill Maintenance
 
 The repo skill at `.agents/skills/agent-swarm` is the source of truth and is used
@@ -288,7 +290,7 @@ The alpha runtime is feature-complete for dogfood. The next phase is productioni
 | --------- | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **M11**   | Alpha Closeout and Status Reconciliation | Refresh stale readiness/status docs and establish the productionization baseline (this work).                                                                                                                                                                                                                                |
 | **M12**   | Public Repo Shell and Release Operations | CI, issue/PR templates, community files, and release-operation docs to a public-repo standard.                                                                                                                                                                                                                               |
-| **M13**   | Docs Site, Spec, and Install Guide       | A public docs/spec/install layer so the README can stay concise and authoritative. In progress: [SPEC.md](../SPEC.md), [ARCHITECTURE.md](../ARCHITECTURE.md), and [INSTALL.md](../INSTALL.md).                                                                                                                               |
+| **M13**   | Docs Site, Spec, and Install Guide       | Complete: [SPEC.md](../SPEC.md), [ARCHITECTURE.md](../ARCHITECTURE.md), [INSTALL.md](../INSTALL.md), and the static site under [docs/site/](site/) provide a public docs/spec/install layer so the README can stay concise and authoritative.                                                                                 |
 | **M14**   | Agent DX and Dogfood Recipes             | Make Agent Swarm reliable for agents to operate and dogfood on real decisions. First operator contract: [agent-operation.md](agent-operation.md); first-time agent setup: [agent-usage.md](agent-usage.md); runnable recipes: [dogfood-recipes.md](dogfood-recipes.md).                                                      |
 | **M15**   | Runtime Boundary Refactor                | Complete: with the architecture contract guardrail in place (NGX-474), split the runtime into clearer, behavior-preserving boundaries; the shared run/resume core now lives in `between-rounds.ts`, `execute-run.ts`, `round-loop.ts`, `round-results.ts`, and `resolution-context.ts`. See [M15 closeout](m15-closeout.md). |
 

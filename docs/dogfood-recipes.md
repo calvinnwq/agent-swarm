@@ -91,7 +91,7 @@ Run the expert panel to help answer the question "Which Agent Swarm Linear issue
 
 Use these options:
 - Start NGX-471: dogfood recipes are the best immediate continuation.
-- Start NGX-469: docs site should be restored to milestone order.
+- Start docs-site follow-up: improve the static site after NGX-469.
 - Start post-M15 runtime hardening: pursue one remaining candidate from the closeout.
 - Defer project work: demo rehearsal or release housekeeping matters more.
 

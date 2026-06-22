@@ -2,7 +2,7 @@
 
 Thanks for hacking on Agent Swarm! This guide covers the dev loop, the release flow, the manual real-harness smoke gate, and a map of the source tree.
 
-For end-user docs (install, presets, agents, artifacts), see [README.md](README.md). The README is the authoritative user-facing spec — when alpha behavior is ambiguous, README contracts win. The durable runtime contract is captured in [SPEC.md](SPEC.md), step-by-step setup in [INSTALL.md](INSTALL.md), agent-operated run guidance in [docs/agent-operation.md](docs/agent-operation.md), and the full runtime map in [ARCHITECTURE.md](ARCHITECTURE.md) (the architecture section below is the condensed version).
+For end-user docs (install, presets, agents, artifacts), see [README.md](README.md). The README is the authoritative user-facing spec — when alpha behavior is ambiguous, README contracts win. The durable runtime contract is captured in [SPEC.md](SPEC.md), step-by-step setup in [INSTALL.md](INSTALL.md), agent-operated run guidance in [docs/agent-operation.md](docs/agent-operation.md), and the full runtime map in [ARCHITECTURE.md](ARCHITECTURE.md) (the architecture section below is the condensed version). The no-build static docs site lives under [docs/site/](docs/site/) and mirrors these docs for browsing on GitHub Pages.
 
 ## Prerequisites
 
@@ -45,6 +45,12 @@ When editing the agent-operated skill, change `.agents/skills/agent-swarm` first
 GitHub CI (`.github/workflows/ci.yml`) gates pull requests, pushes to `main`, and manual dispatches with deterministic checks only: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, `pnpm smoke`, and a packaged install smoke that runs the installed `agent-swarm --version` and `agent-swarm --help` from a packed tarball. CI does not require live harness credentials.
 
 `pnpm smoke` is the repeatable alpha verification: it builds, runs `agent-swarm doctor` against the built CLI, and exercises the `--preset product-decision` flow end to end with a stubbed backend. Use it before cutting a release or after touching bundled agents, presets, or CLI wiring. For Codex-specific coverage, run `pnpm build && vitest run --config vitest.e2e.config.ts test/e2e/codex-backend.test.ts` or the full `pnpm test:e2e`.
+
+## Static docs site
+
+The browsable docs site is plain HTML/CSS/JS under `docs/site/`. It has no build step: `.github/workflows/pages.yml` uploads `docs/site/` directly to GitHub Pages on pushes to `main` that touch the site or workflow, and it can also be run manually with `workflow_dispatch`.
+
+Keep the site in sync with the authoritative Markdown docs. The `test/unit/docs-site.test.ts` unit test enforces the canonical page set, shared assets, local links/anchors, README site link, Pages workflow, and bundled preset coverage on the reference page.
 
 ## Conventions
 
