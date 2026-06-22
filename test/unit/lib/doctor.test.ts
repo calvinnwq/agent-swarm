@@ -359,6 +359,46 @@ describe("runDoctor", () => {
     ).toBe("ok");
   });
 
+  it("summarizes config-preset agents in the agent summary", async () => {
+    const roots = await makeIsolatedRoots();
+    await installLoggedInClaudeStub(roots.binDir);
+    await writeFileUnder(
+      roots.bundledAgentsDir,
+      "product-manager.yml",
+      agentYaml("product-manager"),
+    );
+    await writeFileUnder(
+      roots.bundledAgentsDir,
+      "principal-engineer.yml",
+      agentYaml("principal-engineer"),
+    );
+    await writeFileUnder(
+      roots.bundledPresetsDir,
+      "product-decision.yml",
+      [
+        "name: product-decision",
+        "agents:",
+        "  - product-manager",
+        "  - principal-engineer",
+      ].join("\n"),
+    );
+    await writeFileUnder(
+      roots.cwd,
+      ".agent-swarm/config.yml",
+      "preset: product-decision\n",
+    );
+
+    const report = await runDoctor(roots);
+
+    const summary = report.checks.find((c) => c.name === "agent summary");
+    expect(summary?.section).toBe("Agent summary");
+    expect(summary?.status).toBe("ok");
+    expect(summary?.message).toContain('preset "product-decision"');
+    expect(summary?.detail).toContain("product-manager → claude");
+    expect(summary?.detail).toContain("principal-engineer → claude");
+    expect(report.ok).toBe(true);
+  });
+
   it("reports the full harness inventory with no config; optional misses are warn", async () => {
     const roots = await makeIsolatedRoots();
     await installLoggedInClaudeStub(roots.binDir);

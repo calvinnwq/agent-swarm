@@ -16,7 +16,6 @@ import {
   chmodSync,
   existsSync,
   mkdirSync,
-  mkdtempSync,
   readFileSync,
   readdirSync,
   realpathSync,
@@ -1467,15 +1466,15 @@ describe("smoke: README golden path", () => {
   });
 
   it("`agent-swarm doctor` prints the harness inventory with no project config", () => {
-    const home = mkdtempSync(join(tmpdir(), "swarm-doctor-noconfig-"));
-    const noConfigBinDir = join(home, "bin");
-    installClaudeStub(noConfigBinDir);
+    // cwd has no .agent-swarm/config.yml; HOME is isolated so the user registry
+    // is empty. The claude stub is already on PATH via beforeEach.
+    const home = join(baseDir, "noconfig-home");
+    mkdirSync(home, { recursive: true });
     const result = spawnSync("node", [cliPath, "doctor"], {
       cwd: home,
       env: {
         ...process.env,
         HOME: home,
-        PATH: `${noConfigBinDir}:${process.env.PATH ?? ""}`,
       },
       encoding: "utf-8",
     });
