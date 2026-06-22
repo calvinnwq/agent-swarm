@@ -321,9 +321,9 @@ describe("runDoctor backend checks", () => {
     const check = report.checks.find(
       (entry) => entry.name === "config backend",
     );
-    const capability = report.checks.find(
-      (entry) => entry.name === "harness capability",
-    );
+    const capability = report.checks
+      .filter((entry) => entry.name === "harness capability")
+      .find((entry) => entry.message.includes("codex"));
     expect(check?.status).toBe("ok");
     expect(check?.message).toContain('backend "codex" matches preset');
     expect(capability?.status).toBe("ok");
@@ -369,9 +369,9 @@ describe("runDoctor backend checks", () => {
     const check = report.checks.find(
       (entry) => entry.name === "config backend",
     );
-    const capability = report.checks.find(
-      (entry) => entry.name === "harness capability",
-    );
+    const capability = report.checks
+      .filter((entry) => entry.name === "harness capability")
+      .find((entry) => entry.message.includes("codex"));
     expect(check).toBeUndefined();
     expect(capability?.status).toBe("ok");
     expect(capability?.message).toContain('harness "codex"');
@@ -412,9 +412,9 @@ describe("runDoctor backend checks", () => {
 
     const report = await runDoctor(roots);
 
-    const capability = report.checks.find(
-      (entry) => entry.name === "harness capability",
-    );
+    const capability = report.checks
+      .filter((entry) => entry.name === "harness capability")
+      .find((entry) => entry.message.includes("codex"));
     expect(capability?.status).toBe("fail");
     expect(capability?.message).toContain(
       "missing required `codex exec` support",
@@ -456,9 +456,9 @@ describe("runDoctor backend checks", () => {
     const check = report.checks.find(
       (entry) => entry.name === "config backend",
     );
-    const capability = report.checks.find(
-      (entry) => entry.name === "harness capability",
-    );
+    const capability = report.checks
+      .filter((entry) => entry.name === "harness capability")
+      .find((entry) => entry.message.includes("codex"));
     expect(check?.status).toBe("fail");
     expect(check?.message).toContain("product-manager (claude)");
     expect(capability?.status).toBe("fail");
@@ -466,7 +466,7 @@ describe("runDoctor backend checks", () => {
     expect(report.ok).toBe(false);
   });
 
-  it("skips harness capability checks when there is no config", async () => {
+  it("reports the harness inventory without failing when there is no config", async () => {
     const roots = await makeIsolatedRoots();
     await writeFileUnder(
       roots.bundledAgentsDir,
@@ -491,14 +491,15 @@ describe("runDoctor backend checks", () => {
 
     const report = await runDoctor(roots);
 
-    const capability = report.checks.find(
+    const inventory = report.checks.filter(
       (entry) => entry.name === "harness capability",
     );
-    expect(capability).toBeUndefined();
+    expect(inventory).toHaveLength(4);
+    expect(inventory.every((entry) => entry.status !== "fail")).toBe(true);
     expect(report.ok).toBe(true);
   });
 
-  it("does not fail harness capability when no config backend is available", async () => {
+  it("keeps the harness inventory non-fatal when no config backend is available", async () => {
     const roots = await makeIsolatedRoots();
     await writeFileUnder(
       roots.bundledAgentsDir,
@@ -523,10 +524,11 @@ describe("runDoctor backend checks", () => {
 
     const report = await runDoctor(roots);
 
-    const capability = report.checks.find(
+    const inventory = report.checks.filter(
       (entry) => entry.name === "harness capability",
     );
-    expect(capability).toBeUndefined();
+    expect(inventory).toHaveLength(4);
+    expect(inventory.every((entry) => entry.status !== "fail")).toBe(true);
     expect(report.ok).toBe(true);
   });
 
@@ -633,9 +635,9 @@ describe("runDoctor backend checks", () => {
 
     const report = await runDoctor(roots);
 
-    const capability = report.checks.find(
-      (entry) => entry.name === "harness capability",
-    );
+    const capability = report.checks
+      .filter((entry) => entry.name === "harness capability")
+      .find((entry) => entry.message.includes("codex"));
     expect(capability?.status).toBe("fail");
     expect(capability?.message).toContain("install the Codex CLI");
     expect(capability?.message).toContain("PATH");

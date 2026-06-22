@@ -5,6 +5,7 @@ import {
 } from "./agent-registry.js";
 import { collectAgentBackendMismatches } from "./backend-selection.js";
 import { checkHarnessCapability } from "./harness-capability.js";
+import { listHarnessDescriptors } from "./harness-registry.js";
 import {
   backendToHarness,
   resolveAgentRuntimes,
@@ -37,12 +38,16 @@ export interface DoctorCheck {
   status: DoctorCheckStatus;
   message: string;
   detail?: string;
+  section?: string;
 }
 
 export interface DoctorReport {
   ok: boolean;
   checks: DoctorCheck[];
 }
+
+const SECTION_CONFIG = "Configuration";
+const SECTION_HARNESS = "Harness inventory";
 
 export interface RunDoctorOptions {
   cwd?: string;
@@ -116,25 +121,19 @@ export async function runDoctor(
     );
   }
 
-  if (loadedConfig) {
-    const harnesses = resolveDoctorHarnesses(
-      loadedConfig.config,
-      agentRegistry,
-      presetRegistry,
-    );
-    for (const { harness, agents } of harnesses) {
-      const check = await checkHarnessCapability(harness, {
-        env: options.env,
-      });
-      if (check.status === "fail" && agents.length > 0) {
-        const attribution = `required by: ${agents.join(", ")}`;
-        check.detail = check.detail
-          ? `${check.detail}\n${attribution}`
-          : attribution;
-      }
-      checks.push(check);
+  for (const check of checks) {
+    if (check.section === undefined) {
+      check.section = SECTION_CONFIG;
     }
   }
+
+  const harnessChecks = await buildHarnessInventory(
+    loadedConfig,
+    agentRegistry,
+    presetRegistry,
+    options.env,
+  );
+  checks.push(...harnessChecks);
 
   const ok = checks.every((c) => c.status !== "fail");
   return { ok, checks };
@@ -451,6 +450,68 @@ function resolveDoctorHarnesses(
   }));
 }
 
+async function buildHarnessInventory(
+  loadedConfig: LoadedProjectConfig | null,
+  agentRegistry: AgentRegistry | null,
+  presetRegistry: PresetRegistry | null,
+  env: NodeJS.ProcessEnv | undefined,
+): Promise<DoctorCheck[]> {
+  const requiredByHarness = new Map<HarnessId, string[]>();
+  if (loadedConfig) {
+    for (const { harness, agents } of resolveDoctorHarnesses(
+      loadedConfig.config,
+      agentRegistry,
+      presetRegistry,
+    )) {
+      if (agents.length > 0) {
+        requiredByHarness.set(harness, agents);
+      }
+    }
+  }
+
+  const checks: DoctorCheck[] = [];
+  for (const descriptor of listHarnessDescriptors()) {
+    const probe = await checkHarnessCapability(descriptor.id, { env });
+    const attributing = requiredByHarness.get(descriptor.id) ?? [];
+    checks.push(toInventoryCheck(probe, attributing));
+  }
+  return checks;
+}
+
+function toInventoryCheck(
+  probe: Awaited<ReturnType<typeof checkHarnessCapability>>,
+  attributingAgents: string[],
+): DoctorCheck {
+  if (probe.status === "ok") {
+    return {
+      name: probe.name,
+      status: "ok",
+      message: probe.message,
+      detail: probe.detail,
+      section: SECTION_HARNESS,
+    };
+  }
+
+  if (attributingAgents.length > 0) {
+    const attribution = `required by: ${attributingAgents.join(", ")}`;
+    return {
+      name: probe.name,
+      status: "fail",
+      message: probe.message,
+      detail: probe.detail ? `${probe.detail}\n${attribution}` : attribution,
+      section: SECTION_HARNESS,
+    };
+  }
+
+  return {
+    name: probe.name,
+    status: "warn",
+    message: `${probe.message} (not required by current config)`,
+    detail: probe.detail,
+    section: SECTION_HARNESS,
+  };
+}
+
 function resolveConfiguredAgents(
   config: LoadedProjectConfig["config"],
   agentRegistry: AgentRegistry | null,
@@ -510,13 +571,29 @@ function errorMessage(error: unknown): string {
 
 export function formatDoctorReport(report: DoctorReport): string {
   const lines: string[] = [];
+  const sectionOrder: string[] = [];
   for (const check of report.checks) {
-    const marker =
-      check.status === "ok" ? "OK" : check.status === "warn" ? "WARN" : "FAIL";
-    lines.push(`[${marker}] ${check.name}: ${check.message}`);
-    if (check.detail) {
-      for (const detailLine of check.detail.split("\n")) {
-        lines.push(`        ${detailLine}`);
+    const section = check.section ?? "Other";
+    if (!sectionOrder.includes(section)) {
+      sectionOrder.push(section);
+    }
+  }
+  for (const section of sectionOrder) {
+    lines.push(section);
+    for (const check of report.checks.filter(
+      (c) => (c.section ?? "Other") === section,
+    )) {
+      const marker =
+        check.status === "ok"
+          ? "OK"
+          : check.status === "warn"
+            ? "WARN"
+            : "FAIL";
+      lines.push(`  [${marker}] ${check.name}: ${check.message}`);
+      if (check.detail) {
+        for (const detailLine of check.detail.split("\n")) {
+          lines.push(`        ${detailLine}`);
+        }
       }
     }
   }
