@@ -138,9 +138,7 @@ export async function runDoctor(
   );
   checks.push(...harnessChecks);
 
-  checks.push(
-    buildAgentSummary(loadedConfig, agentRegistry, presetRegistry),
-  );
+  checks.push(buildAgentSummary(loadedConfig, agentRegistry, presetRegistry));
 
   const ok = checks.every((c) => c.status !== "fail");
   return { ok, checks };
@@ -608,9 +606,7 @@ function resolveSummaryAgents(
   loadedConfig: LoadedProjectConfig | null,
   agentRegistry: AgentRegistry,
   presetRegistry: PresetRegistry | null,
-):
-  | { agents: AgentDefinition[]; sourceLabel: string }
-  | { error: string } {
+): { agents: AgentDefinition[]; sourceLabel: string } | { error: string } {
   if (loadedConfig?.config.agents) {
     const agents = resolveAgents(loadedConfig.config.agents, agentRegistry);
     if (!agents) {

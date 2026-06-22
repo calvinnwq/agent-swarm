@@ -1472,7 +1472,11 @@ describe("smoke: README golden path", () => {
     installClaudeStub(noConfigBinDir);
     const result = spawnSync("node", [cliPath, "doctor"], {
       cwd: home,
-      env: { ...process.env, HOME: home, PATH: `${noConfigBinDir}:${process.env.PATH ?? ""}` },
+      env: {
+        ...process.env,
+        HOME: home,
+        PATH: `${noConfigBinDir}:${process.env.PATH ?? ""}`,
+      },
       encoding: "utf-8",
     });
     expect(result.stdout).toContain("Harness inventory");

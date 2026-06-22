@@ -119,9 +119,13 @@ describe("runDoctor", () => {
     const config = report.checks.find((c) => c.name === "project config");
     expect(config?.status).toBe("ok");
     expect(config?.message).toContain("no .agent-swarm/config.yml");
-    const inventory = report.checks.filter((c) => c.name === "harness capability");
+    const inventory = report.checks.filter(
+      (c) => c.name === "harness capability",
+    );
     expect(inventory).toHaveLength(4);
-    expect(inventory.find((c) => c.message.includes('harness "claude"'))?.status).toBe("ok");
+    expect(
+      inventory.find((c) => c.message.includes('harness "claude"'))?.status,
+    ).toBe("ok");
   });
 
   it("reports FAIL when both registries are empty", async () => {
@@ -358,17 +362,39 @@ describe("runDoctor", () => {
   it("reports the full harness inventory with no config; optional misses are warn", async () => {
     const roots = await makeIsolatedRoots();
     await installLoggedInClaudeStub(roots.binDir);
-    await writeFileUnder(roots.bundledAgentsDir, "product-manager.yml", agentYaml("product-manager"));
-    await writeFileUnder(roots.bundledAgentsDir, "principal-engineer.yml", agentYaml("principal-engineer"));
-    await writeFileUnder(roots.bundledPresetsDir, "product-decision.yml",
-      ["name: product-decision", "agents:", "  - product-manager", "  - principal-engineer"].join("\n"));
+    await writeFileUnder(
+      roots.bundledAgentsDir,
+      "product-manager.yml",
+      agentYaml("product-manager"),
+    );
+    await writeFileUnder(
+      roots.bundledAgentsDir,
+      "principal-engineer.yml",
+      agentYaml("principal-engineer"),
+    );
+    await writeFileUnder(
+      roots.bundledPresetsDir,
+      "product-decision.yml",
+      [
+        "name: product-decision",
+        "agents:",
+        "  - product-manager",
+        "  - principal-engineer",
+      ].join("\n"),
+    );
 
     const report = await runDoctor(roots);
 
-    const inventory = report.checks.filter((c) => c.name === "harness capability");
+    const inventory = report.checks.filter(
+      (c) => c.name === "harness capability",
+    );
     expect(inventory).toHaveLength(4);
-    expect(inventory.every((c) => c.section === "Harness inventory")).toBe(true);
-    const claude = inventory.find((c) => c.message.includes('harness "claude"'));
+    expect(inventory.every((c) => c.section === "Harness inventory")).toBe(
+      true,
+    );
+    const claude = inventory.find((c) =>
+      c.message.includes('harness "claude"'),
+    );
     expect(claude?.status).toBe("ok");
     const codex = inventory.find((c) => c.message.includes('harness "codex"'));
     expect(codex?.status).toBe("warn");
@@ -379,15 +405,27 @@ describe("runDoctor", () => {
   it("fails the inventory only for harnesses the config requires, with attribution", async () => {
     const roots = await makeIsolatedRoots();
     await installLoggedInClaudeStub(roots.binDir);
-    await writeFileUnder(roots.bundledAgentsDir, "product-manager.yml", agentYaml("product-manager"));
-    await writeFileUnder(roots.bundledAgentsDir, "eng-opencode.yml",
-      [agentYaml("eng-opencode"), "harness: opencode"].join("\n"));
-    await writeFileUnder(roots.cwd, ".agent-swarm/config.yml",
-      ["agents:", "  - product-manager", "  - eng-opencode"].join("\n"));
+    await writeFileUnder(
+      roots.bundledAgentsDir,
+      "product-manager.yml",
+      agentYaml("product-manager"),
+    );
+    await writeFileUnder(
+      roots.bundledAgentsDir,
+      "eng-opencode.yml",
+      [agentYaml("eng-opencode"), "harness: opencode"].join("\n"),
+    );
+    await writeFileUnder(
+      roots.cwd,
+      ".agent-swarm/config.yml",
+      ["agents:", "  - product-manager", "  - eng-opencode"].join("\n"),
+    );
 
     const report = await runDoctor(roots);
 
-    const inventory = report.checks.filter((c) => c.name === "harness capability");
+    const inventory = report.checks.filter(
+      (c) => c.name === "harness capability",
+    );
     const opencode = inventory.find((c) => c.message.includes("opencode"));
     expect(opencode?.status).toBe("fail");
     expect(opencode?.detail).toContain("required by: eng-opencode");
@@ -399,10 +437,26 @@ describe("runDoctor", () => {
   it("summarizes default-preset agents and harnesses when there is no config", async () => {
     const roots = await makeIsolatedRoots();
     await installLoggedInClaudeStub(roots.binDir);
-    await writeFileUnder(roots.bundledAgentsDir, "product-manager.yml", agentYaml("product-manager"));
-    await writeFileUnder(roots.bundledAgentsDir, "product-engineer.yml", agentYaml("product-engineer"));
-    await writeFileUnder(roots.bundledPresetsDir, "product-triad.yml",
-      ["name: product-triad", "agents:", "  - product-manager", "  - product-engineer"].join("\n"));
+    await writeFileUnder(
+      roots.bundledAgentsDir,
+      "product-manager.yml",
+      agentYaml("product-manager"),
+    );
+    await writeFileUnder(
+      roots.bundledAgentsDir,
+      "product-engineer.yml",
+      agentYaml("product-engineer"),
+    );
+    await writeFileUnder(
+      roots.bundledPresetsDir,
+      "product-triad.yml",
+      [
+        "name: product-triad",
+        "agents:",
+        "  - product-manager",
+        "  - product-engineer",
+      ].join("\n"),
+    );
 
     const report = await runDoctor(roots);
 
@@ -418,10 +472,26 @@ describe("runDoctor", () => {
   it("warns in the agent summary when no config and the default preset is absent", async () => {
     const roots = await makeIsolatedRoots();
     await installLoggedInClaudeStub(roots.binDir);
-    await writeFileUnder(roots.bundledAgentsDir, "product-manager.yml", agentYaml("product-manager"));
-    await writeFileUnder(roots.bundledAgentsDir, "principal-engineer.yml", agentYaml("principal-engineer"));
-    await writeFileUnder(roots.bundledPresetsDir, "product-decision.yml",
-      ["name: product-decision", "agents:", "  - product-manager", "  - principal-engineer"].join("\n"));
+    await writeFileUnder(
+      roots.bundledAgentsDir,
+      "product-manager.yml",
+      agentYaml("product-manager"),
+    );
+    await writeFileUnder(
+      roots.bundledAgentsDir,
+      "principal-engineer.yml",
+      agentYaml("principal-engineer"),
+    );
+    await writeFileUnder(
+      roots.bundledPresetsDir,
+      "product-decision.yml",
+      [
+        "name: product-decision",
+        "agents:",
+        "  - product-manager",
+        "  - principal-engineer",
+      ].join("\n"),
+    );
 
     const report = await runDoctor(roots);
 
@@ -506,14 +576,28 @@ describe("formatDoctorReport", () => {
     const text = formatDoctorReport({
       ok: true,
       checks: [
-        { name: "project config", status: "ok", message: "loaded", section: "Configuration" },
-        { name: "harness capability", status: "warn", message: 'harness "codex" missing', section: "Harness inventory" },
+        {
+          name: "project config",
+          status: "ok",
+          message: "loaded",
+          section: "Configuration",
+        },
+        {
+          name: "harness capability",
+          status: "warn",
+          message: 'harness "codex" missing',
+          section: "Harness inventory",
+        },
       ],
     });
     expect(text).toContain("Configuration");
     expect(text).toContain("Harness inventory");
-    expect(text.indexOf("Configuration")).toBeLessThan(text.indexOf("Harness inventory"));
+    expect(text.indexOf("Configuration")).toBeLessThan(
+      text.indexOf("Harness inventory"),
+    );
     expect(text).toContain("[OK] project config: loaded");
-    expect(text).toContain('[WARN] harness capability: harness "codex" missing');
+    expect(text).toContain(
+      '[WARN] harness capability: harness "codex" missing',
+    );
   });
 });
