@@ -125,13 +125,30 @@ describe("static docs site", () => {
       expect(html, page).toContain('name="viewport"');
       expect(html, page).toContain('href="assets/styles.css"');
       expect(html, page).toContain('src="assets/site.js"');
-      expect(html, page).toContain("site-header");
-      expect(html, page).toContain("site-nav");
-      expect(html, page).toContain("site-footer");
-      // The navigation links to every canonical page on every page.
-      for (const target of CANONICAL_PAGES) {
-        expect(html, `${page} nav -> ${target}`).toContain(`href="${target}"`);
-      }
+      // Shared chrome: the masthead, the manifest-driven sidebar/toc/pager
+      // containers (populated at runtime by site.js), and the colophon footer.
+      expect(html, page).toContain('class="masthead"');
+      expect(html, page).toContain('id="sidebar"');
+      expect(html, page).toContain('id="toc"');
+      expect(html, page).toContain('id="pager"');
+      expect(html, page).toContain('class="colophon"');
+      // Every page declares its identity (drives current-nav + pager) and the
+      // masthead brand links home.
+      expect(html, page).toContain(`data-page="${page}"`);
+      expect(html, page).toContain('href="index.html"');
+    }
+  });
+
+  it("drives navigation from one manifest that covers every canonical page", async () => {
+    const siteJs = await readFile(
+      path.join(siteDir, "assets", "site.js"),
+      "utf-8",
+    );
+    // The sidebar/pager/search are injected from the NAV manifest in site.js,
+    // so the manifest — not each page's static HTML — must reference every
+    // canonical page.
+    for (const target of CANONICAL_PAGES) {
+      expect(siteJs, `nav manifest -> ${target}`).toContain(`"${target}"`);
     }
   });
 
