@@ -239,7 +239,7 @@ The M15 milestone (Runtime Boundary Refactor) built on the architecture
 contracts locked in by `test/unit/architecture-contract.test.ts` (NGX-474),
 which guards the boundaries documented here and in [SPEC.md](SPEC.md) so
 behavior-preserving boundary cleanups can move code between layers deliberately.
-The closeout record lives in [docs/m15-closeout.md](docs/m15-closeout.md).
+The closeout record is archived in the Swarm Obsidian workspace.
 Landed boundaries and remaining candidates include:
 
 - The `runSwarm` / `resumeSwarm` split now shares its whole pipeline core rather
@@ -257,4 +257,6 @@ Landed boundaries and remaining candidates include:
   without touching the round runner or duplicating the pass.
 
 Remaining candidates must preserve the alpha contract and are tracked under the
-productionization roadmap (see [docs/release-readiness.md](docs/release-readiness.md)).
+productionization roadmap. Current release mechanics are summarized on the
+public docs site at
+<https://calvinnwq.github.io/agent-swarm/release-readiness.html>.

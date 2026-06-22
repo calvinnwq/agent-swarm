@@ -11,7 +11,7 @@ Use this skill when the user asks to create a custom swarm, configure `.agent-sw
 
 Create, configure, run, and inspect Agent Swarm panels without adding a scheduler, UI, saved-run database, hosted control plane, or runtime command surface beyond `run`, `doctor`, and the minimal `init` helper.
 
-For the durable operator contract, report shape, artifact expectations, and examples, see <https://github.com/calvinnwq/agent-swarm/blob/main/docs/agent-operation.md>. For first-time agent-operated setup, start with <https://github.com/calvinnwq/agent-swarm/blob/main/INSTALL.md>; the detailed skill workflow lives in <https://github.com/calvinnwq/agent-swarm/blob/main/docs/agent-usage.md>. For repeatable operator/OpenClaw dogfood runs, see <https://github.com/calvinnwq/agent-swarm/blob/main/docs/dogfood-recipes.md>.
+For first-time agent-operated setup, start with <https://github.com/calvinnwq/agent-swarm/blob/main/INSTALL.md>. The public docs site summarizes the CLI and agent-operated workflow at <https://calvinnwq.github.io/agent-swarm/> and <https://calvinnwq.github.io/agent-swarm/agent-usage.html>. This skill is the durable operator contract for report shape, artifact expectations, and run workflow.
 
 ## Contract
 
@@ -68,7 +68,7 @@ node "$AGENT_SWARM_SKILL_DIR/scripts/agent-swarm-helper.mjs" build-run-command \
   --question "<question>" \
   --preset product-triad \
   --decision "Proceed / Defer / Reject" \
-  --doc docs/agent-operation.md
+  --doc README.md
 ```
 
 For global/source installs on `PATH`, add `--global-cli`. For this repo before installation/linking, add `--built-cli`.
@@ -136,7 +136,7 @@ preset: project-risk-review
 resolve: off
 timeoutMs: 600000
 docs:
-  - docs/agent-operation.md
+  - README.md
 ```
 
 ## Natural Prompt Workflow

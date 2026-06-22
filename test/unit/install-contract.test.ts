@@ -129,7 +129,7 @@ describe("INSTALL agent-operated setup contract", () => {
 
   it("uses the GitHub owner/repo skills source consistently across docs", async () => {
     const docs = await Promise.all(
-      ["README.md", "docs/agent-usage.md", "docs/release-readiness.md"].map(
+      ["README.md", "INSTALL.md", "docs/quickstart.html"].map(
         async (file) => [file, await readRepoFile(file)] as const,
       ),
     );

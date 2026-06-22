@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - docs/site/**
+      - docs/**
       - .github/workflows/pages.yml
   workflow_dispatch:
 
@@ -22,7 +22,7 @@ concurrency:
 
 jobs:
   deploy:
-    name: Publish docs/site to GitHub Pages
+    name: Publish docs to GitHub Pages
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -35,11 +35,11 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v6
 
-      # The site renders without a build step, so upload docs/site/ as-is.
+      # The site renders without a build step, so upload docs/ as-is.
       - name: Upload docs site artifact
         uses: actions/upload-pages-artifact@v5
         with:
-          path: docs/site
+          path: docs
 
       - name: Deploy to GitHub Pages
         id: deployment

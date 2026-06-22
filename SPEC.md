@@ -386,9 +386,9 @@ Tracked under the productionization roadmap (M11–M15); not promised:
   internally (`resumeSwarm`) but is **not** exposed as a subcommand.
 - Agent-driven `--resolve agents` resolution.
 - Richer agent developer experience and dogfood recipes (M14). The first
-  operator contract for natural-prompt agent runs is documented in
-  [docs/agent-operation.md](docs/agent-operation.md); deeper recipes remain
-  future work.
+  operator contract for natural-prompt agent runs lives in the installable
+  `skills/agent-swarm` package skill and is summarized on the public docs site;
+  deeper recipes remain future work.
 - UI / control-plane ideas beyond the current live/quiet renderers.
 - Additional behavior-preserving runtime-boundary hardening after the M15 shared
   runtime-core extraction.

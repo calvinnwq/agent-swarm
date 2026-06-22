@@ -2,7 +2,7 @@
 
 Thanks for hacking on Agent Swarm! This guide covers the dev loop, the release flow, the manual real-harness smoke gate, and a map of the source tree.
 
-For end-user docs (install, presets, agents, artifacts), see [README.md](README.md). The README is the authoritative user-facing spec — when alpha behavior is ambiguous, README contracts win. The durable runtime contract is captured in [SPEC.md](SPEC.md), step-by-step setup in [INSTALL.md](INSTALL.md), agent-operated run guidance in [docs/agent-operation.md](docs/agent-operation.md), and the full runtime map in [ARCHITECTURE.md](ARCHITECTURE.md) (the architecture section below is the condensed version). The no-build static docs site lives under [docs/site/](docs/site/) and mirrors these docs for browsing on GitHub Pages.
+For end-user docs (install, presets, agents, artifacts), see [README.md](README.md). The README is the authoritative user-facing spec — when alpha behavior is ambiguous, README contracts win. The durable runtime contract is captured in [SPEC.md](SPEC.md), step-by-step setup in [INSTALL.md](INSTALL.md), agent-operated run guidance in the public docs site, and the full runtime map in [ARCHITECTURE.md](ARCHITECTURE.md) (the architecture section below is the condensed version). The no-build static docs site lives under [docs/](docs/) and mirrors these docs for browsing on GitHub Pages.
 
 ## Prerequisites
 
@@ -25,7 +25,7 @@ Don't edit anything under `dist/` by hand. The `build` script bundles `src/` and
 ```bash
 pnpm build           # tsdown bundle + copy bundled agents/presets
 pnpm dev             # tsdown --watch
-pnpm docs:serve      # preview docs/site/ locally at http://localhost:3000
+pnpm docs:serve      # preview docs/ locally at http://localhost:3000
 pnpm test            # vitest unit tests (test/unit/**)
 pnpm test:e2e        # builds, then vitest with vitest.e2e.config.ts (test/e2e/**)
 pnpm smoke           # builds, runs only test/e2e/smoke.test.ts (golden-path verification)
@@ -49,11 +49,11 @@ GitHub CI (`.github/workflows/ci.yml`) gates pull requests, pushes to `main`, an
 
 ## Static docs site
 
-The browsable docs site is plain HTML/CSS/JS under `docs/site/`. It has no build step: `.github/workflows/pages.yml` uploads `docs/site/` directly to GitHub Pages on pushes to `main` that touch the site or workflow, and it can also be run manually with `workflow_dispatch`.
+The browsable docs site is plain HTML/CSS/JS under `docs/`. It has no build step: `.github/workflows/pages.yml` uploads `docs/` directly to GitHub Pages on pushes to `main` that touch the site or workflow, and it can also be run manually with `workflow_dispatch`.
 
-To preview the published site locally, run `pnpm docs:serve` and open the printed `http://localhost:3000` URL. It serves `docs/site/` with a zero-dependency static server that mirrors GitHub Pages (directory requests resolve to `index.html`). Override the port with `pnpm docs:serve -- --port 4000` or `PORT=4000 pnpm docs:serve`.
+To preview the published site locally, run `pnpm docs:serve` and open the printed `http://localhost:3000` URL. It serves `docs/` with a zero-dependency static server that mirrors GitHub Pages (directory requests resolve to `index.html`). Override the port with `pnpm docs:serve -- --port 4000` or `PORT=4000 pnpm docs:serve`.
 
-Keep the site in sync with the authoritative Markdown docs. The `test/unit/docs-site.test.ts` unit test enforces the canonical page set, shared assets, local links/anchors, README site link, Pages workflow, and bundled preset coverage on the reference page.
+Keep the site focused on current shipped behavior. Planning packs, milestone narratives, and historical closeouts belong in Linear or the Swarm Obsidian workspace, not repo docs. The `test/unit/docs-site.test.ts` unit test enforces the canonical page set, shared assets, local links/anchors, README site link, Pages workflow, and bundled preset coverage on the reference page.
 
 ## Conventions
 
@@ -79,9 +79,9 @@ npm publishing is not part of the current release workflow.
 The published npm package is scoped as `@calvinnwq/agent-swarm`; the executable
 bin remains `agent-swarm`.
 
-For the full operator runbook, including Release Please PR checks, manual npm
-publish steps, registry verification, and the known `npx`/`npm exec` bin-link
-caveat, see [docs/release-operations.md](docs/release-operations.md).
+Use this release section plus the package metadata in `package.json` for the
+current release contract. Manual npm publishing, package access changes, tags,
+and GitHub release edits require explicit approval.
 
 ## Community, support, and security
 

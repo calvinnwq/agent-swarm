@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Agent Swarm — Release readiness</title>
-    <meta name="description" content="The verification gates and Release Please process behind every Agent Swarm release." />
+    <title>Agent Swarm — Agent usage</title>
+    <meta name="description" content="How autonomous agents configure and operate an Agent Swarm: presets, project config, the bundled skill, and the operation contract." />
     <script>
       (function () {
         var t = null;
@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="assets/styles.css" />
     <script src="assets/site.js" defer></script>
   </head>
-  <body data-page="release-readiness.html">
+  <body data-page="agent-usage.html">
     <a class="skip" href="#content">Skip to content</a>
     <header class="masthead">
       <div class="masthead-inner">
@@ -42,84 +42,79 @@
       <nav id="sidebar" class="sidebar" aria-label="Documentation"></nav>
       <main id="content" class="article-col">
         <article>
-<p class="kicker"><span class="n">16 —</span>Operations</p>
-<h1>What ships, and how</h1>
+<p class="kicker"><span class="n">15 —</span>Reference</p>
+<h1>Driving a swarm as an agent</h1>
 <p class="lede">
-  Every release clears the same deterministic verification gates, then
-  Release Please cuts the tag and GitHub Release from Conventional
-  Commits.
+  Agent Swarm is built to be operated by other agents. This is the
+  short version of the operation contract — what to configure, how to
+  run, and how to report.
 </p>
 
 <section>
-  <h2>Verification gates</h2>
+  <h2>Pick a preset</h2>
   <p>
-    These run in CI on every pull request and must be green together before
-    anything merges to <code>main</code>:
+    Start from a bundled preset rather than hand-listing agents. Agent Swarm
+    ships with seven bundled presets; common choices:
   </p>
-  <div class="table-wrap">
-    <table class="opts">
-      <thead>
-        <tr>
-          <th>Gate</th>
-          <th>Command</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Formatting</td>
-          <td><code>pnpm format:check</code></td>
-        </tr>
-        <tr>
-          <td>Lint</td>
-          <td><code>pnpm lint</code></td>
-        </tr>
-        <tr>
-          <td>Typecheck</td>
-          <td><code>pnpm typecheck</code></td>
-        </tr>
-        <tr>
-          <td>Unit tests</td>
-          <td><code>pnpm test</code></td>
-        </tr>
-        <tr>
-          <td>Build</td>
-          <td><code>pnpm build</code></td>
-        </tr>
-        <tr>
-          <td>Smoke</td>
-          <td><code>pnpm smoke</code></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  <ul>
+    <li>
+      <code>product-decision</code> — the supported alpha flow for a single
+      decision.
+    </li>
+    <li>
+      <code>product-triad</code> — product, engineering, and design
+      perspectives on one question.
+    </li>
+    <li>
+      <code>adversarial-code-review</code> — a trio that argues for and
+      against a change.
+    </li>
+    <li><code>customer-panel</code> — simulated customer perspectives.</li>
+  </ul>
+  <p>
+    See the <a href="reference.html">command reference</a> for the full
+    preset table, including the Codex and OpenCode harness-specific
+    variants.
+  </p>
 </section>
 
 <section>
-  <h2>Release process</h2>
+  <h2>Configure a swarm</h2>
   <p>
-    Releases are managed by Release Please from Conventional Commits on
-    <code>main</code>. Release-driving commit types such as
-    <code>feat:</code>, <code>fix:</code>, and <code>deps:</code> appear in
-    the next release; <code>docs:</code>, <code>test:</code>,
-    <code>refactor:</code>, and <code>chore:</code> do not.
+    Project defaults live in <code>.agent-swarm/config.yml</code>. The
+    minimal config <code>agent-swarm init</code> writes is enough to start:
   </p>
+  <pre><code># .agent-swarm/config.yml
+preset: product-triad
+resolve: off
+timeoutMs: 300000</code></pre>
   <p>
-    Merging the Release Please PR updates <code>package.json</code>, writes
-    <code>CHANGELOG.md</code>, creates a git tag, and creates the GitHub
-    Release. Tags use plain <code>vX.Y.Z</code> format. npm publishing is not
-    part of the current release workflow.
+    Custom agents and presets are discovered from
+    <code>.agent-swarm/agents/**/*.yml</code> and
+    <code>.agent-swarm/presets/**/*.yml</code>. Folder names are for
+    organization only — they are not namespaces.
   </p>
+</section>
+
+<section>
+  <h2>Run and report</h2>
+  <p>
+    Pass <code>--goal</code> and <code>--decision</code> for decision work,
+    and <code>--doc</code> to carry forward source material. Report in the
+    shape requested by the prompt, preset, or agent instructions — there is
+    no saved-run database and no speculative control plane to manage.
+  </p>
+  <pre><code>agent-swarm run 2 "Prioritize the Q3 roadmap" \
+  --preset product-triad \
+  --goal "Choose the top three bets" \
+  --resolve orchestrator \
+  --timeout-ms 300000</code></pre>
+
   <div class="callout" data-kind="note"><span class="callout-label">Note</span>
         <p>
-          The full readiness checklist lives in
-          <a
-            href="https://github.com/calvinnwq/agent-swarm/blob/main/docs/release-readiness.md"
-            >docs/release-readiness.md</a
-          >, and the operator runbook in
-          <a
-            href="https://github.com/calvinnwq/agent-swarm/blob/main/docs/release-operations.md"
-            >docs/release-operations.md</a
-          >. Do not publish, retag, or edit releases without explicit approval.
+          The packaged <code>skills/agent-swarm</code> skill is the durable
+          operator contract. This page covers the public shape: inputs, preset
+          selection, artifacts, and reporting format.
         </p>
       </div>
 </section>
