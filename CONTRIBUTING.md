@@ -25,6 +25,7 @@ Don't edit anything under `dist/` by hand. The `build` script bundles `src/` and
 ```bash
 pnpm build           # tsdown bundle + copy bundled agents/presets
 pnpm dev             # tsdown --watch
+pnpm docs:serve      # preview docs/site/ locally at http://localhost:3000
 pnpm test            # vitest unit tests (test/unit/**)
 pnpm test:e2e        # builds, then vitest with vitest.e2e.config.ts (test/e2e/**)
 pnpm smoke           # builds, runs only test/e2e/smoke.test.ts (golden-path verification)
