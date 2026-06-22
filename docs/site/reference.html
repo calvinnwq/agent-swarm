@@ -55,6 +55,7 @@
 Commands:
   run [options] &lt;rounds&gt; &lt;topic...&gt;  Run a swarm
   doctor                             Diagnose swarm setup
+  init [options]                     Create .agent-swarm/config.yml defaults
   help [command]                     Display help for a command</code></pre>
 
       <h2><code>agent-swarm run</code></h2>
@@ -125,6 +126,18 @@ Options:
         configured <code>--backend</code> is supported. Exit codes:
         <code>0</code> ready, <code>1</code> a check failed, <code>2</code>
         internal error.
+      </p>
+
+      <h2><code>agent-swarm init</code></h2>
+      <pre><code>Usage: agent-swarm init [options]
+
+Options:
+  --force  overwrite an existing .agent-swarm/config.yml</code></pre>
+      <p>
+        <code>agent-swarm init</code> writes minimal safe defaults to
+        <code>.agent-swarm/config.yml</code>, leaves existing config unchanged
+        unless <code>--force</code> is passed, and never mutates legacy
+        <code>.swarm/config.yml</code>.
       </p>
 
       <h2>Bundled presets</h2>
