@@ -10,7 +10,7 @@
 
 <br />
 
-<img src="media/agent-swarm-readme-loop.gif" alt="Agent Swarm turns one AI agent request into a panel of specialist agents and synthesizes one answer back." width="900" />
+<img src="media/agent-swarm-social-h3-split-hero.png" alt="Agent Swarm turns one AI agent request into a panel of specialist agents and synthesizes one answer back." width="900" />
 
 </div>
 
