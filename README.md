@@ -8,6 +8,10 @@
 
 [**Docs**](https://calvinnwq.github.io/agent-swarm/) · [Quickstart](#quickstart) · [Spec](SPEC.md) · [Agent setup](INSTALL.md)
 
+<br />
+
+<img src="media/agent-swarm-readme-loop.gif" alt="Agent Swarm turns one AI agent request into a panel of specialist agents and synthesizes one answer back." width="900" />
+
 </div>
 
 Ask one model a question and you get one answer, shaped by a single point of
