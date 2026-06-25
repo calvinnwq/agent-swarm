@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/calvinnwq/agent-swarm/compare/v0.5.0...v0.5.1) (2026-06-25)
+
+
+### Bug Fixes
+
+* **package:** include README media in npm package ([#72](https://github.com/calvinnwq/agent-swarm/issues/72)) ([3af9ea2](https://github.com/calvinnwq/agent-swarm/commit/3af9ea2788a94d979a497cc3c25a4dcc5f6b4a6e))
+
 ## [0.5.0](https://github.com/calvinnwq/agent-swarm/compare/v0.4.0...v0.5.0) (2026-06-22)
 
 
